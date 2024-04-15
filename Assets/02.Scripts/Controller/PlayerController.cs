@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEditor.PackageManager;
 using UnityEngine;
 using static Define;
@@ -13,15 +14,18 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _moveSpeed;
     [SerializeField] private float _rotateSpeed;
     [SerializeField] private float _jumpValue;
-    [SerializeField] private float _reboundValue;
+    [SerializeField] private float _boundValue;
+     private float _boundTime = 0.1f;
     [SerializeField] private float _gravity;
 
+    private bool _isDirty;
     private float _vx;
     private float _vy;
     private float _moveX;
     private float _moveZ;
     private Vector3 _velocity;
 
+    public ModelController Model { get; set; }
     private CharacterController _cc;
     private GameObject _weapons;
     private Transform _firePoint;
@@ -33,6 +37,7 @@ public class PlayerController : MonoBehaviour
     public PlayerState State => _state;
     private void Awake() {
         _cc = GetComponent<CharacterController>();
+        Model = GetComponentInChildren<ModelController>();
     }
 
     private void Start() {
@@ -52,13 +57,15 @@ public class PlayerController : MonoBehaviour
             if (_currentWeapon != weapon)
                 weapon.myObject.SetActive(false);
         }
+        _boundValue = _currentWeapon.BoundValue;
+
     }
 
     #region Behaviour
     public void Shot() {
         if (_currentWeapon.TryShot(this)) {
             ChangeState(PlayerState.Shot);
-            StartCoroutine(CORebound());
+            StartCoroutine(COBound());
         }
     }
 
@@ -100,8 +107,9 @@ public class PlayerController : MonoBehaviour
             if (_currentWeapon != item)
                 item.myObject.SetActive(false);
         }
-        _currentWeapon.Activation(_firePoint, this);
         _collideItem = null;
+        _boundValue = _currentWeapon.BoundValue;
+        Model.ChangeWeapon(type);
     }
 
     #endregion
@@ -112,7 +120,6 @@ public class PlayerController : MonoBehaviour
             return;
 
         OnRotateUpdate();
-        OnMoveUpdate();
         PlayerPhycisc();
 
         if (Input.GetMouseButtonDown(0) 
@@ -149,20 +156,20 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void OnMoveUpdate() {
-        if (_moveX == 0 && _moveZ == 0) {
-            _state = PlayerState.Idle;
-            ChangeState(PlayerState.Move, false);
-            return;
-        }
-
-        ChangeState(PlayerState.Move, true);
-    }
-
     private void PlayerPhycisc() {
         _moveX = Input.GetAxisRaw("Horizontal");
         _moveZ = Input.GetAxisRaw("Vertical");
 
+        if(_state != PlayerState.Shot && _state != PlayerState.Reload) {
+            if (_moveX == 0 && _moveZ == 0) {
+                _state = PlayerState.Idle;
+                _currentWeapon.SetAnimation(PlayerState.Move, false);
+            } else {
+                _state = PlayerState.Move;
+                _currentWeapon.SetAnimation(PlayerState.Move, true);
+            }
+        }
+        
         Vector3 move = transform.right * _moveX + transform.forward * _moveZ;
         _cc.Move(move * _moveSpeed * Time.deltaTime);
 
@@ -182,7 +189,6 @@ public class PlayerController : MonoBehaviour
 
         _vx += dir.x * _rotateSpeed * Time.deltaTime;
         _vy += dir.y * _rotateSpeed * Time.deltaTime;
-
         _vx = Mathf.Clamp(_vx, LIMIT_ROTATE_UP, LIMIT_ROTATE_DOWN);
 
         Vector3 lastDir = new Vector3(-_vx, _vy, 0);
@@ -191,11 +197,26 @@ public class PlayerController : MonoBehaviour
     #endregion
     private void OnDrawGizmos() {
         Gizmos.color = Color.cyan;
-        Gizmos.DrawRay(transform.position + Vector3.up, -transform.up);
+        Gizmos.DrawRay(transform.position + Vector3.up, -Vector3.up * 1.5f);
     }
 
     private bool IsGround() {
-        return Physics.Raycast(transform.position + Vector3.up, -transform.up , 1f, LayerMask.GetMask("Ground"));
+        return Physics.Raycast(transform.position + Vector3.up, -Vector3.up , 1.5f, LayerMask.GetMask("Ground"));
+    }
+
+    private IEnumerator COBound() {
+        float exitTime = 0;
+
+        while (true) {
+            exitTime += Time.deltaTime;
+            _vx += exitTime * _boundValue;
+
+            if (exitTime > _boundTime) {
+                StartCoroutine(CORebound());
+                break;
+            }
+            yield return null;
+        }
     }
 
     private IEnumerator CORebound() {
@@ -203,9 +224,9 @@ public class PlayerController : MonoBehaviour
 
         while (true) {
             exitTime += Time.deltaTime;
-            _vx += exitTime * _reboundValue;
+            _vx -= exitTime * _boundValue;
 
-            if (exitTime > .1f)
+            if (exitTime > _boundTime * .5f)
                 break;
             yield return null;
         }

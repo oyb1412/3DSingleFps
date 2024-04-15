@@ -5,8 +5,9 @@ using UnityEngine;
 public class Define 
 {
     public enum LayerType {
-        Obstacle,
-        Player,
+        Obstacle = 10,
+        Player = 9,
+        Ground = 6,
     }
     public enum WeaponType {
         Pistol,
