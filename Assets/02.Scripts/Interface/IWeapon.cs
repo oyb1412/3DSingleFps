@@ -6,7 +6,9 @@ public interface IWeapon
 {
     GameObject myObject { get; }
     
+    int Damage { get; set; }
     float BoundValue { get; set; }
+    float CrossValue { get; set; }
     void Activation(Transform firePoint = null, PlayerController player = null);
     void Shot();
     void Reload();

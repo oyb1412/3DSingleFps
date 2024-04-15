@@ -4,9 +4,11 @@ using static Define;
 public class WeaponController : MonoBehaviour, IWeapon
 {
     public GameObject myObject { get { return gameObject; } }
-    protected int _currentBullet = 30;
-    protected int _remainBullet = 30;
-    protected int _maxBullet = 180;
+    public int CurrentBullet { get; set; } = 30;
+    public int RemainBullet { get; set; } = 30;
+    public int MaxBullet { get; set; } = 180;
+    public string Name { get; set; }
+    public Sprite WeaponIcon { get; set; }
 
     protected Transform _firePos;
     protected int _layerMask;
@@ -17,12 +19,15 @@ public class WeaponController : MonoBehaviour, IWeapon
     private Animator _animator;
 
     public float BoundValue { get; set; }
+    public float CrossValue { get ; set ; }
+    public int Damage { get ; set ; }
+
     protected virtual void Awake() {
         _animator = GetComponent<Animator>();
     }
 
     protected void Start() {
-        _layerMask = (1 << (int)LayerType.Player) | (1 << (int)LayerType.Obstacle) | (1 << (int)LayerType.Ground);
+        _layerMask = (1 << (int)LayerType.Player) | (1 << (int)LayerType.Obstacle) | (1 << (int)LayerType.Ground) | (1 << (int)LayerType.Wall);
         _firePos = Util.FindChild(gameObject, "FirePos", true).transform;
         _ejectEffect = Util.FindChild(_firePos.gameObject, "Eject", false).GetComponent<ParticleSystem>();
 
@@ -37,23 +42,25 @@ public class WeaponController : MonoBehaviour, IWeapon
     }
 
     public void Reload() {
-        if(_maxBullet >= _remainBullet) {
-            _currentBullet = _remainBullet;
-            _maxBullet -= _currentBullet;
+        if(MaxBullet >= RemainBullet) {
+            CurrentBullet = RemainBullet;
+            MaxBullet -= CurrentBullet;
         }
-        else if(_maxBullet < _remainBullet) {
-            _currentBullet = _remainBullet - _maxBullet;
-            _maxBullet = 0;
+        else if(MaxBullet < RemainBullet) {
+            CurrentBullet = RemainBullet - MaxBullet;
+            MaxBullet = 0;
         }
 
-        Debug.Log($"³²Àº ÃÑ¾Ë {_currentBullet}");
+        _player.BulletEvent.Invoke(CurrentBullet, MaxBullet);
     }
     public virtual void Shot() {
-        _currentBullet--;
+        CurrentBullet--;
+        _player.BulletEvent.Invoke(CurrentBullet, MaxBullet);
         _ejectEffect.Play();
         var ran = Random.Range(0, 5);
         GameObject muzzle = Managers.Resources.Instantiate($"Effect/muzzelFlash{ran}", null);
         muzzle.transform.position = _firePos.position;
+        muzzle.transform.eulerAngles = _player.PlayerRotate;
         Debug.DrawRay(_firePoint.position, _firePoint.forward * 100f, Color.green, 1f);
         bool isHit = Physics.Raycast(_firePoint.position, _firePoint.forward, out var hit, float.MaxValue, _layerMask);
 
@@ -61,24 +68,32 @@ public class WeaponController : MonoBehaviour, IWeapon
             return;
 
         int layer = hit.collider.gameObject.layer;
-
+        Debug.Log(hit.collider.name);
         if (layer == (int)LayerType.Obstacle ||
-           layer == (int)LayerType.Ground) {
+           layer == (int)LayerType.Wall) {
             GameObject impact = Managers.Resources.Instantiate("Effect/Impact", null);
             impact.transform.position = hit.point;
             impact.transform.LookAt(_firePoint.position);
             Destroy(impact, 1f);
             return;
         }
+        else if(layer == (int)LayerType.Ground) {
+            GameObject impact = Managers.Resources.Instantiate("Effect/Impact", null);
+            impact.transform.position = hit.point;
+            impact.transform.eulerAngles = new Vector3(-90f, 0f, 0f);
+            Destroy(impact, 1f);
+            return;
+        }
 
         if (layer == (int)LayerType.Player) {
+            hit.collider.GetComponent<ITakeDamage>().TakeDamage(Damage);
         }
     }
     public bool TryReload(PlayerController player) {
-        if (_maxBullet <= 0)
+        if (MaxBullet <= 0)
             return false;
 
-        if (_currentBullet == _remainBullet)
+        if (CurrentBullet == RemainBullet)
             return false;
 
         return true;
@@ -89,7 +104,7 @@ public class WeaponController : MonoBehaviour, IWeapon
             player.State == Define.PlayerState.Get)
             return false;
 
-        if (_currentBullet <= 0) {
+        if (CurrentBullet <= 0) {
             player.Reload();
             return false;
         }

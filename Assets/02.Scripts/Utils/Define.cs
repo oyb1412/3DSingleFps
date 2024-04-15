@@ -8,6 +8,7 @@ public class Define
         Obstacle = 10,
         Player = 9,
         Ground = 6,
+        Wall = 11,
     }
     public enum WeaponType {
         Pistol,

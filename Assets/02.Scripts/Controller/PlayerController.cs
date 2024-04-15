@@ -1,50 +1,51 @@
+using System;
 using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor.PackageManager;
 using UnityEngine;
 using static Define;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour, ITakeDamage
 {
     private const float LIMIT_ROTATE_UP = -20f;
-    private const float LIMIT_ROTATE_DOWN = 7f;
+    private const float LIMIT_ROTATE_DOWN = 10f;
 
-    [Header("--Status--")]
-    [SerializeField] private float _moveSpeed;
-    [SerializeField] private float _rotateSpeed;
-    [SerializeField] private float _jumpValue;
-    [SerializeField] private float _boundValue;
-     private float _boundTime = 0.1f;
-    [SerializeField] private float _gravity;
+    private float _gravity = -9.81f;
 
-    private bool _isDirty;
+    private int _jumpLayer;
     private float _vx;
     private float _vy;
     private float _moveX;
     private float _moveZ;
     private Vector3 _velocity;
+    public Vector3 PlayerRotate;
 
     public ModelController Model { get; set; }
+
+    public Action ShotEvent;
+    public Action<float> CrossValueEvent;
+
+    public Action<int, int> HpEvent;
+    public Action<int, int> BulletEvent;
+    public Action<WeaponController> ChangeEvent;
+
     private CharacterController _cc;
+    private PlayerStatus _status;
     private GameObject _weapons;
     private Transform _firePoint;
 
     private IItem _collideItem;
     private IWeapon _currentWeapon;
     private IWeapon[] _weaponList = new IWeapon[(int)WeaponType.Count];
-    [SerializeField]private PlayerState _state = PlayerState.Idle;
+    private PlayerState _state = PlayerState.Idle;
     public PlayerState State => _state;
+    public PlayerStatus Status => _status;
+
+    public WeaponController CurrentWeapon => _currentWeapon as WeaponController; 
+
     private void Awake() {
         _cc = GetComponent<CharacterController>();
         Model = GetComponentInChildren<ModelController>();
-    }
+        _status = GetComponent<PlayerStatus>();
 
-    private void Start() {
-        Init();
-    }
-
-    private void Init() {
         _weapons = Util.FindChild(gameObject, "Weapons", false);
         _firePoint = Util.FindChild(gameObject, "FirePoint", true).transform;
         _weaponList[(int)WeaponType.Pistol] = Util.FindChild(_weapons, WeaponType.Pistol.ToString(), false).GetComponent<IWeapon>();
@@ -57,8 +58,13 @@ public class PlayerController : MonoBehaviour
             if (_currentWeapon != weapon)
                 weapon.myObject.SetActive(false);
         }
-        _boundValue = _currentWeapon.BoundValue;
+        _status._boundValue = _currentWeapon.BoundValue;
+        _status._damage = _currentWeapon.Damage;
+    }
 
+    private void Start() {
+        CrossValueEvent.Invoke(_currentWeapon.CrossValue);
+        _jumpLayer = (1 << (int)LayerType.Obstacle) | (1 << (int)LayerType.Ground);
     }
 
     #region Behaviour
@@ -78,7 +84,7 @@ public class PlayerController : MonoBehaviour
         if (!IsGround())
             return;
 
-        _velocity.y = Mathf.Sqrt(_jumpValue * -2f * _gravity);
+        _velocity.y = Mathf.Sqrt(_status._jumpValue * -2f * _gravity);
         Debug.Log("점프 발동");
     }
 
@@ -94,7 +100,7 @@ public class PlayerController : MonoBehaviour
     public void ChangeState(PlayerState state) {
         _state = state;
         if (state == PlayerState.Reload || state == PlayerState.Shot
-            || state == PlayerState.Get)
+            || state == PlayerState.Get || state == PlayerState.Dead)
             _currentWeapon.SetAnimation(state);
     }
 
@@ -108,8 +114,11 @@ public class PlayerController : MonoBehaviour
                 item.myObject.SetActive(false);
         }
         _collideItem = null;
-        _boundValue = _currentWeapon.BoundValue;
+        _status._boundValue = _currentWeapon.BoundValue;
+        _status._damage = _currentWeapon.Damage;
+        CrossValueEvent.Invoke(_currentWeapon.CrossValue);
         Model.ChangeWeapon(type);
+        ChangeEvent(CurrentWeapon);
     }
 
     #endregion
@@ -125,6 +134,12 @@ public class PlayerController : MonoBehaviour
         if (Input.GetMouseButtonDown(0) 
             || Input.GetMouseButton(0)) {
             Shot();
+        }
+
+        if(_state == PlayerState.Shot) {
+            if (Input.GetMouseButtonUp(0)) {
+                _state = PlayerState.Idle;
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.R)) {
@@ -171,7 +186,7 @@ public class PlayerController : MonoBehaviour
         }
         
         Vector3 move = transform.right * _moveX + transform.forward * _moveZ;
-        _cc.Move(move * _moveSpeed * Time.deltaTime);
+        _cc.Move(move * _status._moveSpeed * Time.deltaTime);
 
         if (Input.GetKeyDown(KeyCode.Space)) {
             Jump();
@@ -187,12 +202,13 @@ public class PlayerController : MonoBehaviour
         float MouseY = Input.GetAxis("Mouse Y");
         Vector3 dir = new Vector3(MouseY, MouseX, 0);
 
-        _vx += dir.x * _rotateSpeed * Time.deltaTime;
-        _vy += dir.y * _rotateSpeed * Time.deltaTime;
+        _vx += dir.x * _status._rotateSpeed * Time.deltaTime;
+        _vy += dir.y * _status._rotateSpeed * Time.deltaTime;
         _vx = Mathf.Clamp(_vx, LIMIT_ROTATE_UP, LIMIT_ROTATE_DOWN);
 
         Vector3 lastDir = new Vector3(-_vx, _vy, 0);
         transform.eulerAngles = lastDir;
+        PlayerRotate = lastDir;
     }
     #endregion
     private void OnDrawGizmos() {
@@ -201,17 +217,19 @@ public class PlayerController : MonoBehaviour
     }
 
     private bool IsGround() {
-        return Physics.Raycast(transform.position + Vector3.up, -Vector3.up , 1.5f, LayerMask.GetMask("Ground"));
+        return Physics.Raycast(transform.position + Vector3.up, -Vector3.up , 1.5f, _jumpLayer);
     }
 
     private IEnumerator COBound() {
         float exitTime = 0;
+        float horizontalRecoil = UnityEngine.Random.Range(-0.3f, 0.3f); 
 
         while (true) {
             exitTime += Time.deltaTime;
-            _vx += exitTime * _boundValue;
+            _vx += exitTime * _status._boundValue;
+            _vy += horizontalRecoil * _status._boundValue; 
 
-            if (exitTime > _boundTime) {
+            if (exitTime > _status._boundTime) {
                 StartCoroutine(CORebound());
                 break;
             }
@@ -221,12 +239,14 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator CORebound() {
         float exitTime = 0;
+        float horizontalRecoil = UnityEngine.Random.Range(-0.3f, 0.3f); 
 
         while (true) {
             exitTime += Time.deltaTime;
-            _vx -= exitTime * _boundValue;
+            _vx -= exitTime * _status._boundValue; 
+            _vy -= horizontalRecoil * _status._boundValue;
 
-            if (exitTime > _boundTime * .5f)
+            if (exitTime > _status._boundTime * .5f)
                 break;
             yield return null;
         }
@@ -253,5 +273,13 @@ public class PlayerController : MonoBehaviour
             return;
 
         _collideItem = null;
+    }
+
+    public void TakeDamage(int damage) {
+        _status._currentHp -= damage;
+        HpEvent.Invoke(_status._currentHp, _status._maxHp);
+        if(_status._currentHp <= 0) {
+            ChangeState(PlayerState.Dead);
+        }
     }
 }
