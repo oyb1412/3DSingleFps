@@ -57,13 +57,17 @@ namespace Player {
         }
 
         protected void DefaultShot(Vector3 angle) {
+
             Debug.DrawRay(_firePoint.position, angle * 100f, Color.green, 1f);
             bool isHit = Physics.Raycast(_firePoint.position, angle, out var hit, float.MaxValue, _layerMask);
 
             if (!isHit)
                 return;
 
+            Debug.Log(hit.collider.name);
             int layer = hit.collider.gameObject.layer;
+
+            
             if (layer == (int)LayerType.Obstacle ||
                layer == (int)LayerType.Wall) {
                 GameObject impact = Managers.Resources.Instantiate("Effect/Impact", null);
@@ -71,7 +75,8 @@ namespace Player {
                 impact.transform.LookAt(_firePoint.position);
                 Destroy(impact, 1f);
                 return;
-            } else if (layer == (int)LayerType.Ground) {
+            }
+            else if (layer == (int)LayerType.Ground) {
                 GameObject impact = Managers.Resources.Instantiate("Effect/Impact", null);
                 impact.transform.position = hit.point;
                 impact.transform.eulerAngles = new Vector3(-90f, 0f, 0f);
@@ -81,6 +86,10 @@ namespace Player {
 
             if (layer == (int)LayerType.Unit) {
                 hit.collider.GetComponent<ITakeDamage>().TakeDamage(Damage, _player.transform, hit.transform);
+                GameObject blood = Managers.Resources.Instantiate("Effect/Blood", null);
+                blood.transform.position = hit.point;
+                blood.transform.LookAt(_firePoint.position);
+                Destroy(blood, 1f);
             }
         }
         public virtual void Shot() {
@@ -113,6 +122,10 @@ namespace Player {
             }
 
             return true;
+        }
+
+        public void Dead() {
+
         }
 
         public void SetAnimation(UnitState anime, bool trigger) {

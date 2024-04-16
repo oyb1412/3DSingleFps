@@ -21,6 +21,7 @@ public class EnemyItemChecker : MonoBehaviour
         if (c.GetComponent<IItem>().IsMine)
             return;
 
+        Debug.Log("1");
        _enemy.CollideItem = c.GetComponent<IItem>();
     }
 }

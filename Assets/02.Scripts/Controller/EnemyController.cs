@@ -6,9 +6,9 @@ using static Define;
 
 public class EnemyController : UnitBase, ITakeDamage {
     private NavMeshAgent _agent;
+
     public UnitBase TargetUnit { get; private set; }
     private Transform _movePoint;
-    private Rigidbody _rigid;
     private EnemyFov _fov;
     private Collider _collider;
     private bool _isTraceItem;
@@ -16,7 +16,6 @@ public class EnemyController : UnitBase, ITakeDamage {
 
     protected override void Awake() {
         base.Awake();
-        _rigid = GetComponent<Rigidbody>();
         _collider = GetComponent<Collider>();
         _agent = GetComponent<NavMeshAgent>();
         _fov = GetComponent<EnemyFov>();
@@ -25,7 +24,7 @@ public class EnemyController : UnitBase, ITakeDamage {
     }
     
     private void Start() {
-        StartCoroutine(CoMove(RandomPosition()));
+        StartCoroutine(CoMove(GetRandomPosition()));
     }
 
     private void Update() {
@@ -42,13 +41,13 @@ public class EnemyController : UnitBase, ITakeDamage {
         if(TargetUnit && TargetUnit.IsDead()) {
             TargetUnit = null;
             ChangeState(UnitState.Move, false);
-            StartCoroutine(CoMove(RandomPosition()));
+            StartCoroutine(CoMove(GetRandomPosition()));
         }
 
         if (TargetUnit && !_fov.isTracePlayer() && State == UnitState.Shot) {
             TargetUnit = null;
             ChangeState(UnitState.Move, false);
-            StartCoroutine(CoMove(RandomPosition()));
+            StartCoroutine(CoMove(GetRandomPosition()));
         }
     }
 
@@ -68,6 +67,12 @@ public class EnemyController : UnitBase, ITakeDamage {
                 break;
             }
 
+            if(IsDead()) {
+                _agent.SetDestination(transform.position);
+                StopAllCoroutines();
+                break;
+            }
+
             if(CollideItem != null && !_isTraceItem) {
                 if (!_isTraceItem) {
                     Debug.Log("아이템 추적");
@@ -83,14 +88,14 @@ public class EnemyController : UnitBase, ITakeDamage {
                     _isTraceItem = false;
                 }
                 Debug.Log("다음장소 추적");
-                StartCoroutine(CoMove(RandomPosition()));
+                StartCoroutine(CoMove(GetRandomPosition()));
                 break;
             }
             yield return null;
         }
     }
 
-    private Vector3 RandomPosition() {
+    private Vector3 GetRandomPosition() {
         return _movePoint.GetChild(Random.Range(0, _movePoint.childCount - 1)).position;
     }
 
@@ -98,7 +103,6 @@ public class EnemyController : UnitBase, ITakeDamage {
         base.TakeDamage(damage, attackerTrans, myTrans);
         if (_status._currentHp <= 0) {
             _collider.enabled = false;
-            _rigid.isKinematic = true;
         }
     }
 }

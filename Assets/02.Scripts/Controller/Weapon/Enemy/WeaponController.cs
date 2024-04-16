@@ -1,7 +1,6 @@
 using System.Collections;
 using UnityEngine;
 using static Define;
-using static UnityEngine.GraphicsBuffer;
 
 namespace Enemy {
     public class WeaponController : MonoBehaviour, IWeapon {
@@ -18,7 +17,7 @@ namespace Enemy {
         protected Transform _firePoint;
         protected EnemyController _enemy;
         protected ParticleSystem _ejectEffect;
-
+        [SerializeField] private float _attackAccuracy;
         private Animator _animator;
 
         public float BoundValue { get; set; }
@@ -54,6 +53,10 @@ namespace Enemy {
             }
         }
 
+        public void Dead() {
+
+        }
+
         protected void DefaultShot(Vector3 angle) {
             if (!_enemy.TargetUnit)
                 return;
@@ -82,8 +85,13 @@ namespace Enemy {
 
             if (layer == (int)LayerType.Unit) {
                 hit.collider.GetComponent<ITakeDamage>().TakeDamage(Damage, _enemy.transform, hit.transform);
+                GameObject blood = Managers.Resources.Instantiate("Effect/Blood", null);
+                blood.transform.position = hit.point;
+                blood.transform.LookAt(_firePoint.position);
+                Destroy(blood, 1f);
             }
         }
+
         public virtual void Shot() {
             if (!_enemy.TargetUnit)
                 return; 

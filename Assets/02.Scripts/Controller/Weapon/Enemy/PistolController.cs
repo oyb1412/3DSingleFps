@@ -6,7 +6,7 @@ namespace Enemy {
             base.Awake();
             BoundValue = 0.1f;
             CrossValue = 350f;
-            Damage = 20;
+            Damage = 1;
             Name = "Pistol";
             WeaponIcon = (Sprite)Managers.Resources.Load<Sprite>("Texture/PistolIcon");
             CurrentBullet = 12;

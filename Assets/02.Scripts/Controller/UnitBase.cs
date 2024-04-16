@@ -90,6 +90,7 @@ public class UnitBase : MonoBehaviour
     public virtual void TakeDamage(int damage, Transform attackerTrans, Transform myTrans) {
         _status._currentHp -= damage;
         if (_status._currentHp <= 0) {
+            transform.LookAt(attackerTrans);
             MyDead++;
             attackerTrans.GetComponent<UnitBase>().MyKill++;
             ChangeState(UnitState.Dead);
