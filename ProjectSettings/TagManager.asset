@@ -23,9 +23,9 @@ TagManager:
   - Player
   - Obstacle
   - Wall
-  - 
-  - 
-  - 
+  - Item
+  - Enemy
+  - Unit
   - 
   - 
   - 

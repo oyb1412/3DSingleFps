@@ -40,6 +40,21 @@ public class ResourcesManager
         return go;
     }
 
+
+    public GameObject Instantiate(GameObject obj, Transform parent) {
+
+        if (obj == null) {
+            return null;
+        }
+
+        if (obj.GetComponent<Poolable>() != null)
+            return Managers.Pool.Activation(obj).gameObject;
+
+        GameObject go = Object.Instantiate(obj, parent);
+        go.name = obj.name;
+        return go;
+    }
+
     public void Destroy(GameObject go)
     {
         if (go == null)

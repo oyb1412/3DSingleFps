@@ -4,11 +4,26 @@ using UnityEngine;
 
 public class Define 
 {
+    public enum GameState {
+        None,
+        WaitFight,
+        StartFight,
+    }
     public enum LayerType {
         Obstacle = 10,
         Player = 9,
         Ground = 6,
         Wall = 11,
+        Item = 12,
+        Enemy = 13,
+        Unit = 14,
+    }
+
+    public enum DirType {
+        Left,
+        Back,
+        Right,
+        Front,
     }
     public enum WeaponType {
         Pistol,
@@ -17,7 +32,7 @@ public class Define
         Count,
     }
 
-    public enum PlayerState {
+    public enum UnitState {
         Idle,
         Move,
         Jump,

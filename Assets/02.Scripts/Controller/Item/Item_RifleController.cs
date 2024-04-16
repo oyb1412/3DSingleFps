@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Item_RifleController : ItemController {
-    public override void Pickup(PlayerController player) {
-        player.ChangeWeapon(Define.WeaponType.Rifle);
+  
+    public override void Pickup(UnitBase unit) {
+        unit.ChangeWeapon(Define.WeaponType.Rifle);
+        unit.CollideItem = null;
         Managers.Resources.Destroy(gameObject);
     }
 }

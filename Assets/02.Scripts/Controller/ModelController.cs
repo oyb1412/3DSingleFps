@@ -34,11 +34,13 @@ public class ModelController : MonoBehaviour
         _weaponList[(int)type].SetActive(true);
     }
 
-    public void ChangeAnimation(PlayerState state, bool trigger) {
+    public void ChangeAnimation(UnitState state, bool trigger) {
+        _animator.SetBool("Move", false);
+        _animator.SetBool("Shot", false);
         _animator.SetBool(state.ToString(), trigger);
     }
 
-    public void ChangeAnimation(PlayerState state) {
+    public void ChangeAnimation(UnitState state) {
         AnimatorStateInfo stateInfo = _animator.GetCurrentAnimatorStateInfo(0);
         if (stateInfo.IsName(state.ToString()))
             return;

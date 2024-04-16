@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static Define;
 
 public class Managers : MonoBehaviour
 {
@@ -12,12 +13,13 @@ public class Managers : MonoBehaviour
             return _instance;
         }
     }
-
+    private GameManager _gameManager = new GameManager();
     private PoolManager _pool = new PoolManager();
     private InputManager _input = new InputManager();
     private ResourcesManager _resources = new ResourcesManager();
     private SceneManagerEX _scene = new SceneManagerEX();
 
+    public static GameManager GameManager => _instance._gameManager;
     public static PoolManager Pool => _instance._pool;
     public static SceneManagerEX Scene => _instance._scene;
     public static InputManager Input => Instance._input;
@@ -26,11 +28,17 @@ public class Managers : MonoBehaviour
     private void Awake()
     {
         Init();
+        GameManager.Init();
+    }
+
+    private void Start() {
+        GameManager.ChangeState(GameState.WaitFight);
     }
 
     private void Update()
     {
         Input.OnUpdate();
+        GameManager.Update();
     }
 
     private static void Init()

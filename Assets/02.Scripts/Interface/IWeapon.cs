@@ -5,16 +5,16 @@ using UnityEngine;
 public interface IWeapon
 {
     GameObject myObject { get; }
-    
+    GameObject CreateObject { get; set; }
     int Damage { get; set; }
     float BoundValue { get; set; }
     float CrossValue { get; set; }
-    void Activation(Transform firePoint = null, PlayerController player = null);
+    void Activation(Transform firePoint = null, UnitBase player = null);
     void Shot();
     void Reload();
-    bool TryReload(PlayerController player);
-    bool TryShot(PlayerController player);
-    void SetAnimation(Define.PlayerState anime, bool trigger);
-    void SetAnimation(Define.PlayerState anime);
+    bool TryReload(UnitBase player);
+    bool TryShot(UnitBase player);
+    void SetAnimation(Define.UnitState anime, bool trigger);
+    void SetAnimation(Define.UnitState anime);
     void EndAnimation(string name);
 }

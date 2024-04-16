@@ -1,9 +1,10 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using static Define;
 
-public class PlayerController : MonoBehaviour, ITakeDamage
+public class PlayerController : UnitBase, ITakeDamage
 {
     private const float LIMIT_ROTATE_UP = -20f;
     private const float LIMIT_ROTATE_DOWN = 10f;
@@ -16,50 +17,27 @@ public class PlayerController : MonoBehaviour, ITakeDamage
     private float _moveX;
     private float _moveZ;
     private Vector3 _velocity;
-    public Vector3 PlayerRotate;
-
-    public ModelController Model { get; set; }
+    public Vector3 PlayerRotate { get; private set; }
 
     public Action ShotEvent;
     public Action<float> CrossValueEvent;
 
     public Action<int, int> HpEvent;
-    public Action<int, int> BulletEvent;
-    public Action<WeaponController> ChangeEvent;
+    public Action<int, int, int> BulletEvent;
+    public Action<Player.WeaponController> ChangeEvent;
+    public Action<Transform, Transform> HurtEvent;
+    public Action DeadEvent;
+    public Action KillEvent;
 
     private CharacterController _cc;
-    private PlayerStatus _status;
-    private GameObject _weapons;
-    private Transform _firePoint;
 
-    private IItem _collideItem;
-    private IWeapon _currentWeapon;
-    private IWeapon[] _weaponList = new IWeapon[(int)WeaponType.Count];
-    private PlayerState _state = PlayerState.Idle;
-    public PlayerState State => _state;
-    public PlayerStatus Status => _status;
+    public PlayerStatus MyStatus { get { return _status as PlayerStatus; } set { _status = value; } }
+    public Player.WeaponController CurrentWeapon => _currentWeapon as Player.WeaponController;
 
-    public WeaponController CurrentWeapon => _currentWeapon as WeaponController; 
-
-    private void Awake() {
+    #region Init
+    protected override void Awake() {
+        base.Awake();
         _cc = GetComponent<CharacterController>();
-        Model = GetComponentInChildren<ModelController>();
-        _status = GetComponent<PlayerStatus>();
-
-        _weapons = Util.FindChild(gameObject, "Weapons", false);
-        _firePoint = Util.FindChild(gameObject, "FirePoint", true).transform;
-        _weaponList[(int)WeaponType.Pistol] = Util.FindChild(_weapons, WeaponType.Pistol.ToString(), false).GetComponent<IWeapon>();
-        _weaponList[(int)WeaponType.Rifle] = Util.FindChild(_weapons, WeaponType.Rifle.ToString(), false).GetComponent<IWeapon>();
-        _weaponList[(int)WeaponType.Shotgun] = Util.FindChild(_weapons, WeaponType.Shotgun.ToString(), false).GetComponent<IWeapon>();
-
-        _currentWeapon = _weaponList[(int)WeaponType.Pistol];
-        _currentWeapon.Activation(_firePoint, this);
-        foreach (var weapon in _weaponList) {
-            if (_currentWeapon != weapon)
-                weapon.myObject.SetActive(false);
-        }
-        _status._boundValue = _currentWeapon.BoundValue;
-        _status._damage = _currentWeapon.Damage;
     }
 
     private void Start() {
@@ -67,78 +45,61 @@ public class PlayerController : MonoBehaviour, ITakeDamage
         _jumpLayer = (1 << (int)LayerType.Obstacle) | (1 << (int)LayerType.Ground);
     }
 
+    #endregion
+
     #region Behaviour
     public void Shot() {
+        if (!Managers.GameManager.InGame())
+            return;
+
         if (_currentWeapon.TryShot(this)) {
-            ChangeState(PlayerState.Shot);
+            ChangeState(UnitState.Shot);
             StartCoroutine(COBound());
         }
     }
 
-    public void Reload() {
-        if (_currentWeapon.TryReload(this))
-            ChangeState(PlayerState.Reload);
-    }
-
     public void Jump() {
+        if (!Managers.GameManager.InGame())
+            return;
+
         if (!IsGround())
             return;
 
-        _velocity.y = Mathf.Sqrt(_status._jumpValue * -2f * _gravity);
-        Debug.Log("점프 발동");
+        _velocity.y = Mathf.Sqrt(MyStatus._jumpValue * -2f * _gravity);
     }
 
     #endregion
 
     #region Change
-    public void ChangeState(PlayerState state, bool trigger) {
-        _state = state;
-        if(state == PlayerState.Move)
-            _currentWeapon.SetAnimation(state, trigger);
-    }
-
-    public void ChangeState(PlayerState state) {
-        _state = state;
-        if (state == PlayerState.Reload || state == PlayerState.Shot
-            || state == PlayerState.Get || state == PlayerState.Dead)
-            _currentWeapon.SetAnimation(state);
-    }
 
 
-    public void ChangeWeapon(WeaponType type) {
-        _weaponList[(int)type].myObject.SetActive(true);
-        _currentWeapon = _weaponList[(int)type];
-        _currentWeapon.Activation(_firePoint, this);
-        foreach (var item in _weaponList) {
-            if (_currentWeapon != item)
-                item.myObject.SetActive(false);
-        }
-        _collideItem = null;
-        _status._boundValue = _currentWeapon.BoundValue;
-        _status._damage = _currentWeapon.Damage;
+    public override void ChangeWeapon(WeaponType type) {
+        base.ChangeWeapon(type);
         CrossValueEvent.Invoke(_currentWeapon.CrossValue);
-        Model.ChangeWeapon(type);
         ChangeEvent(CurrentWeapon);
     }
-
     #endregion
 
     #region Update
     private void Update() {
-        if (_state == PlayerState.Dead)
+        if (!Managers.GameManager.InGame())
+            return;
+
+        if (_state == UnitState.Dead)
             return;
 
         OnRotateUpdate();
         PlayerPhycisc();
+        CheckForward();
 
         if (Input.GetMouseButtonDown(0) 
             || Input.GetMouseButton(0)) {
             Shot();
         }
 
-        if(_state == PlayerState.Shot) {
+        if(_state == UnitState.Shot) {
             if (Input.GetMouseButtonUp(0)) {
-                _state = PlayerState.Idle;
+                _state = UnitState.Idle;
             }
         }
 
@@ -151,22 +112,16 @@ public class PlayerController : MonoBehaviour, ITakeDamage
         }
 
         switch (_state) {
-            case PlayerState.Idle:
+            case UnitState.Idle:
                 OnIdleUpdate();
                 break;
         }
     }
 
-    private void GetItem() {
-        if (_collideItem == null)
-            return;
-
-        _collideItem.Pickup(this);
-    }
 
     private void OnIdleUpdate() {
         if(_moveX != 0 || _moveZ != 0) {
-            _state = PlayerState.Move;
+            _state = UnitState.Move;
             return;
         }
     }
@@ -175,13 +130,13 @@ public class PlayerController : MonoBehaviour, ITakeDamage
         _moveX = Input.GetAxisRaw("Horizontal");
         _moveZ = Input.GetAxisRaw("Vertical");
 
-        if(_state != PlayerState.Shot && _state != PlayerState.Reload) {
+        if(_state != UnitState.Shot && _state != UnitState.Reload) {
             if (_moveX == 0 && _moveZ == 0) {
-                _state = PlayerState.Idle;
-                _currentWeapon.SetAnimation(PlayerState.Move, false);
+                _state = UnitState.Idle;
+                ChangeState(UnitState.Move, false);
             } else {
-                _state = PlayerState.Move;
-                _currentWeapon.SetAnimation(PlayerState.Move, true);
+                _state = UnitState.Move;
+                ChangeState(UnitState.Move, true);
             }
         }
         
@@ -202,8 +157,8 @@ public class PlayerController : MonoBehaviour, ITakeDamage
         float MouseY = Input.GetAxis("Mouse Y");
         Vector3 dir = new Vector3(MouseY, MouseX, 0);
 
-        _vx += dir.x * _status._rotateSpeed * Time.deltaTime;
-        _vy += dir.y * _status._rotateSpeed * Time.deltaTime;
+        _vx += dir.x * MyStatus._rotateSpeed * Time.deltaTime;
+        _vy += dir.y * MyStatus._rotateSpeed * Time.deltaTime;
         _vx = Mathf.Clamp(_vx, LIMIT_ROTATE_UP, LIMIT_ROTATE_DOWN);
 
         Vector3 lastDir = new Vector3(-_vx, _vy, 0);
@@ -211,25 +166,18 @@ public class PlayerController : MonoBehaviour, ITakeDamage
         PlayerRotate = lastDir;
     }
     #endregion
-    private void OnDrawGizmos() {
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawRay(transform.position + Vector3.up, -Vector3.up * 1.5f);
-    }
 
-    private bool IsGround() {
-        return Physics.Raycast(transform.position + Vector3.up, -Vector3.up , 1.5f, _jumpLayer);
-    }
-
+    #region Bound
     private IEnumerator COBound() {
         float exitTime = 0;
         float horizontalRecoil = UnityEngine.Random.Range(-0.3f, 0.3f); 
 
         while (true) {
             exitTime += Time.deltaTime;
-            _vx += exitTime * _status._boundValue;
-            _vy += horizontalRecoil * _status._boundValue; 
+            _vx += exitTime * _currentWeapon.BoundValue;
+            _vy += horizontalRecoil * _currentWeapon.BoundValue; 
 
-            if (exitTime > _status._boundTime) {
+            if (exitTime > MyStatus._boundTime) {
                 StartCoroutine(CORebound());
                 break;
             }
@@ -243,43 +191,50 @@ public class PlayerController : MonoBehaviour, ITakeDamage
 
         while (true) {
             exitTime += Time.deltaTime;
-            _vx -= exitTime * _status._boundValue; 
-            _vy -= horizontalRecoil * _status._boundValue;
+            _vx -= exitTime * _currentWeapon.BoundValue; 
+            _vy -= horizontalRecoil * _currentWeapon.BoundValue;
 
-            if (exitTime > _status._boundTime * .5f)
+            if (exitTime > MyStatus._boundTime * .5f)
                 break;
             yield return null;
         }
     }
+    #endregion
 
-    private void OnTriggerEnter(Collider c) {
-        if (!c.CompareTag("Item"))
-            return;
-
-        if (_collideItem != null)
-            return;
-
-        _collideItem = c.GetComponent<IItem>();
-    }
-
-    private void OnTriggerExit(Collider c) {
-        if (!c.CompareTag("Item"))
-            return;
-
-        if (_collideItem == null)
-            return;
-
-        if (_collideItem != c.GetComponent<IItem>())
-            return;
-
-        _collideItem = null;
-    }
-
-    public void TakeDamage(int damage) {
-        _status._currentHp -= damage;
+    #region Interface
+    public override void TakeDamage(int damage, Transform attackerTrans, Transform myTrans) {
+        base.TakeDamage(damage, attackerTrans, myTrans);
         HpEvent.Invoke(_status._currentHp, _status._maxHp);
-        if(_status._currentHp <= 0) {
-            ChangeState(PlayerState.Dead);
+        HurtEvent.Invoke(attackerTrans, myTrans);
+        if (_status._currentHp <= 0) {
+            _cc.enabled = false;
+            DeadEvent.Invoke();
         }
     }
+    #endregion
+
+    #region OtherEvent
+
+    private void CheckForward() {
+
+        int layer = (1 << (int)LayerType.Item);
+        Debug.DrawRay(_firePoint.position, _firePoint.forward * 3f, Color.green);
+
+        var col = Physics.Raycast(_firePoint.position, _firePoint.forward, out var hit, 2f,  layer);
+        if (!col) {
+            CollideItem = null;
+            return;
+        }
+
+        CollideItem = hit.collider.GetComponent<IItem>();
+    }
+    private void OnDrawGizmos() {
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawRay(transform.position + Vector3.up, -Vector3.up * 1.5f);
+    }
+
+    private bool IsGround() {
+        return Physics.Raycast(transform.position + Vector3.up, -Vector3.up, 1.5f, _jumpLayer);
+    }
+    #endregion
 }

@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Item_ShotgunController : ItemController {
-    public override void Pickup(PlayerController player) {
-        player.ChangeWeapon(Define.WeaponType.Shotgun);
+    
+    public override void Pickup(UnitBase unit) {
+        unit.ChangeWeapon(Define.WeaponType.Shotgun);
+        unit.CollideItem = null;
         Managers.Resources.Destroy(gameObject);
     }
 }
