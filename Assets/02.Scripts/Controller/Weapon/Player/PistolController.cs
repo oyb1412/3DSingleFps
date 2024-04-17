@@ -5,7 +5,7 @@ namespace Player {
         protected override void Awake() {
             base.Awake();
             VerticalBoundValue = 1f;
-            HorizontalBoundValue = 1f;
+            HorizontalBoundValue = .5f;
             CrossValue = 350f;
             Damage = 20;
             Name = "Pistol";

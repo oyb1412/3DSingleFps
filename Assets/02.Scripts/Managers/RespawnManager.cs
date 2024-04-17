@@ -15,8 +15,36 @@ public class RespawnManager
         return _respawnPoint.GetChild(Random.Range(0, _respawnPoint.childCount - 1)).position;
     }
 
+    public Vector3 GetValidSpawnPosition() {
+        UnitBase[] units = Object.FindObjectsOfType<UnitBase>();
+        List<Vector3> possiblePositions = new List<Vector3>();
+
+        for (int i = 0; i < _respawnPoint.childCount; i++) {
+            possiblePositions.Add(_respawnPoint.GetChild(i).position);
+        }
+
+        int n = possiblePositions.Count;
+        while (n > 1) {
+            n--;
+            int k = Random.Range(0, n + 1);
+            Vector3 value = possiblePositions[k];
+            possiblePositions[k] = possiblePositions[n];
+            possiblePositions[n] = value;
+        }
+
+        foreach (var pos in possiblePositions) {
+            foreach (var unit in units) {
+                if (Vector3.Distance(unit.transform.position, pos) >= ALLOW_RESPAWN_RANGE) {
+                    return pos;
+                }
+            }
+        }
+
+        return Vector3.zero; 
+    }
+
     public Vector3 GetRespawnPosition() {
-        var unit = GameObject.FindObjectsByType<UnitBase>(FindObjectsSortMode.None);
+        var unit = Object.FindObjectsOfType<UnitBase>();
         
        foreach(var u in unit) {
             Vector3 ran = GetRandomPosition();

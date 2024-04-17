@@ -23,7 +23,6 @@ namespace Player {
             if (!isHit)
                 return;
 
-            Debug.Log(hit.collider.name);
             int layer = hit.collider.gameObject.layer;
 
             
@@ -43,12 +42,22 @@ namespace Player {
                 return;
             }
 
-            if (layer == (int)LayerType.Unit) {
-                hit.collider.GetComponent<ITakeDamage>().TakeDamage(Damage, Player.transform, hit.transform);
+            if (layer == (int)LayerType.Head) {
+                Player.HeadshotEvent.Invoke();
+                hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(Damage * 2, Player.transform, hit.transform);
                 GameObject blood = Managers.Resources.Instantiate("Effect/Blood", null);
                 blood.transform.position = hit.point;
                 blood.transform.LookAt(_firePoint.position);
                 Destroy(blood, 1f);
+                return;
+            } else if (layer == (int)LayerType.Body) {
+                Player.BodyshotEvent.Invoke();
+                hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(Damage, Player.transform, hit.transform);
+                GameObject blood = Managers.Resources.Instantiate("Effect/Blood", null);
+                blood.transform.position = hit.point;
+                blood.transform.LookAt(_firePoint.position);
+                Destroy(blood, 1f);
+                return;
             }
         }
         public override void Shot() {

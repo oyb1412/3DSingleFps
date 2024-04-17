@@ -1,3 +1,4 @@
+using UnityEditor;
 using UnityEngine;
 using static Define;
 
@@ -28,7 +29,7 @@ namespace Base {
         }
 
         protected void Start() {
-            _layerMask = (1 << (int)LayerType.Unit) | (1 << (int)LayerType.Obstacle) | (1 << (int)LayerType.Ground) | (1 << (int)LayerType.Wall);
+            _layerMask = (1 << (int)LayerType.Head) | (1 << (int)LayerType.Body) | (1 << (int)LayerType.Obstacle) | (1 << (int)LayerType.Ground) | (1 << (int)LayerType.Wall);
             _firePos = Util.FindChild(gameObject, "FirePos", true).transform;
             _ejectEffect = Util.FindChild(_firePos.gameObject, "Eject", false).GetComponent<ParticleSystem>();
 
@@ -45,25 +46,38 @@ namespace Base {
         }
 
         public virtual void Reload() {
-            if (MaxBullet >= RemainBullet) {
-                CurrentBullet = RemainBullet;
-                MaxBullet -= CurrentBullet;
-            } else if (MaxBullet < RemainBullet) {
-                CurrentBullet = RemainBullet - MaxBullet;
+            if (MaxBullet < RemainBullet) {
+                CurrentBullet = MaxBullet;
                 MaxBullet = 0;
+            }
+            else if (CurrentBullet < RemainBullet) {
+                MaxBullet -= (RemainBullet - CurrentBullet);
+                CurrentBullet = RemainBullet;
+            }
+            else if (MaxBullet >= RemainBullet) {
+                CurrentBullet = RemainBullet;
+                MaxBullet -= RemainBullet;
             }
         }
 
         protected abstract void DefaultShot(Vector3 angle);
         
         public virtual void Shot() {
+            if(CurrentBullet <= 0) {
+                _unit.Reload();
+                return;
+            }
             CurrentBullet--;
             _ejectEffect.Play();
             var ran = Random.Range(0, 5);
             GameObject muzzle = Managers.Resources.Instantiate($"Effect/muzzelFlash{ran}", null);
             muzzle.transform.position = _firePos.position;
             muzzle.transform.rotation = _unit.UnitRotate;
-            //muzzle.transform.eulerAngles = _unit.transform.forward;
+
+            if (CurrentBullet <= 0) {
+                _unit.Reload();
+                return;
+            }
         }
         public bool TryReload(UnitBase unit) {
             if (MaxBullet <= 0)
@@ -89,22 +103,17 @@ namespace Base {
         }
 
         public void Respawn() {
-            _animator.enabled = false;
-            _animator.enabled = true;
-
             _unit.Init();
         }
 
 
         public void SetAnimation(UnitState anime, bool trigger) {
+
             _animator.SetBool(anime.ToString(), trigger);
             _unit.Model.ChangeAnimation(anime, trigger);
         }
 
         public void SetAnimation(UnitState anime) {
-            AnimatorStateInfo stateInfo = _animator.GetCurrentAnimatorStateInfo(0);
-            if (stateInfo.IsName(anime.ToString()))
-                return;
 
             _animator.SetTrigger(anime.ToString());
             _unit.Model.ChangeAnimation(anime);

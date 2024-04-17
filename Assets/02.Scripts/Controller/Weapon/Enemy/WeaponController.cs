@@ -43,13 +43,23 @@ namespace Enemy {
                 return;
             }
 
-            if (layer == (int)LayerType.Unit) {
-                hit.collider.GetComponent<ITakeDamage>().TakeDamage(Damage, Enemy.transform, hit.transform);
+            if (layer == (int)LayerType.Head) {
+                hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(Damage * 2, Enemy.transform, hit.collider.GetComponentInParent<UnitBase>().transform);
                 GameObject blood = Managers.Resources.Instantiate("Effect/Blood", null);
                 blood.transform.position = hit.point;
                 blood.transform.LookAt(_firePoint.position);
                 Destroy(blood, 1f);
+                return;
             }
+            else if(layer == (int)LayerType.Body) {
+                hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(Damage , Enemy.transform, hit.collider.GetComponentInParent<UnitBase>().transform);
+                GameObject blood = Managers.Resources.Instantiate("Effect/Blood", null);
+                blood.transform.position = hit.point;
+                blood.transform.LookAt(_firePoint.position);
+                Destroy(blood, 1f);
+                return;
+            }
+            
         }
 
         public override void Shot() {

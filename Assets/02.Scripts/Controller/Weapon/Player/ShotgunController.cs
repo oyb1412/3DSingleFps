@@ -7,7 +7,7 @@ namespace Player {
         [SerializeField] private int _bulletNumber;
         protected override void Awake() {
             base.Awake();
-            VerticalBoundValue = 2.5f;
+            VerticalBoundValue = 3.5f;
             HorizontalBoundValue = 1f;
             CrossValue = 450f;
             Damage = 20;

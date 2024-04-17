@@ -12,7 +12,7 @@ public class UI_PlayerHurt : UI_Base
     [SerializeField] private Image HurtEffect;
     private Coroutine _hurtCoroutine;
 
-    private void Update() {
+    private void Start() {
         _player.HurtEvent -= PlayerHurt;
         _player.HurtEvent += PlayerHurt;
 

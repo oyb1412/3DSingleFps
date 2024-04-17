@@ -10,10 +10,18 @@ public class UI_GameSystem : UI_Base
     [SerializeField] private TextMeshProUGUI _timeText;
     [SerializeField] private TextMeshProUGUI _gameStateText;
     [SerializeField] private TextMeshProUGUI _waitTimeText;
+    [SerializeField] private TextMeshProUGUI _continueKillText;
 
     private void Start() {
+        _player.DeadEvent -= (() => _deadNumberText.text = _player.MyDead.ToString());
+        _player.KillEvent -= (() => _killNumberText.text = _player.MyKill.ToString());
+        _player.DoubleKillEvent -= (() => StartCoroutine("CoDoubleKill"));
+        _player.TripleKillEvent -= TripleKillEvent;  
+        
         _player.DeadEvent += (() => _deadNumberText.text = _player.MyDead.ToString());
         _player.KillEvent += (() => _killNumberText.text = _player.MyKill.ToString());
+        _player.DoubleKillEvent += (() => StartCoroutine("CoDoubleKill"));
+        _player.TripleKillEvent += TripleKillEvent;
 
         _deadNumberText.text = "0";
         _killNumberText.text = "0";
@@ -27,8 +35,33 @@ public class UI_GameSystem : UI_Base
         _timeText.text = $"{min:D2}:{sec:D2}";
     }
 
+    private void TripleKillEvent() {
+        StopCoroutine("CoDoubleKill");
+        StartCoroutine("CoTripleKill");
+    }
+
     private void SetWaitUI() {
         StartCoroutine(CoWaitUI());
+    }
+
+    private IEnumerator CoDoubleKill() {
+        float alpha = 1f;
+        _continueKillText.text = "DOUBLE KILL!!";
+        while (alpha > 0) {
+            alpha -= Time.deltaTime;
+            _continueKillText.color = new Color(1f, 0.7f, 0f, alpha);
+            yield return null;
+        }
+    }
+
+    private IEnumerator CoTripleKill() {
+        float alpha = 1f;
+        _continueKillText.text = "TRIPLE KILL!!!";
+        while (alpha > 0) {
+            alpha -= Time.deltaTime;
+            _continueKillText.color = new Color(1f, 0f, 0f, alpha);
+            yield return null;
+        }
     }
 
     private IEnumerator CoWaitUI() {

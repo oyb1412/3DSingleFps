@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UI_Crosshair : UI_Base
 {
@@ -24,11 +25,18 @@ public class UI_Crosshair : UI_Base
     private float _crossTime = 0.1f;
     private float _crossValue;
 
+    [SerializeField] private Image _bodyShotImage;
+    [SerializeField] private Image _headShotImage;
+
     protected override void Init() {
         base.Init();
+        _player.CrossValueEvent -= SetCross;
         _player.CrossValueEvent += SetCross;
         _player.ShotEvent -= ShotMethod;
         _player.ShotEvent += ShotMethod;
+
+        _player.BodyshotEvent += (() => StartCoroutine(CoShotImageActive(_bodyShotImage)));
+        _player.HeadshotEvent += (() => StartCoroutine(CoShotImageActive(_headShotImage)));
     }
 
     private void Start() {
@@ -47,7 +55,6 @@ public class UI_Crosshair : UI_Base
         _limitRight = _defalutRight + _limitValue;
         _limitUp = _defalutUp + _limitValue;
         _limitDown = _defalutDown - _limitValue;
-
     }
 
     private void SetCross(float value) {
@@ -66,6 +73,15 @@ public class UI_Crosshair : UI_Base
         }
         if(_defalutDown > _crossDown.transform.position.y) {
             _crossDown.transform.position = Vector3.Lerp(_crossDown.transform.position, _crossDown.transform.position + Vector3.up, Time.deltaTime * _crossValue * 0.5f);
+        }
+    }
+
+    IEnumerator CoShotImageActive(Image image) {
+        float alpha = 1f;
+        while(alpha > 0f) {
+            alpha -= Time.deltaTime;
+            image.color = new Color(1f, 0f, 0f, alpha);
+            yield return null;
         }
     }
 

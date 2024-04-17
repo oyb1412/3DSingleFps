@@ -5,7 +5,7 @@ namespace Player {
         protected override void Awake() {
             base.Awake();
             VerticalBoundValue = 0.75f;
-            HorizontalBoundValue = 1f;
+            HorizontalBoundValue = .3f;
             CrossValue = 150f;
             Damage = 10;
             Name = "Rifle";

@@ -36,4 +36,19 @@ public class Util : MonoBehaviour
 
         return component;
     }
+
+    public static List<Color> GenerateDistinctColors(int count) {
+        List<Color> colors = new List<Color>();
+        float hueStep = 1f / count;
+
+        for (int i = 0; i < count; i++) {
+            float hue = i * hueStep; 
+            Color color = Color.HSVToRGB(hue, 0.8f, 0.8f);
+            colors.Add(color);
+        }
+
+        return colors;
+    }
+
+    
 }

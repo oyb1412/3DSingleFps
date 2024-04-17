@@ -17,6 +17,8 @@ public class Define
         Item = 12,
         Enemy = 13,
         Unit = 14,
+        Head,
+        Body,
     }
 
     public enum DirType {

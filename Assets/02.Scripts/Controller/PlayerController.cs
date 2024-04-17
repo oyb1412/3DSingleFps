@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using static Define;
@@ -8,14 +9,14 @@ public class PlayerController : UnitBase, ITakeDamage
 {
     private const float LIMIT_ROTATE_UP = -20f;
     private const float LIMIT_ROTATE_DOWN = 10f;
-
+    private const float CONTINUE_KILL_TIME = 3f;
     private float _gravity = -9.81f;
 
     private int _jumpLayer;
     private float _vx;
     private float _vy;
-    private float _moveX;
-    private float _moveZ;
+    [SerializeField]private float _moveX;
+    [SerializeField]private float _moveZ;
     private Vector3 _velocity;
 
     public Action ShotEvent;
@@ -28,8 +29,20 @@ public class PlayerController : UnitBase, ITakeDamage
     public Action DeadEvent;
     public Action KillEvent;
     public Action RespawnEvent;
+    public Action BodyshotEvent;
+    public Action HeadshotEvent;
+    public Action DoubleKillEvent;
+    public Action TripleKillEvent;
+    public Action<bool> ScoreboardEvent;
 
     private CharacterController _cc;
+
+    public bool IsKill { get; set; }
+    public bool IsDoubleKill { get; set; }
+    public bool IstripleKill { get; set; }
+
+    private float _doubleKillCheck;
+    private float _tripleKillCheck;
 
     public PlayerStatus MyStatus { get { return _status as PlayerStatus; } set { _status = value; } }
     public Player.WeaponController CurrentWeapon => _currentWeapon as Player.WeaponController;
@@ -76,7 +89,7 @@ public class PlayerController : UnitBase, ITakeDamage
     public override void ChangeWeapon(WeaponType type) {
         base.ChangeWeapon(type);
         CrossValueEvent.Invoke(CurrentWeapon.CrossValue);
-        ChangeEvent(CurrentWeapon);
+        ChangeEvent.Invoke(CurrentWeapon);
     }
     #endregion
 
@@ -87,6 +100,31 @@ public class PlayerController : UnitBase, ITakeDamage
 
         if (_state == UnitState.Dead)
             return;
+
+        if (IsKill) {
+            _doubleKillCheck += Time.deltaTime;
+            if(_doubleKillCheck > CONTINUE_KILL_TIME) {
+                IsKill = false;
+                _doubleKillCheck = 0f;
+            }
+        }
+
+        if (IsDoubleKill)
+        {
+            _tripleKillCheck += Time.deltaTime;
+            if (_tripleKillCheck > CONTINUE_KILL_TIME) {
+                IsDoubleKill = false;
+                _tripleKillCheck = 0f;
+            }
+        }
+
+        if(IstripleKill) {
+            IsKill = false;
+            _doubleKillCheck = 0f;
+            IsDoubleKill = false;
+            _tripleKillCheck = 0f;
+            IstripleKill = false;
+        }
 
         OnRotateUpdate();
         PlayerPhycisc();
@@ -111,6 +149,13 @@ public class PlayerController : UnitBase, ITakeDamage
             GetItem();
         }
 
+        if(Input.GetKey(KeyCode.Tab)) {
+            ScoreboardEvent.Invoke(true);
+        }
+        if (Input.GetKeyUp(KeyCode.Tab)) {
+            ScoreboardEvent.Invoke(false);
+        }
+
         switch (_state) {
             case UnitState.Idle:
                 OnIdleUpdate();
@@ -129,7 +174,8 @@ public class PlayerController : UnitBase, ITakeDamage
         _moveX = Input.GetAxisRaw("Horizontal");
         _moveZ = Input.GetAxisRaw("Vertical");
 
-        if(_state != UnitState.Shot && _state != UnitState.Reload) {
+        if(_state != UnitState.Shot && _state != UnitState.Reload
+            && _state != UnitState.Dead) {
             if (_moveX == 0 && _moveZ == 0) {
                 _state = UnitState.Idle;
                 ChangeState(UnitState.Move, false);
@@ -144,7 +190,6 @@ public class PlayerController : UnitBase, ITakeDamage
 
         if (Input.GetKeyDown(KeyCode.Space)) {
             Jump();
-            
         }
 
         _velocity.y += _gravity * Time.deltaTime;
@@ -209,6 +254,8 @@ public class PlayerController : UnitBase, ITakeDamage
     }
 
     protected override void IsDeadEvent(Transform attackerTrans) {
+        _moveX = 0f;
+        _moveZ = 0f;
         base.IsDeadEvent(attackerTrans);
         _cc.enabled = false;
         DeadEvent.Invoke();
@@ -235,7 +282,11 @@ public class PlayerController : UnitBase, ITakeDamage
     }
 
     private bool IsGround() {
-        return Physics.Raycast(transform.position + Vector3.up, -Vector3.up, 1.5f, _jumpLayer);
+        if(Physics.Raycast(transform.position + Vector3.up, -Vector3.up, 1.5f, _jumpLayer)) {
+            _velocity.y = 0f;
+            return true;
+        }
+        return false;
     }
 
     public override void Init() {
@@ -246,10 +297,7 @@ public class PlayerController : UnitBase, ITakeDamage
         _mainCamera.gameObject.SetActive(true);
         _subCamera.gameObject.SetActive(false);
         _cc.enabled = true;
-        WeaponInit();
-        ChangeState(UnitState.Get);
         RespawnEvent.Invoke();
-        transform.position = Managers.RespawnManager.GetRespawnPosition();
     }
     #endregion
 }

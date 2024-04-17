@@ -7,6 +7,7 @@ using static Define;
 public class EnemyController : UnitBase, ITakeDamage {
     private NavMeshAgent _agent;
 
+    public string Name { get; set; }
     public UnitBase TargetUnit { get; private set; }
     private EnemyFov _fov;
     private Collider _collider;
@@ -20,6 +21,7 @@ public class EnemyController : UnitBase, ITakeDamage {
         _fov = GetComponent<EnemyFov>();
         _agent.speed = MyStatus._moveSpeed;
     }
+
     
     private void Start() {
         Invoke("StartMove", Managers.GameManager.WaitTime);
@@ -51,6 +53,14 @@ public class EnemyController : UnitBase, ITakeDamage {
             TargetUnit = null;
             StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
         }
+
+        if(TargetUnit &&  !TargetUnit.IsDead() && _fov.isTracePlayer()) {
+            var target = _fov.isTracePlayer();
+            if(TargetUnit is not PlayerController && target is PlayerController) {
+                TargetUnit = target;
+                StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
+            }
+        }
     }
 
     public IEnumerator CoMove(Vector3 pos) {
@@ -61,7 +71,6 @@ public class EnemyController : UnitBase, ITakeDamage {
                 - new Vector3(transform.position.x, 0f, transform.position.z)).magnitude;
 
             if (TargetUnit) {
-                Debug.Log("유닛 발견");
                 _agent.SetDestination(transform.position);
                 transform.LookAt(TargetUnit.transform.position);
                 ChangeState(UnitState.Shot, true);
@@ -77,7 +86,6 @@ public class EnemyController : UnitBase, ITakeDamage {
 
             if(CollideItem != null && !_isTraceItem) {
                 if (!_isTraceItem) {
-                    Debug.Log("아이템 추적");
                     _isTraceItem = true;
                     StartCoroutine(CoMove(CollideItem.MyTransform.position));
                     break;
@@ -85,11 +93,9 @@ public class EnemyController : UnitBase, ITakeDamage {
             }
             if (dir < 0.2f) {
                 if(_isTraceItem && CollideItem != null) {
-                    Debug.Log("아이템 습득");
                     CollideItem.Pickup(this);
                     _isTraceItem = false;
                 }
-                Debug.Log("다음장소 추적");
                 StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
                 break;
             }
@@ -117,12 +123,9 @@ public class EnemyController : UnitBase, ITakeDamage {
         _collider.enabled = true;
         UnitRotate = Quaternion.identity;
         WeaponInit();
-        ChangeState(UnitState.Shot, false);
-        ChangeState(UnitState.Idle);
         StopAllCoroutines();
         _fov.IsDead = false;
         CollideItem = null;
-        transform.position = Managers.RespawnManager.GetRespawnPosition();
         StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
     }
 }
