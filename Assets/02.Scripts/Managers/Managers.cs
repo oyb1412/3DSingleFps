@@ -14,12 +14,14 @@ public class Managers : MonoBehaviour
         }
     }
     private GameManager _gameManager = new GameManager();
+    private RespawnManager _respawnManager = new RespawnManager();
     private PoolManager _pool = new PoolManager();
     private InputManager _input = new InputManager();
     private ResourcesManager _resources = new ResourcesManager();
     private SceneManagerEX _scene = new SceneManagerEX();
 
     public static GameManager GameManager => _instance._gameManager;
+    public static RespawnManager RespawnManager => _instance._respawnManager;
     public static PoolManager Pool => _instance._pool;
     public static SceneManagerEX Scene => _instance._scene;
     public static InputManager Input => Instance._input;
@@ -28,6 +30,7 @@ public class Managers : MonoBehaviour
     private void Awake()
     {
         Init();
+        RespawnManager.Init();
         GameManager.Init();
     }
 

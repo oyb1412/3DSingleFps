@@ -18,6 +18,18 @@ public class UI_PlayerHurt : UI_Base
 
         _player.DeadEvent -= PlayerDead;
         _player.DeadEvent += PlayerDead;
+
+        _player.RespawnEvent -= PlayerRespawn;
+        _player.RespawnEvent += PlayerRespawn;
+    }
+
+    private void PlayerRespawn() {
+        DeathEffect.SetActive(false);
+        HurtEffect.gameObject.SetActive(false);
+
+        foreach(Transform item in HitDirections.transform) {
+            item.gameObject.SetActive(false);
+        }
     }
 
     private void PlayerDead() {
@@ -82,7 +94,7 @@ public class UI_PlayerHurt : UI_Base
         float alpha = 0f;
         image.gameObject.SetActive(true);
         while (alpha < 1f) {
-            alpha += Time.deltaTime * 2f;
+            alpha += Time.deltaTime / _player._RespawnTime;
             image.color = new Color(0f, 0f, 0f, alpha);
             yield return null;
         }

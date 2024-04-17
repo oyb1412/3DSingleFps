@@ -15,6 +15,8 @@ public class UI_GameSystem : UI_Base
         _player.DeadEvent += (() => _deadNumberText.text = _player.MyDead.ToString());
         _player.KillEvent += (() => _killNumberText.text = _player.MyKill.ToString());
 
+        _deadNumberText.text = "0";
+        _killNumberText.text = "0";
         Managers.GameManager.WaitStateEvent += SetWaitUI;
     }
 

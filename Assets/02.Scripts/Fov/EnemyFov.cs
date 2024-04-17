@@ -9,12 +9,17 @@ public class EnemyFov : MonoBehaviour {
     [Range(0, 360)]
     public float viewAngle = 120f;
 
+    public bool IsDead { get; set; }
+
     public Vector3 CirclePoint(float angle) {
         angle += transform.eulerAngles.y;
         return new Vector3(Mathf.Sin(angle * Mathf.Deg2Rad), 0f, Mathf.Cos(angle * Mathf.Deg2Rad));
     }
 
     public UnitBase isTracePlayer() {
+        if (IsDead)
+            return null;
+
         var colls = Physics.OverlapSphere(transform.position, viewRange, LayerMask.GetMask("Unit"));
         if (colls.Length > 0) {
             foreach (var coll in colls) {

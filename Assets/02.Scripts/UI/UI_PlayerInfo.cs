@@ -12,7 +12,7 @@ public class UI_PlayerInfo : UI_Base
     [SerializeField]private TextMeshProUGUI _maxBulletNumberText;
     [SerializeField]private Image _currentHpBarImage;
     [SerializeField]private Image _currentWeaponIconImage;
-    [SerializeField] private Image _currentBulletBarImage;
+    [SerializeField]private Image _currentBulletBarImage;
 
     private PlayerStatus _status;
     protected override void Init() {
@@ -24,6 +24,9 @@ public class UI_PlayerInfo : UI_Base
         _player.HpEvent += HpEvent;
         _player.BulletEvent += BulletEvent;
         _player.ChangeEvent += ChangeWeaponEvent;
+
+        _player.RespawnEvent -= RespawnEvent;
+        _player.RespawnEvent += RespawnEvent;
 
         _status = _player.MyStatus;
         _currentHpText.text = _status._currentHp.ToString();
@@ -38,6 +41,12 @@ public class UI_PlayerInfo : UI_Base
         _currentWeaponIconImage.sprite = weapon.WeaponIcon;
         _currentWeaponNameText.text = weapon.Name;
         BulletEvent(weapon.CurrentBullet, weapon.MaxBullet, weapon.RemainBullet);
+    }
+
+    private void RespawnEvent() {
+        HpEvent(_player.Status._currentHp, _player.Status._maxHp);
+        BulletEvent(_player.CurrentWeapon.CurrentBullet, _player.CurrentWeapon.MaxBullet, _player.CurrentWeapon.RemainBullet);
+        ChangeWeaponEvent(_player.CurrentWeapon);
     }
 
     private void HpEvent(int currentHp, int maxHp) {

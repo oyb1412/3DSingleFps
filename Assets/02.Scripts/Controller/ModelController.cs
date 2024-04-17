@@ -51,4 +51,5 @@ public class ModelController : MonoBehaviour
     public void ResetTrigger(string name) {
         _animator.ResetTrigger(name);
     }
+
 }

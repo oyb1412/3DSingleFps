@@ -8,7 +8,6 @@ public class EnemyController : UnitBase, ITakeDamage {
     private NavMeshAgent _agent;
 
     public UnitBase TargetUnit { get; private set; }
-    private Transform _movePoint;
     private EnemyFov _fov;
     private Collider _collider;
     private bool _isTraceItem;
@@ -20,11 +19,14 @@ public class EnemyController : UnitBase, ITakeDamage {
         _agent = GetComponent<NavMeshAgent>();
         _fov = GetComponent<EnemyFov>();
         _agent.speed = MyStatus._moveSpeed;
-        _movePoint = GameObject.Find("@SpawnPoints").transform;
     }
     
     private void Start() {
-        StartCoroutine(CoMove(GetRandomPosition()));
+        Invoke("StartMove", Managers.GameManager.WaitTime);
+    }
+
+    private void StartMove() {
+        StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
     }
 
     private void Update() {
@@ -34,20 +36,20 @@ public class EnemyController : UnitBase, ITakeDamage {
         if (State == UnitState.Dead)
             return;
 
+        UnitRotate = transform.rotation;
+
         if (!TargetUnit && _fov.isTracePlayer()) {
             TargetUnit = _fov.isTracePlayer();
         }
 
         if(TargetUnit && TargetUnit.IsDead()) {
             TargetUnit = null;
-            ChangeState(UnitState.Move, false);
-            StartCoroutine(CoMove(GetRandomPosition()));
+            StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
         }
 
         if (TargetUnit && !_fov.isTracePlayer() && State == UnitState.Shot) {
             TargetUnit = null;
-            ChangeState(UnitState.Move, false);
-            StartCoroutine(CoMove(GetRandomPosition()));
+            StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
         }
     }
 
@@ -82,27 +84,45 @@ public class EnemyController : UnitBase, ITakeDamage {
                 }
             }
             if (dir < 0.2f) {
-                if(_isTraceItem) {
+                if(_isTraceItem && CollideItem != null) {
                     Debug.Log("아이템 습득");
                     CollideItem.Pickup(this);
                     _isTraceItem = false;
                 }
                 Debug.Log("다음장소 추적");
-                StartCoroutine(CoMove(GetRandomPosition()));
+                StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
                 break;
             }
             yield return null;
         }
     }
 
-    private Vector3 GetRandomPosition() {
-        return _movePoint.GetChild(Random.Range(0, _movePoint.childCount - 1)).position;
+    protected override void IsHitEvent(int damage, Transform attackerTrans, Transform myTrans) {
+        base.IsHitEvent(damage, attackerTrans, myTrans);
+        if(TargetUnit == null) {
+            TargetUnit = attackerTrans.GetComponent<UnitBase>();
+        }
     }
 
-    public override void TakeDamage(int damage, Transform attackerTrans, Transform myTrans) {
-        base.TakeDamage(damage, attackerTrans, myTrans);
-        if (_status._currentHp <= 0) {
-            _collider.enabled = false;
-        }
+    protected override void IsDeadEvent(Transform attackerTrans) {
+        base.IsDeadEvent(attackerTrans);
+        transform.LookAt(attackerTrans);
+        TargetUnit = null;
+        _fov.IsDead = true;
+        _collider.enabled = false;
+    }
+
+    public override void Init() {
+        base.Init();
+        _collider.enabled = true;
+        UnitRotate = Quaternion.identity;
+        WeaponInit();
+        ChangeState(UnitState.Shot, false);
+        ChangeState(UnitState.Idle);
+        StopAllCoroutines();
+        _fov.IsDead = false;
+        CollideItem = null;
+        transform.position = Managers.RespawnManager.GetRespawnPosition();
+        StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
     }
 }

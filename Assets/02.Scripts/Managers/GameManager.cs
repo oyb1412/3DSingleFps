@@ -12,13 +12,18 @@ public class GameManager
 
     public float WaitTime { get; private set; }
 
-    private float _doNextStateTime = 0f;
+    private float _doNextStateTime = 5f;
+
+
     public void Init()
     {
-        
+        Vector3[] pos = Managers.RespawnManager.GetRandomRespawnPosition(5);
+        for (int i = 0; i< 5; i++) {
+            GameObject go = Managers.Resources.Instantiate("Unit/Enemy", null);
+            go.transform.position = pos[i];
+        }
+        Cursor.lockState = CursorLockMode.Locked;
     }
-
-    
 
     public void Update()
     {

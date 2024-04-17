@@ -17,7 +17,6 @@ public class PlayerController : UnitBase, ITakeDamage
     private float _moveX;
     private float _moveZ;
     private Vector3 _velocity;
-    public Vector3 PlayerRotate { get; private set; }
 
     public Action ShotEvent;
     public Action<float> CrossValueEvent;
@@ -28,12 +27,15 @@ public class PlayerController : UnitBase, ITakeDamage
     public Action<Transform, Transform> HurtEvent;
     public Action DeadEvent;
     public Action KillEvent;
+    public Action RespawnEvent;
 
     private CharacterController _cc;
 
     public PlayerStatus MyStatus { get { return _status as PlayerStatus; } set { _status = value; } }
     public Player.WeaponController CurrentWeapon => _currentWeapon as Player.WeaponController;
 
+    [SerializeField] private Camera _subCamera;
+    [SerializeField] private Camera _mainCamera;
     #region Init
     protected override void Awake() {
         base.Awake();
@@ -41,7 +43,7 @@ public class PlayerController : UnitBase, ITakeDamage
     }
 
     private void Start() {
-        CrossValueEvent.Invoke(_currentWeapon.CrossValue);
+        CrossValueEvent.Invoke(CurrentWeapon.CrossValue);
         _jumpLayer = (1 << (int)LayerType.Obstacle) | (1 << (int)LayerType.Ground);
     }
 
@@ -54,7 +56,6 @@ public class PlayerController : UnitBase, ITakeDamage
 
         if (_currentWeapon.TryShot(this)) {
             ChangeState(UnitState.Shot);
-            StartCoroutine(COBound());
         }
     }
 
@@ -69,13 +70,12 @@ public class PlayerController : UnitBase, ITakeDamage
     }
 
     #endregion
-
     #region Change
 
 
     public override void ChangeWeapon(WeaponType type) {
         base.ChangeWeapon(type);
-        CrossValueEvent.Invoke(_currentWeapon.CrossValue);
+        CrossValueEvent.Invoke(CurrentWeapon.CrossValue);
         ChangeEvent(CurrentWeapon);
     }
     #endregion
@@ -117,7 +117,6 @@ public class PlayerController : UnitBase, ITakeDamage
                 break;
         }
     }
-
 
     private void OnIdleUpdate() {
         if(_moveX != 0 || _moveZ != 0) {
@@ -163,19 +162,19 @@ public class PlayerController : UnitBase, ITakeDamage
 
         Vector3 lastDir = new Vector3(-_vx, _vy, 0);
         transform.eulerAngles = lastDir;
-        PlayerRotate = lastDir;
+        UnitRotate = transform.rotation;
     }
     #endregion
 
     #region Bound
-    private IEnumerator COBound() {
+    public IEnumerator COBound() {
         float exitTime = 0;
-        float horizontalRecoil = UnityEngine.Random.Range(-0.3f, 0.3f); 
+        float horizontalRecoil = UnityEngine.Random.Range(-0.2f, 0.2f); 
 
         while (true) {
             exitTime += Time.deltaTime;
-            _vx += exitTime * _currentWeapon.BoundValue;
-            _vy += horizontalRecoil * _currentWeapon.BoundValue; 
+            _vx += exitTime * CurrentWeapon.VerticalBoundValue;
+            _vy += horizontalRecoil * CurrentWeapon.HorizontalBoundValue; 
 
             if (exitTime > MyStatus._boundTime) {
                 StartCoroutine(CORebound());
@@ -187,12 +186,12 @@ public class PlayerController : UnitBase, ITakeDamage
 
     private IEnumerator CORebound() {
         float exitTime = 0;
-        float horizontalRecoil = UnityEngine.Random.Range(-0.3f, 0.3f); 
+        float horizontalRecoil = UnityEngine.Random.Range(-0.2f, 0.2f); 
 
         while (true) {
             exitTime += Time.deltaTime;
-            _vx -= exitTime * _currentWeapon.BoundValue; 
-            _vy -= horizontalRecoil * _currentWeapon.BoundValue;
+            _vx -= exitTime * CurrentWeapon.VerticalBoundValue; 
+            _vy -= horizontalRecoil * CurrentWeapon.HorizontalBoundValue;
 
             if (exitTime > MyStatus._boundTime * .5f)
                 break;
@@ -201,19 +200,21 @@ public class PlayerController : UnitBase, ITakeDamage
     }
     #endregion
 
-    #region Interface
-    public override void TakeDamage(int damage, Transform attackerTrans, Transform myTrans) {
-        base.TakeDamage(damage, attackerTrans, myTrans);
+    #region OtherEvent
+
+    protected override void IsHitEvent(int damage, Transform attackerTrans, Transform myTrans) {
+        base.IsHitEvent(damage, attackerTrans, myTrans);
         HpEvent.Invoke(_status._currentHp, _status._maxHp);
         HurtEvent.Invoke(attackerTrans, myTrans);
-        if (_status._currentHp <= 0) {
-            _cc.enabled = false;
-            DeadEvent.Invoke();
-        }
     }
-    #endregion
 
-    #region OtherEvent
+    protected override void IsDeadEvent(Transform attackerTrans) {
+        base.IsDeadEvent(attackerTrans);
+        _cc.enabled = false;
+        DeadEvent.Invoke();
+        _mainCamera.gameObject.SetActive(false);
+        _subCamera.gameObject.SetActive(true);
+    }
 
     private void CheckForward() {
 
@@ -235,6 +236,20 @@ public class PlayerController : UnitBase, ITakeDamage
 
     private bool IsGround() {
         return Physics.Raycast(transform.position + Vector3.up, -Vector3.up, 1.5f, _jumpLayer);
+    }
+
+    public override void Init() {
+        base.Init();
+        _vx = _vy = _moveX = _moveZ = 0f;
+        _velocity = Vector3.zero;
+        UnitRotate = Quaternion.identity;
+        _mainCamera.gameObject.SetActive(true);
+        _subCamera.gameObject.SetActive(false);
+        _cc.enabled = true;
+        WeaponInit();
+        ChangeState(UnitState.Get);
+        RespawnEvent.Invoke();
+        transform.position = Managers.RespawnManager.GetRespawnPosition();
     }
     #endregion
 }

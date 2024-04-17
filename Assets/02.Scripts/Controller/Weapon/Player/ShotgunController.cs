@@ -7,21 +7,25 @@ namespace Player {
         [SerializeField] private int _bulletNumber;
         protected override void Awake() {
             base.Awake();
-            BoundValue = 0.1f;
+            VerticalBoundValue = 2.5f;
+            HorizontalBoundValue = 1f;
             CrossValue = 450f;
-            Damage = 15;
+            Damage = 20;
             Name = "Shotgun";
             WeaponIcon = (Sprite)Managers.Resources.Load<Sprite>("Texture/ShotgunIcon");
+            CreateObject = (GameObject)Managers.Resources.Load<GameObject>("Prefabs/Item/Shotgun");
+        }
+
+        protected override void Enable() {
             CurrentBullet = 6;
             RemainBullet = 6;
             MaxBullet = 30;
-            CreateObject = (GameObject)Managers.Resources.Load<GameObject>("Prefabs/Item/Shotgun");
         }
         public override void Shot() {
             base.Shot();
             Vector3 angle = transform.forward;
             for (int i = 0; i < _bulletNumber; i++) {
-                _player.ShotEvent.Invoke();
+                Player.ShotEvent.Invoke();
 
                 var ran1 = Random.Range(-_bulletAngle, _bulletAngle);
                 var ran2 = Random.Range(-_bulletAngle, _bulletAngle);
