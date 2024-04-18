@@ -4,10 +4,13 @@ namespace Player {
     public class RifleController : WeaponController {
         protected override void Awake() {
             base.Awake();
-            VerticalBoundValue = 0.75f;
-            HorizontalBoundValue = .3f;
+            VerticalBoundValue = 2f;
+            HorizontalBoundValue = .5f;
+            _shotDelay = 0.1f;
             CrossValue = 150f;
-            Damage = 10;
+            Damage = 40;
+            Type = Define.WeaponType.Rifle;
+
             Name = "Rifle";
             WeaponIcon = (Sprite)Managers.Resources.Load<Sprite>("Texture/RifleIcon");
             CreateObject = (GameObject)Managers.Resources.Load<GameObject>("Prefabs/Item/Rifle");

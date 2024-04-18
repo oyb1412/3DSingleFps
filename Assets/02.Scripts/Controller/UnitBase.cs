@@ -23,7 +23,7 @@ public class UnitBase : MonoBehaviour
     public UnitState State => _state;
     public StatusBase Status => _status;
 
-    public float _RespawnTime { get; private set; } = 1f;
+    public float _RespawnTime { get; private set; } = 5f;
     public int MyKill { get; set; }
     public int MyDead { get; private set; }
     public int MyRank { get; set; }
@@ -68,10 +68,20 @@ public class UnitBase : MonoBehaviour
         Model.ChangeAnimation(state, trigger);
     }
 
+
     public void ChangeState(UnitState state) {
         _state = state;
         _currentWeapon.SetAnimation(state);
         Model.ChangeAnimation(state);
+    }
+
+    public void ChangeShotState(UnitState state) {
+        if (_state == UnitState.Reload)
+            return;
+
+        _state = state;
+        _currentWeapon.SetAnimation(state);
+        Model.ChangeShotAnimation(state, _currentWeapon.Type);
     }
 
     private void DropWeapon() {
@@ -93,6 +103,7 @@ public class UnitBase : MonoBehaviour
                 item.myObject.SetActive(false);
         }
         CollideItem = null;
+        Model.ChangeWeapon(type);
     }
 
     protected void GetItem() {
@@ -104,7 +115,7 @@ public class UnitBase : MonoBehaviour
 
     public void TakeDamage(int damage, Transform attackerTrans, Transform myTrans) {
         IsHitEvent(damage, attackerTrans, myTrans);
-        if (_status._currentHp <= 0) {
+        if (_status._currentHp <= 0 && State != UnitState.Dead) {
             IsDeadEvent(attackerTrans);
         }
     }
@@ -114,15 +125,18 @@ public class UnitBase : MonoBehaviour
     }
 
     protected virtual void IsDeadEvent(Transform attackerTrans) {
+        Invoke("Init", _RespawnTime);
         _bodyCollider.enabled = false;
         _headCollider.enabled = false;
         MyDead++;
         DeathNumberEvent?.Invoke(MyDead);
-        DropWeapon();
+        ChangeWeapon(WeaponType.Pistol);
         attackerTrans.GetComponent<UnitBase>().MyKill++;
         attackerTrans.GetComponent<UnitBase>().KillNumberEvent?.Invoke(attackerTrans.GetComponent<UnitBase>().MyKill);
         Managers.GameManager.UnitsSortToRank();
+        Model.ResetAnimator();
         ChangeState(UnitState.Dead);
+
         if (attackerTrans.TryGetComponent<PlayerController>(out var player)) {
             player.KillEvent.Invoke();
             if(player.IstripleKill) {
@@ -145,12 +159,11 @@ public class UnitBase : MonoBehaviour
 
                 player.TripleKillEvent.Invoke();
             }
-
         }
     }
 
     public virtual void Init() {
-        _bodyCollider.enabled = true;
+       _bodyCollider.enabled = true;
         _headCollider.enabled = true;
         _status._currentHp = _status._maxHp;
         transform.position = Managers.RespawnManager.GetValidSpawnPosition();

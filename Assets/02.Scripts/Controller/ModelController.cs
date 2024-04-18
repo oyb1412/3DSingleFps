@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Resources;
 using Unity.VisualScripting;
 using UnityEngine;
 using static Define;
@@ -34,6 +35,10 @@ public class ModelController : MonoBehaviour
         _weaponList[(int)type].SetActive(true);
     }
 
+    public void ResetAnimator() {
+        _animator.gameObject.SetActive(false);
+        _animator.gameObject.SetActive(true);
+    }
     public void ChangeAnimation(UnitState state, bool trigger) {
         _animator.SetBool("Move", false);
         _animator.SetBool("Shot", false);
@@ -41,11 +46,11 @@ public class ModelController : MonoBehaviour
     }
 
     public void ChangeAnimation(UnitState state) {
-        AnimatorStateInfo stateInfo = _animator.GetCurrentAnimatorStateInfo(0);
-        if (stateInfo.IsName(state.ToString()))
-            return;
-
         _animator.SetTrigger(state.ToString());
+    }
+
+    public void ChangeShotAnimation(UnitState state, WeaponType type) {
+        _animator.SetTrigger($"{state.ToString()}{type.ToString()}");
     }
 
     public void ResetTrigger(string name) {

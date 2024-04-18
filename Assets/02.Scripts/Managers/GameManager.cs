@@ -47,7 +47,6 @@ public class GameManager
         }
     }
 
-
     public void Update()
     {
         switch(State) {

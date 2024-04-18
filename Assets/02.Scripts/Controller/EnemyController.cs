@@ -12,6 +12,7 @@ public class EnemyController : UnitBase, ITakeDamage {
     private EnemyFov _fov;
     private Collider _collider;
     private bool _isTraceItem;
+    public bool IsShotState { get; set; }
     public EnemyStatus MyStatus { get { return _status as EnemyStatus; } set { _status = value; } }
 
     protected override void Awake() {
@@ -46,20 +47,35 @@ public class EnemyController : UnitBase, ITakeDamage {
 
         if(TargetUnit && TargetUnit.IsDead()) {
             TargetUnit = null;
+            IsShotState = false;
+
             StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
         }
 
         if (TargetUnit && !_fov.isTracePlayer() && State == UnitState.Shot) {
             TargetUnit = null;
+            IsShotState = false;
+
             StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
         }
 
-        if(TargetUnit &&  !TargetUnit.IsDead() && _fov.isTracePlayer()) {
+        if (TargetUnit && !TargetUnit.IsDead() && _fov.isTracePlayer()) {
             var target = _fov.isTracePlayer();
-            if(TargetUnit is not PlayerController && target is PlayerController) {
+            if (TargetUnit is not PlayerController && target is PlayerController) {
                 TargetUnit = target;
+                IsShotState = true;
                 StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
             }
+        }
+
+        if (IsShotState && _state != UnitState.Reload) {
+            if (_currentWeapon.TryShot(this)) {
+                ChangeShotState(UnitState.Shot);
+            }
+        }
+
+        if(TargetUnit && !TargetUnit.IsDead()) {
+            IsShotState = true;
         }
     }
 
@@ -73,13 +89,15 @@ public class EnemyController : UnitBase, ITakeDamage {
             if (TargetUnit) {
                 _agent.SetDestination(transform.position);
                 transform.LookAt(TargetUnit.transform.position);
-                ChangeState(UnitState.Shot, true);
+                ChangeState(UnitState.Move, false);
+                IsShotState = true;
                 StopAllCoroutines();
                 break;
             }
 
             if(IsDead()) {
                 _agent.SetDestination(transform.position);
+                ChangeState(UnitState.Move, false);
                 StopAllCoroutines();
                 break;
             }

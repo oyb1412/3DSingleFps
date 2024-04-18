@@ -12,6 +12,11 @@ namespace Base {
         public string Name { get; set; }
         public Sprite WeaponIcon { get; set; }
 
+        protected float _delay;
+        protected float _shotDelay;
+
+        [SerializeField]protected bool _isShot = true;
+
         protected Transform _firePos;
         protected int _layerMask;
         protected Transform _firePoint;
@@ -23,6 +28,7 @@ namespace Base {
         protected abstract void Enable();
 
         public int Damage { get; set; }
+        public WeaponType Type { get ; set ; }
 
         protected virtual void Awake() {
             _animator = GetComponent<Animator>();
@@ -32,8 +38,21 @@ namespace Base {
             _layerMask = (1 << (int)LayerType.Head) | (1 << (int)LayerType.Body) | (1 << (int)LayerType.Obstacle) | (1 << (int)LayerType.Ground) | (1 << (int)LayerType.Wall);
             _firePos = Util.FindChild(gameObject, "FirePos", true).transform;
             _ejectEffect = Util.FindChild(_firePos.gameObject, "Eject", false).GetComponent<ParticleSystem>();
-
         }
+
+        private void Update() {
+            if (Managers.GameManager.State != GameState.StartFight)
+                return;
+
+            if( _isShot ) {
+                _delay += Time.deltaTime;
+                if(_delay >= _shotDelay) {
+                    _isShot = false;
+                    _delay = 0;
+                }
+            }
+        }
+
         public void Activation(Transform firePoint = null, UnitBase unit = null) {
             if (firePoint != null && _firePoint == null) {
                 _firePoint = firePoint;
@@ -42,7 +61,6 @@ namespace Base {
                 _unit = unit;
             }
             Enable();
-
         }
 
         public virtual void Reload() {
@@ -58,6 +76,8 @@ namespace Base {
                 CurrentBullet = RemainBullet;
                 MaxBullet -= RemainBullet;
             }
+
+            EndAnimation("Reload");
         }
 
         protected abstract void DefaultShot(Vector3 angle);
@@ -67,6 +87,7 @@ namespace Base {
                 _unit.Reload();
                 return;
             }
+            _isShot = true;
             CurrentBullet--;
             _ejectEffect.Play();
             var ran = Random.Range(0, 5);
@@ -91,7 +112,11 @@ namespace Base {
 
         public virtual bool TryShot(UnitBase unit) {
             if (unit.State == Define.UnitState.Reload ||
-                unit.State == Define.UnitState.Get)
+                unit.State == Define.UnitState.Get ||
+                unit.State == UnitState.Dead)
+                return false;
+
+            if (_animator.GetCurrentAnimatorStateInfo(0).IsName("Dead"))
                 return false;
 
             if (CurrentBullet <= 0) {
@@ -99,11 +124,10 @@ namespace Base {
                 return false;
             }
 
-            return true;
-        }
+            if (_isShot)
+                return false;
 
-        public void Respawn() {
-            _unit.Init();
+            return true;
         }
 
 

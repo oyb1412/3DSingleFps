@@ -4,10 +4,12 @@ namespace Player {
     public class PistolController : WeaponController {
         protected override void Awake() {
             base.Awake();
-            VerticalBoundValue = 1f;
-            HorizontalBoundValue = .5f;
+            VerticalBoundValue = 4.5f;
+            HorizontalBoundValue = 1.5f;
+            _shotDelay = 0.4f;
             CrossValue = 350f;
-            Damage = 20;
+            Type = Define.WeaponType.Pistol;
+            Damage = 30;
             Name = "Pistol";
             WeaponIcon = (Sprite)Managers.Resources.Load<Sprite>("Texture/PistolIcon");
             CreateObject = (GameObject)Managers.Resources.Load<GameObject>("Prefabs/Item/Pistol");

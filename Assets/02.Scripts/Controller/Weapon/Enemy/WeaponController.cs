@@ -28,7 +28,22 @@ namespace Enemy {
                 return;
 
             int layer = hit.collider.gameObject.layer;
-            if (layer == (int)LayerType.Obstacle ||
+            if (layer == (int)LayerType.Head &&
+                hit.collider.GetComponentInParent<UnitBase>().gameObject != Enemy.gameObject) {
+                hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(Damage * 3, Enemy.transform, hit.collider.GetComponentInParent<UnitBase>().transform);
+                GameObject blood = Managers.Resources.Instantiate("Effect/Blood", null);
+                blood.transform.position = hit.point;
+                blood.transform.LookAt(_firePoint.position);
+                Destroy(blood, 1f);
+            } else if (layer == (int)LayerType.Body &&
+                  hit.collider.GetComponentInParent<UnitBase>().gameObject != Enemy.gameObject) {
+                hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(Damage, Enemy.transform, hit.collider.GetComponentInParent<UnitBase>().transform);
+                GameObject blood = Managers.Resources.Instantiate("Effect/Blood", null);
+                blood.transform.position = hit.point;
+                blood.transform.LookAt(_firePoint.position);
+                Destroy(blood, 1f);
+            }
+            else if (layer == (int)LayerType.Obstacle ||
                layer == (int)LayerType.Wall) {
                 GameObject impact = Managers.Resources.Instantiate("Effect/Impact", null);
                 impact.transform.position = hit.point;
@@ -43,27 +58,15 @@ namespace Enemy {
                 return;
             }
 
-            if (layer == (int)LayerType.Head) {
-                hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(Damage * 2, Enemy.transform, hit.collider.GetComponentInParent<UnitBase>().transform);
-                GameObject blood = Managers.Resources.Instantiate("Effect/Blood", null);
-                blood.transform.position = hit.point;
-                blood.transform.LookAt(_firePoint.position);
-                Destroy(blood, 1f);
-                return;
-            }
-            else if(layer == (int)LayerType.Body) {
-                hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(Damage , Enemy.transform, hit.collider.GetComponentInParent<UnitBase>().transform);
-                GameObject blood = Managers.Resources.Instantiate("Effect/Blood", null);
-                blood.transform.position = hit.point;
-                blood.transform.LookAt(_firePoint.position);
-                Destroy(blood, 1f);
-                return;
-            }
+            
             
         }
 
         public override void Shot() {
             if (!TryShot(Enemy))
+                return;
+
+            if (_animator.GetCurrentAnimatorStateInfo(0).IsName("Dead"))
                 return;
 
             StartCoroutine(CoRotate());
@@ -82,21 +85,6 @@ namespace Enemy {
                 yield return null;
             }
         }
-
-        public override bool TryShot(UnitBase unit) {
-            if (!Enemy.TargetUnit) {
-                Enemy.ChangeState(UnitState.Shot, false);
-                Enemy.ChangeState(UnitState.Idle);
-                return false;
-            }
-
-            return base.TryShot(unit);
-        }
-
-        public void EneAnimation(string name, bool trigger) {
-            Enemy.ChangeState(UnitState.Shot, trigger);
-        }
-
     }
 
 }

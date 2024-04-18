@@ -4,8 +4,10 @@ namespace Enemy {
     public class PistolController : WeaponController {
         protected override void Awake() {
             base.Awake();
-            Damage = 10;
+            Damage = 20;
+            Type = Define.WeaponType.Pistol;
             Name = "Pistol";
+            _shotDelay = 0.4f;
             WeaponIcon = (Sprite)Managers.Resources.Load<Sprite>("Texture/PistolIcon");
             CreateObject = (GameObject)Managers.Resources.Load<GameObject>("Prefabs/Item/Pistol");
         }

@@ -6,8 +6,11 @@ namespace Enemy {
         private float _bulletNumber = 6;
         protected override void Awake() {
             base.Awake();
-            Damage = 1;
+            Damage = 30;
+            _shotDelay = 1f;
             Name = "Shotgun";
+            Type = Define.WeaponType.Shotgun;
+
             WeaponIcon = (Sprite)Managers.Resources.Load<Sprite>("Texture/ShotgunIcon");
             CreateObject = (GameObject)Managers.Resources.Load<GameObject>("Prefabs/Item/Shotgun");
         }

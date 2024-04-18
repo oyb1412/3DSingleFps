@@ -25,8 +25,27 @@ namespace Player {
 
             int layer = hit.collider.gameObject.layer;
 
-            
-            if (layer == (int)LayerType.Obstacle ||
+            if (layer == (int)LayerType.Head &&
+                hit.collider.GetComponentInParent<UnitBase>().gameObject != Player.gameObject) {
+                Player.HeadshotEvent.Invoke();
+                hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(Damage * 3, Player.transform, hit.collider.GetComponentInParent<UnitBase>().transform);
+                GameObject blood = Managers.Resources.Instantiate("Effect/Blood", null);
+                blood.transform.position = hit.point;
+                blood.transform.LookAt(_firePoint.position);
+                Destroy(blood, 1f);
+                return;
+
+            } else if (layer == (int)LayerType.Body &&
+                hit.collider.GetComponentInParent<UnitBase>().gameObject != Player.gameObject) {
+                Player.BodyshotEvent.Invoke();
+                hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(Damage, Player.transform, hit.collider.GetComponentInParent<UnitBase>().transform);
+                GameObject blood = Managers.Resources.Instantiate("Effect/Blood", null);
+                blood.transform.position = hit.point;
+                blood.transform.LookAt(_firePoint.position);
+                Destroy(blood, 1f);
+                return;
+            }
+            else if (layer == (int)LayerType.Obstacle ||
                layer == (int)LayerType.Wall) {
                 GameObject impact = Managers.Resources.Instantiate("Effect/Impact", null);
                 impact.transform.position = hit.point;
@@ -42,23 +61,7 @@ namespace Player {
                 return;
             }
 
-            if (layer == (int)LayerType.Head) {
-                Player.HeadshotEvent.Invoke();
-                hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(Damage * 2, Player.transform, hit.transform);
-                GameObject blood = Managers.Resources.Instantiate("Effect/Blood", null);
-                blood.transform.position = hit.point;
-                blood.transform.LookAt(_firePoint.position);
-                Destroy(blood, 1f);
-                return;
-            } else if (layer == (int)LayerType.Body) {
-                Player.BodyshotEvent.Invoke();
-                hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(Damage, Player.transform, hit.transform);
-                GameObject blood = Managers.Resources.Instantiate("Effect/Blood", null);
-                blood.transform.position = hit.point;
-                blood.transform.LookAt(_firePoint.position);
-                Destroy(blood, 1f);
-                return;
-            }
+            
         }
         public override void Shot() {
             base.Shot();

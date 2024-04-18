@@ -15,8 +15,8 @@ public class PlayerController : UnitBase, ITakeDamage
     private int _jumpLayer;
     private float _vx;
     private float _vy;
-    [SerializeField]private float _moveX;
-    [SerializeField]private float _moveZ;
+    private float _moveX;
+    private float _moveZ;
     private Vector3 _velocity;
 
     public Action ShotEvent;
@@ -68,7 +68,7 @@ public class PlayerController : UnitBase, ITakeDamage
             return;
 
         if (_currentWeapon.TryShot(this)) {
-            ChangeState(UnitState.Shot);
+            ChangeShotState(UnitState.Shot);
         }
     }
 
@@ -286,6 +286,10 @@ public class PlayerController : UnitBase, ITakeDamage
             _velocity.y = 0f;
             return true;
         }
+
+        //todo
+        //false가 반환되었는대 점프중이 아니라는 건 낙하했다는 얘기기 때문에,
+        //낙하했을땐 짧은 시간동안 gravity값을 줄여주자.
         return false;
     }
 
