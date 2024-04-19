@@ -16,6 +16,8 @@ public class SubCameraController : MonoBehaviour
 
     void Update()
     {
+        if (!Managers.GameManager.InGame())
+            return;
         transform.position += Vector3.up * _cameraSpeed * Time.deltaTime;
     }
 }

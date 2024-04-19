@@ -3,31 +3,29 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 using static Define;
+using static UnityEngine.UI.CanvasScaler;
 
 public class EnemyController : UnitBase, ITakeDamage {
     private NavMeshAgent _agent;
- 
+
     public string Name { get; set; }
-    public UnitBase TargetUnit { get; private set; }
-    private EnemyFov _fov;
+    [field:SerializeField] public UnitBase TargetUnit { get; private set; }
     private Collider _collider;
     private bool _isTraceItem;
-    public bool IsShotState { get; set; }
+    [field: SerializeField] public bool IsShotState { get; set; }
+    [SerializeField] float _viewRange;
     public EnemyStatus MyStatus { get { return _status as EnemyStatus; } set { _status = value; } }
 
     protected override void Awake() {
         base.Awake();
         _collider = GetComponent<Collider>();
         _agent = GetComponent<NavMeshAgent>();
-        _fov = GetComponent<EnemyFov>();
         _agent.speed = MyStatus._moveSpeed;
     }
 
-    
     private void Start() {
         Invoke("StartMove", Managers.GameManager.WaitTime);
     }
-
     private void StartMove() {
         StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
     }
@@ -41,47 +39,78 @@ public class EnemyController : UnitBase, ITakeDamage {
 
         UnitRotate = transform.rotation;
 
-        if (!TargetUnit && _fov.isTracePlayer()) {
-            TargetUnit = _fov.isTracePlayer();
-        }
-
-        if(TargetUnit && TargetUnit.IsDead()) {
-            TargetUnit = null;
-            IsShotState = false;
-
-            StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
-        }
-
-        if (TargetUnit && !_fov.isTracePlayer() && State == UnitState.Shot) {
-            TargetUnit = null;
-            IsShotState = false;
-
-            StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
-        }
-
-        if (TargetUnit && !TargetUnit.IsDead() && _fov.isTracePlayer()) {
-            var target = _fov.isTracePlayer();
-            if (TargetUnit is not PlayerController && target is PlayerController) {
-                TargetUnit = target;
-                IsShotState = true;
-                StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
-            }
-        }
-
-        if (IsShotState && _state != UnitState.Reload) {
-            if (_currentWeapon.TryShot(this)) {
-                ChangeShotState(UnitState.Shot);
-            }
-        }
-
-        if(TargetUnit && !TargetUnit.IsDead()) {
+        if (!TargetUnit && SearchUnit()) {
+            TargetUnit = SearchUnit();
             IsShotState = true;
         }
+
+        if (TargetUnit && !TargetUnit.IsDead() && SearchUnit()) {
+            IsShotState = true;
+        }
+
+        if (TargetUnit && TargetUnit.IsDead()) {
+            TargetUnit = null;
+            IsShotState = false;
+            StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
+            return;
+        }
+
+        if (TargetUnit && !SearchUnit()/* && State == UnitState.Shot*/) {
+            TargetUnit = null;
+            IsShotState = false;
+            StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
+            return;
+        }
+
+        //if (TargetUnit && !TargetUnit.IsDead() && _fov.isTracePlayer()) {
+        //    var target = _fov.isTracePlayer();
+        //    if (TargetUnit is not PlayerController && target is PlayerController) {
+        //        TargetUnit = target;
+        //        IsShotState = true;
+        //        StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
+        //    }
+        //}
+
+        if (IsShotState && TargetUnit && !TargetUnit.IsDead() && _state != UnitState.Reload) {
+            if (_currentWeapon.TryShot(this)) {
+                _agent.SetDestination(transform.position);
+                State = UnitState.Shot;
+            }
+        }
+    }
+
+    private UnitBase SearchUnit() {
+        var units = Managers.GameManager.UnitsList;
+        foreach(var unit in units) {
+            Vector3 dir = (unit.transform.position - transform.position).normalized;
+            float product = Vector3.Dot(transform.forward, dir);
+            float angle = Mathf.Cos(_viewRange * 0.5f * Mathf.Deg2Rad);
+            if(product >= angle) {
+                int mask = (1 << (int)LayerType.Unit) | (1 << (int)LayerType.Obstacle) | (1 << (int)LayerType.Wall);
+                Debug.DrawRay(FirePoint.position, dir * 100f, Color.red);
+                bool hit = Physics.Raycast(FirePoint.position, dir, out var target, float.MaxValue, mask);
+
+                if (!hit)
+                    continue;
+
+                if (target.collider.gameObject.layer == (int)LayerType.Obstacle ||
+                    target.collider.gameObject.layer == (int)LayerType.Wall)
+                    continue;
+
+                if (target.collider.gameObject.layer == (int)LayerType.Unit) {
+                    TargetUnit = unit;
+                    return TargetUnit;
+                }
+            }
+        }
+        return null;
     }
 
     public IEnumerator CoMove(Vector3 pos) {
         _agent.SetDestination(pos);
-        ChangeState(UnitState.Move, true);
+        BaseWeapon.Animator.ResetTrigger("Shot");
+        _state = UnitState.Move;
+        State = UnitState.Move;
         while (true) {
             float dir = (new Vector3(pos.x, 0f, pos.z)
                 - new Vector3(transform.position.x, 0f, transform.position.z)).magnitude;
@@ -89,7 +118,6 @@ public class EnemyController : UnitBase, ITakeDamage {
             if (TargetUnit) {
                 _agent.SetDestination(transform.position);
                 transform.LookAt(TargetUnit.transform.position);
-                ChangeState(UnitState.Move, false);
                 IsShotState = true;
                 StopAllCoroutines();
                 break;
@@ -97,7 +125,7 @@ public class EnemyController : UnitBase, ITakeDamage {
 
             if(IsDead()) {
                 _agent.SetDestination(transform.position);
-                ChangeState(UnitState.Move, false);
+                State = UnitState.Dead;
                 StopAllCoroutines();
                 break;
             }
@@ -125,6 +153,8 @@ public class EnemyController : UnitBase, ITakeDamage {
         base.IsHitEvent(damage, attackerTrans, myTrans);
         if(TargetUnit == null) {
             TargetUnit = attackerTrans.GetComponent<UnitBase>();
+            transform.LookAt(attackerTrans);
+            IsShotState = true;
         }
     }
 
@@ -132,7 +162,6 @@ public class EnemyController : UnitBase, ITakeDamage {
         base.IsDeadEvent(attackerTrans);
         transform.LookAt(attackerTrans);
         TargetUnit = null;
-        _fov.IsDead = true;
         _collider.enabled = false;
     }
 
@@ -142,7 +171,6 @@ public class EnemyController : UnitBase, ITakeDamage {
         UnitRotate = Quaternion.identity;
         WeaponInit();
         StopAllCoroutines();
-        _fov.IsDead = false;
         CollideItem = null;
         StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
     }

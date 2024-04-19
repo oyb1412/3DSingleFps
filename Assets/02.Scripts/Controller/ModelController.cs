@@ -10,6 +10,8 @@ public class ModelController : MonoBehaviour
     private Animator _animator;
     private GameObject _weapons;
     private GameObject[] _weaponList = new GameObject[(int)WeaponType.Count];
+
+    public Animator Animator => _animator;
     private void Awake() {
         _animator = GetComponent<Animator>();
     }
@@ -39,22 +41,4 @@ public class ModelController : MonoBehaviour
         _animator.gameObject.SetActive(false);
         _animator.gameObject.SetActive(true);
     }
-    public void ChangeAnimation(UnitState state, bool trigger) {
-        _animator.SetBool("Move", false);
-        _animator.SetBool("Shot", false);
-        _animator.SetBool(state.ToString(), trigger);
-    }
-
-    public void ChangeAnimation(UnitState state) {
-        _animator.SetTrigger(state.ToString());
-    }
-
-    public void ChangeShotAnimation(UnitState state, WeaponType type) {
-        _animator.SetTrigger($"{state.ToString()}{type.ToString()}");
-    }
-
-    public void ResetTrigger(string name) {
-        _animator.ResetTrigger(name);
-    }
-
 }

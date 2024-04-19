@@ -5,10 +5,10 @@ using UnityEngine.UI;
 
 public class UI_Crosshair : UI_Base
 {
-    private Transform _crossLeft;
-    private Transform _crossRight;
-    private Transform _crossUp;
-    private Transform _crossDown;
+    [SerializeField] private Transform _crossLeft;
+    [SerializeField] private Transform _crossRight;
+    [SerializeField] private Transform _crossUp;
+    [SerializeField] private Transform _crossDown;
 
     private float _defalutLeft;
     private float _defalutRight;
@@ -27,6 +27,7 @@ public class UI_Crosshair : UI_Base
 
     [SerializeField] private Image _bodyShotImage;
     [SerializeField] private Image _headShotImage;
+    [SerializeField] private GameObject _crosshairView;
 
     protected override void Init() {
         base.Init();
@@ -41,11 +42,6 @@ public class UI_Crosshair : UI_Base
 
     private void Start() {
 
-        _crossLeft = Util.FindChild(gameObject, "Cross_Left", false).transform;
-        _crossRight = Util.FindChild(gameObject, "Cross_Right", false).transform;
-        _crossUp = Util.FindChild(gameObject, "Cross_Up", false).transform;
-        _crossDown = Util.FindChild(gameObject, "Cross_Down", false).transform;
-
         _defalutLeft = _crossLeft.transform.position.x;
         _defalutRight = _crossRight.transform.position.x;
         _defalutUp = _crossUp.transform.position.y;
@@ -55,6 +51,8 @@ public class UI_Crosshair : UI_Base
         _limitRight = _defalutRight + _limitValue;
         _limitUp = _defalutUp + _limitValue;
         _limitDown = _defalutDown - _limitValue;
+
+        _crosshairView.SetActive(true);
     }
 
     private void SetCross(float value) {

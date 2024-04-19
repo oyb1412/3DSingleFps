@@ -41,7 +41,6 @@ public class RespawnManager
                 }
 
                 if (count >= unit.Length) {
-                    Debug.Log($"{pos.position}위치에 소환");
                     return pos.position;
                 }
             }

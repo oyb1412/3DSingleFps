@@ -34,6 +34,8 @@ public class PlayerController : UnitBase, ITakeDamage
     public Action DoubleKillEvent;
     public Action TripleKillEvent;
     public Action<bool> ScoreboardEvent;
+    public Action MenuEvent;
+    public Action SettingEvent;
 
     private CharacterController _cc;
 
@@ -68,11 +70,11 @@ public class PlayerController : UnitBase, ITakeDamage
             return;
 
         if (_currentWeapon.TryShot(this)) {
-            ChangeShotState(UnitState.Shot);
+            State = UnitState.Shot;
         }
     }
 
-    public void Jump() {
+    private void Jump() {
         if (!Managers.GameManager.InGame())
             return;
 
@@ -95,6 +97,17 @@ public class PlayerController : UnitBase, ITakeDamage
 
     #region Update
     private void Update() {
+        if (Input.GetKeyDown(KeyCode.Escape)) {
+            if(Managers.GameManager.State == GameState.StartFight ||
+                Managers.GameManager.State == GameState.Menu)
+                MenuEvent.Invoke();
+
+            if(Managers.GameManager.State == GameState.Setting)
+                SettingEvent.Invoke();
+        }
+
+        
+
         if (!Managers.GameManager.InGame())
             return;
 
@@ -104,6 +117,7 @@ public class PlayerController : UnitBase, ITakeDamage
         if (Input.GetKeyUp(KeyCode.Tab)) {
             ScoreboardEvent.Invoke(false);
         }
+
 
         if (_state == UnitState.Dead)
             return;
@@ -177,18 +191,17 @@ public class PlayerController : UnitBase, ITakeDamage
         _moveX = Input.GetAxisRaw("Horizontal");
         _moveZ = Input.GetAxisRaw("Vertical");
 
-        if(_state != UnitState.Shot && _state != UnitState.Reload
-            && _state != UnitState.Dead) {
+        if(_state != UnitState.Reload && _state != UnitState.Shot) {
             if (_moveX == 0 && _moveZ == 0) {
-                _state = UnitState.Idle;
-                ChangeState(UnitState.Move, false);
+                State = UnitState.Idle;
             } else {
-                _state = UnitState.Move;
-                ChangeState(UnitState.Move, true);
+                State = UnitState.Move;
             }
         }
         
+        
         Vector3 move = transform.right * _moveX + transform.forward * _moveZ;
+        move.y = 0f;
         _cc.Move(move * _status._moveSpeed * Time.deltaTime);
 
         if (Input.GetKeyDown(KeyCode.Space)) {

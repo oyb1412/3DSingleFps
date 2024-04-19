@@ -30,6 +30,7 @@ namespace Base {
 
         protected Animator _animator;
 
+        public Animator Animator => _animator;
         protected abstract void Enable();
 
         public int Damage { get; set; }
@@ -46,10 +47,10 @@ namespace Base {
         }
 
         private void Update() {
-            if (Managers.GameManager.State != GameState.StartFight)
+            if (!Managers.GameManager.InGame())
                 return;
 
-            if( _isShot ) {
+            if ( _isShot ) {
                 _delay += Time.deltaTime;
                 if(_delay >= _shotDelay) {
                     _isShot = false;
@@ -82,12 +83,10 @@ namespace Base {
                 MaxBullet -= RemainBullet;
             }
 
-            EndAnimation("Reload");
+            _unit.State = UnitState.Idle;
         }
 
-        protected virtual void DefaultShot(Vector3 angle) {
-
-        }
+        protected virtual void DefaultShot(Vector3 angle) {        }
         
         public virtual void Shot() {
             if(CurrentBullet <= 0) {
@@ -144,25 +143,6 @@ namespace Base {
                 return false;
 
             return true;
-        }
-
-
-        public void SetAnimation(UnitState anime, bool trigger) {
-
-            _animator.SetBool(anime.ToString(), trigger);
-            _unit.Model.ChangeAnimation(anime, trigger);
-        }
-
-        public void SetAnimation(UnitState anime) {
-
-            _animator.SetTrigger(anime.ToString());
-            _unit.Model.ChangeAnimation(anime);
-        }
-
-        public void EndAnimation(string name) {
-            _animator.ResetTrigger(name);
-            _unit.Model.ResetTrigger(name);
-            _unit.ChangeState(UnitState.Idle);
         }
     }
 }

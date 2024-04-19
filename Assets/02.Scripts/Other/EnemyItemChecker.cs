@@ -9,8 +9,6 @@ public class EnemyItemChecker : MonoBehaviour
         _enemy = GetComponentInParent<EnemyController>();
     }
 
-    private void Update() {
-    }
     private void OnTriggerEnter(Collider c) {
         if (_enemy.CollideItem != null)
             return;

@@ -20,7 +20,67 @@ public class UnitBase : MonoBehaviour
     protected IWeapon[] _weaponList = new IWeapon[(int)WeaponType.Count];
     [SerializeField]protected UnitState _state = UnitState.Idle;
 
-    public UnitState State => _state;
+    public Base.WeaponController BaseWeapon => _currentWeapon as Base.WeaponController;
+
+    public UnitState State {
+        get { return _state;}
+        set {
+            switch(value) {
+                case UnitState.Idle:
+                    if (_state == UnitState.Dead || _state == UnitState.Shot)
+                        return;
+
+                    Model.Animator.SetBool("Move", false);
+                    BaseWeapon.Animator.SetBool("Move", false);
+                    break;
+                case UnitState.Move:
+                    if (_state == UnitState.Dead || _state == UnitState.Reload || _state == UnitState.Shot)
+                        return;
+
+                    Model.Animator.SetBool("Move", true);
+                    BaseWeapon.Animator.SetBool("Move", true);
+                    break;
+                case UnitState.Shot:
+                    if (_state == UnitState.Reload || _state == UnitState.Dead)
+                        return;
+
+                    Model.Animator.SetBool("Move", false);
+                    BaseWeapon.Animator.SetBool("Move", false);
+                    Model.Animator.SetTrigger($"Shot{_currentWeapon.Type.ToString()}");
+                    BaseWeapon.Animator.SetTrigger("Shot");
+                    break;
+                case UnitState.Reload:
+                    if (_state == UnitState.Reload || _state == UnitState.Dead)
+                        return;
+
+                    Model.Animator.SetBool("Move", false);
+                    BaseWeapon.Animator.SetBool("Move", false);
+                    Model.Animator.SetTrigger("Reload");
+                    BaseWeapon.Animator.SetTrigger("Reload");
+                    break;
+                case UnitState.Dead:
+                    if (_state == UnitState.Dead)
+                        return;
+
+                    Model.Animator.SetBool("Move", false);
+                    BaseWeapon.Animator.SetBool("Move", false);
+                    Model.Animator.SetTrigger("Dead");
+                    BaseWeapon.Animator.SetTrigger("Dead");
+                    break;
+                case UnitState.Get:
+                    if (_state == UnitState.Get)
+                        return;
+
+                    Model.Animator.SetBool("Move", false);
+                    BaseWeapon.Animator.SetBool("Move", false);
+                    Model.Animator.SetTrigger("Get");
+                    BaseWeapon.Animator.SetTrigger("Get");
+                    break;
+            }
+            _state = value;
+        }
+    }
+    
     public StatusBase Status => _status;
 
     public Transform FirePoint => _firePoint;
@@ -31,6 +91,8 @@ public class UnitBase : MonoBehaviour
 
     public Action<int> KillNumberEvent;
     public Action<int> DeathNumberEvent;
+
+
     protected virtual void Awake() {
         Model = GetComponentInChildren<ModelController>();
         _status = GetComponent<StatusBase>();
@@ -60,28 +122,7 @@ public class UnitBase : MonoBehaviour
             return;
 
         if (_currentWeapon.TryReload(this))
-            ChangeState(UnitState.Reload);
-    }
-
-    public void ChangeState(UnitState state, bool trigger) {
-        _state = state;
-        _currentWeapon.SetAnimation(state, trigger);
-        Model.ChangeAnimation(state, trigger);
-    }
-
-    public void ChangeState(UnitState state) {
-        _state = state;
-        _currentWeapon.SetAnimation(state);
-        Model.ChangeAnimation(state);
-    }
-
-    public void ChangeShotState(UnitState state) {
-        if (_state == UnitState.Reload)
-            return;
-
-        _state = state;
-        _currentWeapon.SetAnimation(state);
-        Model.ChangeShotAnimation(state, _currentWeapon.Type);
+            State = UnitState.Reload;
     }
 
     private void DropWeapon() {
@@ -97,7 +138,7 @@ public class UnitBase : MonoBehaviour
         _weaponList[(int)type].myObject.SetActive(true);
         _currentWeapon = _weaponList[(int)type];
         _currentWeapon.Activation(_firePoint, this);
-        ChangeState(UnitState.Get);
+        State = UnitState.Get;
         foreach (var item in _weaponList) {
             if (_currentWeapon != item)
                 item.myObject.SetActive(false);
@@ -133,9 +174,9 @@ public class UnitBase : MonoBehaviour
         ChangeWeapon(WeaponType.Pistol);
         attackerTrans.GetComponent<UnitBase>().MyKill++;
         attackerTrans.GetComponent<UnitBase>().KillNumberEvent?.Invoke(attackerTrans.GetComponent<UnitBase>().MyKill);
-        Managers.GameManager.UnitsSortToRank();
+        Managers.GameManager.BoardSortToRank();
         Model.ResetAnimator();
-        ChangeState(UnitState.Dead);
+        State = UnitState.Dead;
 
         if (attackerTrans.TryGetComponent<PlayerController>(out var player)) {
             player.KillEvent.Invoke();
@@ -167,7 +208,7 @@ public class UnitBase : MonoBehaviour
         _headCollider.enabled = true;
         _status._currentHp = _status._maxHp;
         transform.position = Managers.RespawnManager.GetRespawnPosition();
-        ChangeState(UnitState.Get);
+        State = UnitState.Get;
     }
 
 

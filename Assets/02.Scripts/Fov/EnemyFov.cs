@@ -23,8 +23,6 @@ public class EnemyFov : MonoBehaviour {
     }
 
     public UnitBase isTracePlayer() {
-
-
         if (IsDead)
             return null;
 
@@ -38,7 +36,7 @@ public class EnemyFov : MonoBehaviour {
                 dir = dir.normalized;
                 if (Vector3.Angle(transform.forward, dir) < viewAngle * 0.5f) {
 
-                    int mask = (1 << (int)LayerType.Unit) | (1 << (int)LayerType.Obstacle);
+                    int mask = (1 << (int)LayerType.Unit) | (1 << (int)LayerType.Obstacle) | (1 << (int)LayerType.Wall);
                     Debug.DrawRay(_unit.FirePoint.position, dir * 100f, Color.red);
                     bool hit = Physics.Raycast(_unit.FirePoint.position, dir, out var target, float.MaxValue, mask);
 
@@ -49,7 +47,7 @@ public class EnemyFov : MonoBehaviour {
                         target.collider.gameObject.layer == (int)LayerType.Wall)
                         continue;
 
-                    else if (target.collider.gameObject.layer == (int)LayerType.Unit)
+                    if (target.collider.gameObject.layer == (int)LayerType.Unit)
                         return coll.gameObject.GetComponent<UnitBase>();
                 }
             }

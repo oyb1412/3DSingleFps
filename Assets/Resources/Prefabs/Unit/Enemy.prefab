@@ -28286,7 +28286,6 @@ GameObject:
   - component: {fileID: 5753758314082287615}
   - component: {fileID: 2152162237323526983}
   - component: {fileID: 8238576637714770111}
-  - component: {fileID: 3801293821492310707}
   - component: {fileID: 8362245277000921128}
   - component: {fileID: 1109050328668398096}
   - component: {fileID: 5736638725747493357}
@@ -28330,6 +28329,9 @@ MonoBehaviour:
   _bodyCollider: {fileID: 3238820574344924945}
   _headCollider: {fileID: 1922653233892639024}
   _state: 0
+  <TargetUnit>k__BackingField: {fileID: 0}
+  <IsShotState>k__BackingField: 0
+  _viewRange: 90
 --- !u!114 &8238576637714770111
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28345,20 +28347,6 @@ MonoBehaviour:
   _currentHp: 100
   _maxHp: 100
   _moveSpeed: 3
---- !u!114 &3801293821492310707
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6367790376593157254}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3f22c0cb86f9df94192e77facc442930, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  viewRange: 30
-  viewAngle: 150
 --- !u!136 &8362245277000921128
 CapsuleCollider:
   m_ObjectHideFlags: 0

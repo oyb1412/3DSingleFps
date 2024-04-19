@@ -19,6 +19,9 @@ public abstract class ItemController : MonoBehaviour, IItem {
         MyTransform = transform;
     }
     private void Update() {
+        if (!Managers.GameManager.InGame())
+            return;
+
         transform.Rotate(0f, _itemRotateSpeed, 0f);
     }
 }

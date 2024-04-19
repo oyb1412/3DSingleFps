@@ -13,7 +13,4 @@ public interface IWeapon
     void Reload();
     bool TryReload(UnitBase unit);
     bool TryShot(UnitBase unit);
-    void SetAnimation(Define.UnitState anime, bool trigger);
-    void SetAnimation(Define.UnitState anime);
-    void EndAnimation(string name);
 }

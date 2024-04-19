@@ -8,6 +8,9 @@ public class Define
         None,
         WaitFight,
         StartFight,
+        Menu,
+        Setting,
+        Gameover,
     }
     public enum LayerType {
         Obstacle = 10,
