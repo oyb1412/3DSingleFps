@@ -29,8 +29,7 @@ namespace Player {
                 hit.collider.GetComponentInParent<UnitBase>().gameObject != Player.gameObject) {
                 Player.HeadshotEvent.Invoke();
                 hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(Damage * 3, Player.transform, hit.collider.GetComponentInParent<UnitBase>().transform);
-                GameObject blood = Managers.Resources.Instantiate("Effect/Blood", null);
-                blood.transform.position = hit.point;
+                GameObject blood = CreateEffect(_bloodEffect, hit.point);
                 blood.transform.LookAt(_firePoint.position);
                 Destroy(blood, 1f);
                 return;
@@ -39,29 +38,24 @@ namespace Player {
                 hit.collider.GetComponentInParent<UnitBase>().gameObject != Player.gameObject) {
                 Player.BodyshotEvent.Invoke();
                 hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(Damage, Player.transform, hit.collider.GetComponentInParent<UnitBase>().transform);
-                GameObject blood = Managers.Resources.Instantiate("Effect/Blood", null);
-                blood.transform.position = hit.point;
+                GameObject blood = CreateEffect(_bloodEffect, hit.point);
                 blood.transform.LookAt(_firePoint.position);
                 Destroy(blood, 1f);
                 return;
-            }
-            else if (layer == (int)LayerType.Obstacle ||
-               layer == (int)LayerType.Wall) {
-                GameObject impact = Managers.Resources.Instantiate("Effect/Impact", null);
-                impact.transform.position = hit.point;
+            } else if (layer == (int)LayerType.Obstacle ||
+                 layer == (int)LayerType.Wall) {
+                GameObject impact = CreateEffect(_impactEffect, hit.point);
                 impact.transform.LookAt(_firePoint.position);
                 Destroy(impact, 1f);
                 return;
-            }
-            else if (layer == (int)LayerType.Ground) {
-                GameObject impact = Managers.Resources.Instantiate("Effect/Impact", null);
-                impact.transform.position = hit.point;
+            } else if (layer == (int)LayerType.Ground) {
+                GameObject impact = CreateEffect(_impactEffect, hit.point);
                 impact.transform.eulerAngles = new Vector3(-90f, 0f, 0f);
                 Destroy(impact, 1f);
                 return;
             }
 
-            
+
         }
         public override void Shot() {
             base.Shot();

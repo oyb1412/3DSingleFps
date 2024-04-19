@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 235399004266448369}
   - component: {fileID: 1050839021749308711}
   - component: {fileID: 7955828141587492986}
-  - component: {fileID: 2267027927921253930}
+  - component: {fileID: 3829950565408583156}
   m_Layer: 0
   m_Name: muzzelFlash2
   m_TagString: Untagged
@@ -161,7 +161,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   timeToDestroy: 0.05
---- !u!114 &2267027927921253930
+--- !u!114 &3829950565408583156
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -170,6 +170,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 3194726682826403103}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 03ec0ceed73b45e4f97b0923294b71d9, type: 3}
+  m_Script: {fileID: 11500000, guid: 5c25a679888cafe4991738648a7d7488, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

@@ -23,6 +23,7 @@ public class UnitBase : MonoBehaviour
     public UnitState State => _state;
     public StatusBase Status => _status;
 
+    public Transform FirePoint => _firePoint;
     public float _RespawnTime { get; private set; } = 5f;
     public int MyKill { get; set; }
     public int MyDead { get; private set; }
@@ -67,7 +68,6 @@ public class UnitBase : MonoBehaviour
         _currentWeapon.SetAnimation(state, trigger);
         Model.ChangeAnimation(state, trigger);
     }
-
 
     public void ChangeState(UnitState state) {
         _state = state;
@@ -166,7 +166,7 @@ public class UnitBase : MonoBehaviour
        _bodyCollider.enabled = true;
         _headCollider.enabled = true;
         _status._currentHp = _status._maxHp;
-        transform.position = Managers.RespawnManager.GetValidSpawnPosition();
+        transform.position = Managers.RespawnManager.GetRespawnPosition();
         ChangeState(UnitState.Get);
     }
 

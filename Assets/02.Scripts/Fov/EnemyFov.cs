@@ -9,18 +9,26 @@ public class EnemyFov : MonoBehaviour {
     [Range(0, 360)]
     public float viewAngle = 120f;
 
+    private UnitBase _unit;
     public bool IsDead { get; set; }
 
+
+
+    private void Awake() {
+        _unit = GetComponent<UnitBase>();
+    }
     public Vector3 CirclePoint(float angle) {
         angle += transform.eulerAngles.y;
         return new Vector3(Mathf.Sin(angle * Mathf.Deg2Rad), 0f, Mathf.Cos(angle * Mathf.Deg2Rad));
     }
 
     public UnitBase isTracePlayer() {
+
+
         if (IsDead)
             return null;
 
-        var colls = Physics.OverlapSphere(transform.position, viewRange, LayerMask.GetMask("Unit"));
+        var colls = Physics.OverlapSphere(_unit.FirePoint.position, viewRange, LayerMask.GetMask("Unit"));
         if (colls.Length > 0) {
             foreach (var coll in colls) {
                 if (coll.gameObject == gameObject)
@@ -31,13 +39,14 @@ public class EnemyFov : MonoBehaviour {
                 if (Vector3.Angle(transform.forward, dir) < viewAngle * 0.5f) {
 
                     int mask = (1 << (int)LayerType.Unit) | (1 << (int)LayerType.Obstacle);
-                    Debug.DrawRay(transform.position + Vector3.up, dir * 100f, Color.red);
-                    bool hit = Physics.Raycast(transform.position + Vector3.up, dir, out var target, float.MaxValue, mask);
+                    Debug.DrawRay(_unit.FirePoint.position, dir * 100f, Color.red);
+                    bool hit = Physics.Raycast(_unit.FirePoint.position, dir, out var target, float.MaxValue, mask);
 
                     if (!hit)
                         continue;
 
-                    if (target.collider.gameObject.layer == (int)LayerType.Obstacle)
+                    if (target.collider.gameObject.layer == (int)LayerType.Obstacle ||
+                        target.collider.gameObject.layer == (int)LayerType.Wall)
                         continue;
 
                     else if (target.collider.gameObject.layer == (int)LayerType.Unit)

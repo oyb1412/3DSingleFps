@@ -35,8 +35,8 @@ public class UI_Crosshair : UI_Base
         _player.ShotEvent -= ShotMethod;
         _player.ShotEvent += ShotMethod;
 
-        _player.BodyshotEvent += (() => StartCoroutine(CoShotImageActive(_bodyShotImage)));
-        _player.HeadshotEvent += (() => StartCoroutine(CoShotImageActive(_headShotImage)));
+        _player.BodyshotEvent += (() => StartCoroutine(CoBodyShotImageActive(_bodyShotImage)));
+        _player.HeadshotEvent += (() => StartCoroutine(CoHeadShotImageActive(_headShotImage)));
     }
 
     private void Start() {
@@ -76,11 +76,20 @@ public class UI_Crosshair : UI_Base
         }
     }
 
-    IEnumerator CoShotImageActive(Image image) {
+    IEnumerator CoHeadShotImageActive(Image image) {
         float alpha = 1f;
         while(alpha > 0f) {
             alpha -= Time.deltaTime;
             image.color = new Color(1f, 0f, 0f, alpha);
+            yield return null;
+        }
+    }
+
+    IEnumerator CoBodyShotImageActive(Image image) {
+        float alpha = 1f;
+        while (alpha > 0f) {
+            alpha -= Time.deltaTime;
+            image.color = new Color(1f, 1f, 0f, alpha);
             yield return null;
         }
     }

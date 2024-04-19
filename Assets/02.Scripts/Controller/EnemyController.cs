@@ -6,7 +6,7 @@ using static Define;
 
 public class EnemyController : UnitBase, ITakeDamage {
     private NavMeshAgent _agent;
-
+ 
     public string Name { get; set; }
     public UnitBase TargetUnit { get; private set; }
     private EnemyFov _fov;

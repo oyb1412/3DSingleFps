@@ -6,7 +6,8 @@ public class Item_ShotgunController : ItemController {
     
     public override void Pickup(UnitBase unit) {
         unit.ChangeWeapon(Define.WeaponType.Shotgun);
-        unit.CollideItem = null;
         Managers.Resources.Destroy(gameObject);
+        unit.CollideItem = null;
+
     }
 }

@@ -23,6 +23,11 @@ namespace Base {
         protected UnitBase _unit;
         protected ParticleSystem _ejectEffect;
 
+        [SerializeField] protected GameObject[] _muzzleEffect;
+        [SerializeField] protected GameObject _bloodEffect;
+        [SerializeField] protected GameObject _impactEffect;
+
+
         protected Animator _animator;
 
         protected abstract void Enable();
@@ -80,7 +85,9 @@ namespace Base {
             EndAnimation("Reload");
         }
 
-        protected abstract void DefaultShot(Vector3 angle);
+        protected virtual void DefaultShot(Vector3 angle) {
+
+        }
         
         public virtual void Shot() {
             if(CurrentBullet <= 0) {
@@ -91,16 +98,25 @@ namespace Base {
             CurrentBullet--;
             _ejectEffect.Play();
             var ran = Random.Range(0, 5);
-            GameObject muzzle = Managers.Resources.Instantiate($"Effect/muzzelFlash{ran}", null);
-            muzzle.transform.position = _firePos.position;
-            muzzle.transform.rotation = _unit.UnitRotate;
+            CreateEffect(_muzzleEffect[ran], _firePos.position, _unit.UnitRotate);
 
             if (CurrentBullet <= 0) {
                 _unit.Reload();
                 return;
             }
         }
+
+        protected GameObject CreateEffect(GameObject go, Vector3 pos, Quaternion rot = default ) {
+            GameObject effect = Managers.Resources.Instantiate(go, null);
+            effect.transform.position = pos;
+            effect.transform.rotation = rot;
+            return effect;
+        }
+
         public bool TryReload(UnitBase unit) {
+            if (_animator.GetCurrentAnimatorStateInfo(0).IsName("Reload"))
+                return false;
+
             if (MaxBullet <= 0)
                 return false;
 

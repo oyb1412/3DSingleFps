@@ -29,7 +29,7 @@ public class GameManager
         _boardChild.Add(child);
         for (int i = 0; i< ENEMY_NUMBER; i++) {
             EnemyController go = Managers.Resources.Instantiate("Unit/Enemy", null).GetComponent<EnemyController>();
-            go.transform.position = Managers.RespawnManager.GetValidSpawnPosition();
+            go.transform.position = Managers.RespawnManager.GetRespawnPosition();
             go.name = ENEMY_NAME[i];
             go.Name = ENEMY_NAME[i];
             UI_Scoreboard_Child child2 = Managers.Resources.Instantiate("UI/ScoreboardChild", _scoreBoardTransform).GetComponent<UI_Scoreboard_Child>();

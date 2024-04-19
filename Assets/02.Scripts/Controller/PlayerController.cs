@@ -98,6 +98,13 @@ public class PlayerController : UnitBase, ITakeDamage
         if (!Managers.GameManager.InGame())
             return;
 
+        if (Input.GetKey(KeyCode.Tab)) {
+            ScoreboardEvent.Invoke(true);
+        }
+        if (Input.GetKeyUp(KeyCode.Tab)) {
+            ScoreboardEvent.Invoke(false);
+        }
+
         if (_state == UnitState.Dead)
             return;
 
@@ -129,6 +136,7 @@ public class PlayerController : UnitBase, ITakeDamage
         OnRotateUpdate();
         PlayerPhycisc();
         CheckForward();
+       
 
         if (Input.GetMouseButtonDown(0) 
             || Input.GetMouseButton(0)) {
@@ -149,12 +157,7 @@ public class PlayerController : UnitBase, ITakeDamage
             GetItem();
         }
 
-        if(Input.GetKey(KeyCode.Tab)) {
-            ScoreboardEvent.Invoke(true);
-        }
-        if (Input.GetKeyUp(KeyCode.Tab)) {
-            ScoreboardEvent.Invoke(false);
-        }
+
 
         switch (_state) {
             case UnitState.Idle:
@@ -276,21 +279,14 @@ public class PlayerController : UnitBase, ITakeDamage
 
         CollideItem = hit.collider.GetComponent<IItem>();
     }
+
     private void OnDrawGizmos() {
-        Gizmos.color = Color.cyan;
+        Gizmos.color = Color.red;
         Gizmos.DrawRay(transform.position + Vector3.up, -Vector3.up * 1.5f);
     }
 
     private bool IsGround() {
-        if(Physics.Raycast(transform.position + Vector3.up, -Vector3.up, 1.5f, _jumpLayer)) {
-            _velocity.y = 0f;
-            return true;
-        }
-
-        //todo
-        //false가 반환되었는대 점프중이 아니라는 건 낙하했다는 얘기기 때문에,
-        //낙하했을땐 짧은 시간동안 gravity값을 줄여주자.
-        return false;
+        return Physics.Raycast(transform.position + Vector3.up, -Vector3.up, 1.5f, _jumpLayer);
     }
 
     public override void Init() {

@@ -27867,6 +27867,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _isShot: 0
+  _muzzleEffect:
+  - {fileID: 5284454798930023055, guid: 806d0998c037c3549b96cc8e459ef586, type: 3}
+  - {fileID: 2753902029671896274, guid: c2b332c050cbdfd4d92b0d591d349a20, type: 3}
+  - {fileID: 3194726682826403103, guid: c617e6173f04a6548b86a8cdd844cb70, type: 3}
+  - {fileID: 8686205186155133310, guid: efb9859ee92754743bc6523f121a3f5e, type: 3}
+  - {fileID: 6148920792605415406, guid: 1cc815d5cf0127c438d79733361a546f, type: 3}
+  _bloodEffect: {fileID: 6742844538414016715, guid: 0765930e04532e148bb2ab54ce1acd97, type: 3}
+  _impactEffect: {fileID: 1855723973631607767, guid: 1cd00a7265e3b2948b92fd96bcc06b8c, type: 3}
   _bulletAngle: 5
 --- !u!1 &6285808338391533502
 GameObject:
@@ -28125,7 +28133,7 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 3
+  m_Radius: 6
   m_Height: 0
   m_Direction: 1
   m_Center: {x: 0, y: 0.88, z: 0}
@@ -28350,7 +28358,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   viewRange: 30
-  viewAngle: 360
+  viewAngle: 150
 --- !u!136 &8362245277000921128
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -33418,6 +33426,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _isShot: 0
+  _muzzleEffect:
+  - {fileID: 5284454798930023055, guid: 806d0998c037c3549b96cc8e459ef586, type: 3}
+  - {fileID: 2753902029671896274, guid: c2b332c050cbdfd4d92b0d591d349a20, type: 3}
+  - {fileID: 3194726682826403103, guid: c617e6173f04a6548b86a8cdd844cb70, type: 3}
+  - {fileID: 8686205186155133310, guid: efb9859ee92754743bc6523f121a3f5e, type: 3}
+  - {fileID: 6148920792605415406, guid: 1cc815d5cf0127c438d79733361a546f, type: 3}
+  _bloodEffect: {fileID: 6742844538414016715, guid: 0765930e04532e148bb2ab54ce1acd97, type: 3}
+  _impactEffect: {fileID: 1855723973631607767, guid: 1cd00a7265e3b2948b92fd96bcc06b8c, type: 3}
   _bulletAngle: 5
 --- !u!1 &6496843425215447986
 GameObject:
@@ -40033,6 +40049,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _isShot: 0
+  _muzzleEffect:
+  - {fileID: 5284454798930023055, guid: 806d0998c037c3549b96cc8e459ef586, type: 3}
+  - {fileID: 2753902029671896274, guid: c2b332c050cbdfd4d92b0d591d349a20, type: 3}
+  - {fileID: 3194726682826403103, guid: c617e6173f04a6548b86a8cdd844cb70, type: 3}
+  - {fileID: 8686205186155133310, guid: efb9859ee92754743bc6523f121a3f5e, type: 3}
+  - {fileID: 6148920792605415406, guid: 1cc815d5cf0127c438d79733361a546f, type: 3}
+  _bloodEffect: {fileID: 6742844538414016715, guid: 0765930e04532e148bb2ab54ce1acd97, type: 3}
+  _impactEffect: {fileID: 1855723973631607767, guid: 1cd00a7265e3b2948b92fd96bcc06b8c, type: 3}
   _bulletAngle: 5
 --- !u!1 &7522642925470725903
 GameObject:
