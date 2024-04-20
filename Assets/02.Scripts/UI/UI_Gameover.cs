@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class UI_Gameover : UI_Base
@@ -20,9 +21,33 @@ public class UI_Gameover : UI_Base
 
     private void Start() {
         Managers.GameManager.GameoverAction += Gameover;
-        _continueBtn.onClick.AddListener(ExitGame);
+        _defaultColor = _continueBtn.targetGraphic.color;
+        _defaultScale = _continueBtn.transform.localScale;
+    }
 
-        
+    public override void OnEnterButton(BaseEventData eventData) {
+        base.OnEnterButton(eventData);
+        PointerEventData data = eventData as PointerEventData;
+        _name = data.pointerCurrentRaycast.gameObject.name;
+        Debug.Log($"클릭한 객체의 이름은 {_name}");
+
+        SetColorAndScale(_continueBtn, _name, "RestartBG", Color.black, new Vector3(.95f, .95f, .95f));
+    }
+
+    public override void OnExitButton(BaseEventData eventData) {
+        base.OnExitButton(eventData);
+
+        SetColorAndScale(_continueBtn, _name, "RestartBG", _defaultColor, _defaultScale);
+
+        _name = string.Empty;
+    }
+
+    public override void OnPressUpButton() {
+        base.OnPressUpButton();
+
+        SetColorAndScale(_continueBtn, _name, "RestartBG", _defaultColor, _defaultScale, RestartGame);
+
+        _name = string.Empty;
     }
 
     private void Gameover() {

@@ -12,6 +12,8 @@ namespace Base {
         public string Name { get; set; }
         public Sprite WeaponIcon { get; set; }
 
+        public float Delay { get { return _delay; }set { _delay = value; } }
+
         protected float _delay;
         protected float _shotDelay;
 

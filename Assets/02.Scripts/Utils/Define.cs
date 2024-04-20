@@ -22,6 +22,10 @@ public class Define
         Unit = 14,
         Head,
         Body,
+        RightArm,
+        LeftArm,
+        RightLeg,
+        LeftLeg,
     }
 
     public enum DirType {
@@ -59,9 +63,17 @@ public class Define
         Drag,
     }
 
+    public enum EnemyLevel {
+        Low,
+        Middle,
+        High
+    }
+
     public enum SceneType
     {
         None,
+        Startup,
         InGame,
+        Exit,
     }
 }

@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,13 +10,31 @@ public class SceneManagerEX
 {
     public BaseScene CurrentScene => GameObject.FindFirstObjectByType(typeof(BaseScene)).GetComponent<BaseScene>();
 
-    public void LoadScene(Define.SceneType type)
-    {
-        SceneManager.LoadScene(GetSceneName(type));
+    private UI_Fade _fade;
+
+    public void Init() {
+        if(_fade == null)
+            _fade = GameObject.Find("UI_Fade").GetComponent<UI_Fade>();
     }
 
-    private string GetSceneName(Define.SceneType type)
-    {
-       return Enum.GetName(typeof(Define.SceneType), type);
+    public void LoadScene(Define.SceneType type) {
+        var tween = _fade.SetFade(true);
+        if (type == Define.SceneType.Exit) {
+            tween.OnComplete(QuitGame);
+        } else
+            tween.OnComplete(() => DoNextScene(type));
     }
+
+    public void SetScene() {
+        _fade.SetFade(false);
+    }
+
+    private void QuitGame() {
+        Util.QuitGame();
+    }
+
+    private void DoNextScene(Define.SceneType type) {
+        SceneManager.LoadScene(type.ToString());
+    }
+
 }

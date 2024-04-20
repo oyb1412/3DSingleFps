@@ -34,7 +34,6 @@ RectTransform:
   - {fileID: 8568917540300629771}
   - {fileID: 3057438904387800412}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -124,7 +123,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3057438904387800412}
-  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -161,8 +159,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Are you sure you want to leave the match?
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 161118c14ba959e42b0922d21ea17413, type: 2}
-  m_sharedMaterial: {fileID: 741602556178937132, guid: 161118c14ba959e42b0922d21ea17413, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -261,7 +259,6 @@ RectTransform:
   - {fileID: 8746837586089061923}
   - {fileID: 956208861653529834}
   m_Father: {fileID: 6036097034215362934}
-  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -564,6 +561,14 @@ PrefabInstance:
       propertyPath: m_text
       value: INFO
       objectReference: {fileID: 0}
+    - target: {fileID: 5004437944992343532, guid: e0ed02779b1465642995e6430072c587, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+    - target: {fileID: 5004437944992343532, guid: e0ed02779b1465642995e6430072c587, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
     - target: {fileID: 5024457872025024510, guid: e0ed02779b1465642995e6430072c587, type: 3}
       propertyPath: m_Pivot.y
       value: 0.5

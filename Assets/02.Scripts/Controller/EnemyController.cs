@@ -8,7 +8,8 @@ using static UnityEngine.UI.CanvasScaler;
 public class EnemyController : UnitBase, ITakeDamage {
     private NavMeshAgent _agent;
 
-    public string Name { get; set; }
+    public int Level { get; private set; } = (int)EnemyLevel.Middle;
+    public string Name { get; private set; }
     [field:SerializeField] public UnitBase TargetUnit { get; private set; }
     private Collider _collider;
     private bool _isTraceItem;
@@ -16,6 +17,12 @@ public class EnemyController : UnitBase, ITakeDamage {
     [SerializeField] float _viewRange;
     public EnemyStatus MyStatus { get { return _status as EnemyStatus; } set { _status = value; } }
 
+    public void Create(Vector3 pos, string name, int level) {
+        transform.position = pos;
+        gameObject.name = name;
+        Name = name;
+        Level = level;
+    }
     protected override void Awake() {
         base.Awake();
         _collider = GetComponent<Collider>();
@@ -172,6 +179,7 @@ public class EnemyController : UnitBase, ITakeDamage {
         WeaponInit();
         StopAllCoroutines();
         CollideItem = null;
+        State = UnitState.Idle;
         StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
     }
 }

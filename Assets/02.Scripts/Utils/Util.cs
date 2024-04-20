@@ -40,6 +40,14 @@ public class Util : MonoBehaviour
         return component;
     }
 
+    public static void QuitGame() {
+#if UNITY_EDITOR || UNITY_STANDALONE_WIN
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
+    }
+
     public static List<Color> GenerateDistinctColors(int count) {
         List<Color> colors = new List<Color>();
         float hueStep = 1f / count;

@@ -23,12 +23,6 @@ public class RespawnManager
 
     public Vector3 GetRespawnPosition() {
         var unit = Object.FindObjectsOfType<UnitBase>();
-        
-        //모든 포인트를 반복
-        //모든 유닛을 반복
-        //포인트 주변 유닛의 유무를 체크
-        //주변에 유닛이 아무도 없다면 소환
-
         foreach(Transform pos in _respawnList) {
             int count = 0;
             foreach(var u in unit) {

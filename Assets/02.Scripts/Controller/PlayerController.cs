@@ -11,6 +11,7 @@ public class PlayerController : UnitBase, ITakeDamage
     private const float LIMIT_ROTATE_DOWN = 10f;
     private const float CONTINUE_KILL_TIME = 3f;
     private float _gravity = -9.81f;
+    [SerializeField]private float _gravityBound;
 
     private int _jumpLayer;
     private float _vx;
@@ -42,9 +43,14 @@ public class PlayerController : UnitBase, ITakeDamage
     public bool IsKill { get; set; }
     public bool IsDoubleKill { get; set; }
     public bool IstripleKill { get; set; }
+    public float Sensitiv { get; set; } = 50f;
 
     private float _doubleKillCheck;
     private float _tripleKillCheck;
+
+    [SerializeField] private bool _isJumping;
+    [SerializeField] private bool _isFalling;
+    private float _jumpTimer;
 
     public PlayerStatus MyStatus { get { return _status as PlayerStatus; } set { _status = value; } }
     public Player.WeaponController CurrentWeapon => _currentWeapon as Player.WeaponController;
@@ -78,9 +84,20 @@ public class PlayerController : UnitBase, ITakeDamage
         if (!Managers.GameManager.InGame())
             return;
 
-        if (!IsGround())
+        if (!IsGround()) {
             return;
+        }
 
+        if (_isFalling) {
+            return;
+        }
+
+        if(_isJumping) {
+            return;
+        }
+
+        _gravityBound = 0f;
+        _isJumping = true;
         _velocity.y = Mathf.Sqrt(MyStatus._jumpValue * -2f * _gravity);
     }
 
@@ -105,8 +122,6 @@ public class PlayerController : UnitBase, ITakeDamage
             if(Managers.GameManager.State == GameState.Setting)
                 SettingEvent.Invoke();
         }
-
-        
 
         if (!Managers.GameManager.InGame())
             return;
@@ -147,10 +162,28 @@ public class PlayerController : UnitBase, ITakeDamage
             IstripleKill = false;
         }
 
+        if(_isJumping) {
+            _jumpTimer += Time.deltaTime;
+        }
+
+        if(IsGround() && _isJumping && _jumpTimer > .3f) {
+            _isJumping = false;
+            _jumpTimer = 0f;
+        }
+
+        if(!IsGround() && !_isJumping) {
+            _isFalling = true;
+            _gravityBound = 10f;
+        }
+
+        if(IsGround()) {
+            _isFalling = false;
+            _gravityBound = 0f;
+        }
+
         OnRotateUpdate();
         PlayerPhycisc();
         CheckForward();
-       
 
         if (Input.GetMouseButtonDown(0) 
             || Input.GetMouseButton(0)) {
@@ -159,6 +192,8 @@ public class PlayerController : UnitBase, ITakeDamage
 
         if(_state == UnitState.Shot) {
             if (Input.GetMouseButtonUp(0)) {
+                if(BaseWeapon.Type == WeaponType.Rifle)
+                    BaseWeapon.Delay = 1f;
                 _state = UnitState.Idle;
             }
         }
@@ -208,7 +243,7 @@ public class PlayerController : UnitBase, ITakeDamage
             Jump();
         }
 
-        _velocity.y += _gravity * Time.deltaTime;
+        _velocity.y += (_gravity + _gravityBound) * Time.deltaTime;
         _cc.Move(_velocity * Time.deltaTime);
     }
 
@@ -217,8 +252,8 @@ public class PlayerController : UnitBase, ITakeDamage
         float MouseY = Input.GetAxis("Mouse Y");
         Vector3 dir = new Vector3(MouseY, MouseX, 0);
 
-        _vx += dir.x * MyStatus._rotateSpeed * Time.deltaTime;
-        _vy += dir.y * MyStatus._rotateSpeed * Time.deltaTime;
+        _vx += dir.x * Sensitiv * 5f * Time.deltaTime;
+        _vy += dir.y * Sensitiv * 5f * Time.deltaTime;
         _vx = Mathf.Clamp(_vx, LIMIT_ROTATE_UP, LIMIT_ROTATE_DOWN);
 
         Vector3 lastDir = new Vector3(-_vx, _vy, 0);
@@ -295,11 +330,11 @@ public class PlayerController : UnitBase, ITakeDamage
 
     private void OnDrawGizmos() {
         Gizmos.color = Color.red;
-        Gizmos.DrawRay(transform.position + Vector3.up, -Vector3.up * 1.5f);
+        Gizmos.DrawRay(transform.position + Vector3.up, -Vector3.up * 1.2f);
     }
 
     private bool IsGround() {
-        return Physics.Raycast(transform.position + Vector3.up, -Vector3.up, 1.5f, _jumpLayer);
+        return Physics.Raycast(transform.position + Vector3.up, -Vector3.up, 1.2f, _jumpLayer);
     }
 
     public override void Init() {
@@ -311,6 +346,7 @@ public class PlayerController : UnitBase, ITakeDamage
         _subCamera.gameObject.SetActive(false);
         _cc.enabled = true;
         RespawnEvent.Invoke();
+        State = UnitState.Idle;
     }
     #endregion
 }

@@ -59,6 +59,7 @@ namespace Player {
         }
         public override void Shot() {
             base.Shot();
+
             Player.StartCoroutine(Player.COBound());
             Player.BulletEvent.Invoke(CurrentBullet, MaxBullet, RemainBullet);
         }

@@ -25,6 +25,12 @@ public class UI_GameSystem : UI_Base
 
         _deadNumberText.text = "0";
         _killNumberText.text = "0";
+    }
+
+    protected override void Init() {
+        base.Init();
+
+        Managers.GameManager.WaitStateEvent -= SetWaitUI;
         Managers.GameManager.WaitStateEvent += SetWaitUI;
     }
 

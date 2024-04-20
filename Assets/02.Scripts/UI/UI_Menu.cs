@@ -16,15 +16,50 @@ public class UI_Menu : UI_Base
     [SerializeField] private Button _settingBtn;
     [SerializeField] private Button _exitBtn;
 
-    public enum BtnType {
+    private enum BtnType {
         ResumeBG,
         SettingBG,
         ExitBG,
     }
     private void Start() {
         _player.MenuEvent += ActiveMenuView;
-        _defaultColor = _resumeBtn.transform.GetChild(1).GetComponent<Image>().color;
+        _defaultColor = _resumeBtn.targetGraphic.color;
         _defaultScale = _resumeBtn.transform.localScale;
+    }
+
+    public override void OnEnterButton(BaseEventData eventData) {
+        base.OnEnterButton(eventData);
+        PointerEventData data = eventData as PointerEventData;
+        _name = data.pointerCurrentRaycast.gameObject.name;
+        Debug.Log($"클릭한 객체의 이름은 {_name}");
+
+        Color color = new Color(0f, 0f, 0f, .5f);
+        Vector3 scale = new Vector3(.95f, .95f, .95f);
+
+        SetColorAndScale(_resumeBtn, _name, BtnType.ResumeBG.ToString(), color, scale);
+        SetColorAndScale(_settingBtn, _name, BtnType.SettingBG.ToString(), color, scale);
+        SetColorAndScale(_exitBtn, _name, BtnType.ExitBG.ToString(), color, scale);
+    }
+
+
+    public override void OnExitButton(BaseEventData eventData) {
+        base.OnExitButton(eventData);
+
+        SetColorAndScale(_resumeBtn, _name, BtnType.ResumeBG.ToString(), _defaultColor, _defaultScale);
+        SetColorAndScale(_settingBtn, _name, BtnType.SettingBG.ToString(), _defaultColor, _defaultScale);
+        SetColorAndScale(_exitBtn, _name, BtnType.ExitBG.ToString(), _defaultColor, _defaultScale);
+
+        _name = string.Empty;
+    }
+
+    public override void OnPressUpButton() {
+        base.OnPressUpButton();
+
+        SetColorAndScale(_resumeBtn, _name, BtnType.ResumeBG.ToString(), _defaultColor, _defaultScale, ActiveMenuView);
+        SetColorAndScale(_settingBtn, _name, BtnType.SettingBG.ToString(), _defaultColor, _defaultScale, OnSettingUI);
+        SetColorAndScale(_exitBtn, _name, BtnType.ExitBG.ToString(), _defaultColor, _defaultScale, ExitGame);
+
+        _name = string.Empty;
     }
 
     private void OnSettingUI() {
@@ -32,45 +67,6 @@ public class UI_Menu : UI_Base
         _settingView.SetActive(true);
         Managers.GameManager.ChangeState(Define.GameState.Setting);
     }
-
-    public override void PressDownButton(BaseEventData eventData) {
-        base.PressDownButton(eventData);
-        PointerEventData data = eventData as PointerEventData;
-        _name = data.pointerCurrentRaycast.gameObject.name;
-        Debug.Log($"클릭한 객체의 이름은 {_name}");
-        if(_name == BtnType.ResumeBG.ToString()) {
-            _resumeBtn.transform.GetChild(1).GetComponent<Image>().color = new Color(0f, 0f, 0f, .5f);
-            _resumeBtn.transform.localScale = new Vector3(.95f, .95f, .95f);
-        }
-        else if(_name == BtnType.SettingBG.ToString()) {
-            _settingBtn.transform.GetChild(1).GetComponent<Image>().color = new Color(0f, 0f, 0f, .5f);
-            _settingBtn.transform.localScale = new Vector3(.95f, .95f, .95f);
-        }
-        else if(_name == BtnType.ExitBG.ToString()) {
-            _exitBtn.transform.GetChild(1).GetComponent<Image>().color = new Color(0f, 0f, 0f, .5f);
-            _exitBtn.transform.localScale = new Vector3(.95f, .95f, .95f);
-        }
-    }
-
-    public override void PressUpButton() {
-        base.PressUpButton();
-        if (_name == BtnType.ResumeBG.ToString()) {
-            _resumeBtn.transform.GetChild(1).GetComponent<Image>().color = _defaultColor;
-            _resumeBtn.transform.localScale = _defaultScale;
-            ActiveMenuView();
-        } else if (_name == BtnType.SettingBG.ToString()) {
-            _settingBtn.transform.GetChild(1).GetComponent<Image>().color = _defaultColor;
-            _settingBtn.transform.localScale = _defaultScale;
-            OnSettingUI();
-        } else if (_name == BtnType.ExitBG.ToString()) {
-            _exitBtn.transform.GetChild(1).GetComponent<Image>().color = _defaultColor;
-            _exitBtn.transform.localScale = _defaultScale;
-            ExitGame();
-        }
-
-        _name = string.Empty;
-    }
-
 
     private void ActiveMenuView() {
         if(_menuView.activeInHierarchy) {

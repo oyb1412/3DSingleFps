@@ -9,7 +9,6 @@ public class Managers : MonoBehaviour
     private static Managers _instance;
     public static Managers Instance {
         get {
-            Init();
             return _instance;
         }
     }
@@ -30,12 +29,18 @@ public class Managers : MonoBehaviour
     private void Awake()
     {
         Init();
+    }
+
+    public void StartInit() {
+        Scene.Init();
+    }
+
+    public void IngameInit() {
         RespawnManager.Init();
         GameManager.Init();
     }
 
     private void Start() {
-        GameManager.ChangeState(GameState.WaitFight);
     }
 
     private void Update()
@@ -44,7 +49,7 @@ public class Managers : MonoBehaviour
         GameManager.Update();
     }
 
-    private static void Init()
+    public static void Init()
     {
         if (_instance == null)
         {

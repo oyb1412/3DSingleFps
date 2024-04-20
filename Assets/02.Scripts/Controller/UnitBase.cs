@@ -84,7 +84,6 @@ public class UnitBase : MonoBehaviour
     public StatusBase Status => _status;
 
     public Transform FirePoint => _firePoint;
-    public float _RespawnTime { get; private set; } = 5f;
     public int MyKill { get; set; }
     public int MyDead { get; private set; }
     public int MyRank { get; set; }
@@ -166,17 +165,27 @@ public class UnitBase : MonoBehaviour
     }
 
     protected virtual void IsDeadEvent(Transform attackerTrans) {
-        Invoke("Init", _RespawnTime);
+        Invoke("Init", Managers.GameManager.RespawnTime);
         _bodyCollider.enabled = false;
         _headCollider.enabled = false;
         MyDead++;
         DeathNumberEvent?.Invoke(MyDead);
         ChangeWeapon(WeaponType.Pistol);
-        attackerTrans.GetComponent<UnitBase>().MyKill++;
-        attackerTrans.GetComponent<UnitBase>().KillNumberEvent?.Invoke(attackerTrans.GetComponent<UnitBase>().MyKill);
+        UnitBase target = attackerTrans.GetComponent<UnitBase>();
+        target.MyKill++;
+        target.KillNumberEvent?.Invoke(target.MyKill);
         Managers.GameManager.BoardSortToRank();
         Model.ResetAnimator();
         State = UnitState.Dead;
+        UI_KillFeed feed =  Managers.Resources.Instantiate("UI/KillFeed", Managers.GameManager.KillFeedParent).GetComponent<UI_KillFeed>();
+        feed.Init(target.BaseWeapon.Type, attackerTrans.gameObject.name, gameObject.name);
+        feed.transform.SetSiblingIndex(0);
+        if (Managers.GameManager.KillLimit > 0) {
+            if (target.MyKill >= Managers.GameManager.KillLimit) {
+                Managers.GameManager.ChangeState(GameState.Gameover);
+                return;
+            }
+        }
 
         if (attackerTrans.TryGetComponent<PlayerController>(out var player)) {
             player.KillEvent.Invoke();

@@ -6,18 +6,23 @@ using static Define;
 
 public class GameManager
 {
-    public const int ENEMY_NUMBER = 5;
     private readonly string[] ENEMY_NAME = new string[] { "James", "Aaron", "Peyton", "London", "Daniel", "Aiden", "Jackson","Lucas", "Samuel","Luke"};
     public Action WaitStateEvent;
     public Action FightStateEvent;
     public Action GameoverAction;
-    public float GameTime { get; private set; } = 30f;
+    public float GameTime { get; private set; } = 60f;
+    public float RespawnTime { get; private set; } = 3f;
+    public int EnemyNumber { get; private set; } = 4;
+    public int EnemyLevel { get; private set; } = 1;
+    public int KillLimit { get; private set; } = 0;
     public GameState State { get; private set; } = GameState.None;
 
+    public float Volume { get; set; } = 50f;
     public float WaitTime { get; private set; }
 
     private float _doNextStateTime = 5f;
     private Transform _scoreBoardTransform;
+    public Transform KillFeedParent { get; private set; }
 
     private List<UnitBase> _units = new List<UnitBase>();
     public List<UnitBase> UnitsList => _units;
@@ -28,6 +33,15 @@ public class GameManager
 
     public void Init()
     {
+        if(Test.Instance.testType == Test.TestType.Test) {
+            EnemyNumber = PlayerPrefs.GetInt("EnemyNumber");
+            EnemyLevel = PlayerPrefs.GetInt("EnemyLevel");
+            GameTime *= PlayerPrefs.GetInt("TimeLimit");
+            RespawnTime = PlayerPrefs.GetInt("RespawnTime");
+            KillLimit = PlayerPrefs.GetInt("KillLimit");
+        }
+
+        KillFeedParent = GameObject.Find("KIllFeeds").transform;
         var uiScoreBoard = GameObject.Find("UI_Scoreboard");
         _scoreBoardTransform = Util.FindChild(uiScoreBoard, "Scoreboard", true).transform;
         _scoreBoardTransform.parent.gameObject.SetActive(true);
@@ -36,19 +50,20 @@ public class GameManager
         child.Init(player.name, player, Color.green);
         _units.Add(player);
         _boardChild.Add(child);
-        for (int i = 0; i< ENEMY_NUMBER; i++) {
+        for (int i = 0; i< EnemyNumber; i++) {
             EnemyController go = Managers.Resources.Instantiate("Unit/Enemy", null).GetComponent<EnemyController>();
-            go.transform.position = Managers.RespawnManager.GetRespawnPosition();
-            go.name = ENEMY_NAME[i];
-            go.Name = ENEMY_NAME[i];
+            go.Create(Managers.RespawnManager.GetRespawnPosition(), ENEMY_NAME[i], EnemyLevel);
             UI_Scoreboard_Child child2 = Managers.Resources.Instantiate("UI/ScoreboardChild", _scoreBoardTransform).GetComponent<UI_Scoreboard_Child>();
             child2.Init(go.name, go, Color.gray);
             _boardChild.Add(child2);
             _units.Add(go);
         }
+
+        _scoreBoardTransform.parent.gameObject.SetActive(false);
         Cursor.lockState = CursorLockMode.Locked;
+        ChangeState(GameState.WaitFight);
     }
-    
+
     public void BoardSortToRank() {
         _boardChild.Sort((x,y) => y.UnitBase.MyKill.CompareTo(x.UnitBase.MyKill));
 
@@ -95,12 +110,12 @@ public class GameManager
             case GameState.Gameover:
                 GameoverAction?.Invoke();
                 Time.timeScale = 0f;
+                Cursor.lockState = CursorLockMode.Confined;
                 break;
             case GameState.Menu:
             case GameState.Setting:
                 Time.timeScale = 0f;
                 break;
-
         }
         State = state;
     }

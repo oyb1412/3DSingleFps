@@ -8,4 +8,9 @@ public class GameScene : BaseScene
     {
     }
 
+    protected override void Start() {
+        base.Start();
+        Managers.Instance.IngameInit();
+        Managers.Scene.SetScene();
+    }
 }

@@ -28331,7 +28331,7 @@ MonoBehaviour:
   _state: 0
   <TargetUnit>k__BackingField: {fileID: 0}
   <IsShotState>k__BackingField: 0
-  _viewRange: 90
+  _viewRange: 120
 --- !u!114 &8238576637714770111
 MonoBehaviour:
   m_ObjectHideFlags: 0
