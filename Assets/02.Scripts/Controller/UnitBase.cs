@@ -7,14 +7,12 @@ using static Define;
 
 public class UnitBase : MonoBehaviour
 {
-    public ModelController Model { get; set; }
     protected StatusBase _status;
     protected GameObject _weapons;
     protected Transform _firePoint;
     [SerializeField]protected Collider _bodyCollider;
     [SerializeField] protected Collider _headCollider;
-    public IItem CollideItem { get; set; }
-    public Quaternion UnitRotate { get; protected set; }
+
 
     protected IWeapon _currentWeapon;
     protected IWeapon[] _weaponList = new IWeapon[(int)WeaponType.Count];
@@ -33,6 +31,10 @@ public class UnitBase : MonoBehaviour
                     if (_state == UnitState.Dead || _state == UnitState.Shot)
                         return;
 
+                    if(_state == UnitState.AimMode)
+                        BaseWeapon.Animator.SetBool("AimMode", false);
+
+
                     Model.Animator.SetBool("Move", false);
                     BaseWeapon.Animator.SetBool("Move", false);
                     break;
@@ -49,7 +51,7 @@ public class UnitBase : MonoBehaviour
 
                     Model.Animator.SetBool("Move", false);
                     BaseWeapon.Animator.SetBool("Move", false);
-                    Model.Animator.SetTrigger($"Shot{_currentWeapon.Type.ToString()}");
+                    Model.Animator.SetTrigger($"Shot{BaseWeapon.Type.ToString()}");
                     BaseWeapon.Animator.SetTrigger("Shot");
                     break;
                 case UnitState.Reload:
@@ -79,20 +81,44 @@ public class UnitBase : MonoBehaviour
                     Model.Animator.SetTrigger("Get");
                     BaseWeapon.Animator.SetTrigger("Get");
                     break;
+
+                case UnitState.AimMode:
+                    Model.Animator.SetBool("Move", false);
+                    BaseWeapon.Animator.SetBool("Move", false);
+                    BaseWeapon.Animator.SetTrigger("AimMode");
+                    break;
+
+                case UnitState.AimMove:
+                    if (_state == UnitState.AimShot)
+                        return;
+
+                    Model.Animator.SetBool("Move", true);
+                    BaseWeapon.Animator.SetBool("AimMove", true);
+                    break;
+
+                case UnitState.AimShot:
+                    Model.Animator.SetBool("Move", false);
+                    BaseWeapon.Animator.SetBool("AimMode", false);
+                    Model.Animator.SetTrigger($"Shot{BaseWeapon.Type.ToString()}");
+                    BaseWeapon.Animator.SetTrigger("AimShot");
+                    break;
             }
             _state = value;
         }
     }
-    
-    public StatusBase Status => _status;
-
-    public Transform FirePoint => _firePoint;
-    public int MyKill { get; set; }
-    public int MyDead { get; private set; }
-    public int MyRank { get; set; }
 
     public Action<int> KillNumberEvent;
     public Action<int> DeathNumberEvent;
+    public StatusBase Status => _status;
+
+    public Transform FirePoint => _firePoint;
+    public int MyKill { get; private set; }
+    public int MyDead { get; private set; }
+    public ModelController Model { get; private set; }
+    public IItem CollideItem { get; set; }
+    public Quaternion UnitRotate { get; protected set; }
+
+
 
 
     protected virtual void Awake() {
@@ -130,7 +156,7 @@ public class UnitBase : MonoBehaviour
 
     private void DropWeapon() {
         if (_currentWeapon != _weaponList[(int)WeaponType.Pistol]) {
-            ItemController go = Managers.Resources.Instantiate(_currentWeapon.CreateObject, null).GetComponent<ItemController>();
+            ItemController go = Managers.Resources.Instantiate(BaseWeapon.CreateObject, null).GetComponent<ItemController>();
             go.Init(new Vector3(transform.position.x, 1f, transform.position.z), true);
         }
     }

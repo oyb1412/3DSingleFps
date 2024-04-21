@@ -7,22 +7,35 @@ using static Define;
 
 public class PlayerController : UnitBase, ITakeDamage
 {
+    #region const
     private const float LIMIT_ROTATE_UP = -40f;
     private const float LIMIT_ROTATE_DOWN = 20f;
-    private const float CONTINUE_KILL_TIME = 3f;
-    private float _gravity = -9.81f;
-    [SerializeField]private float _gravityBound;
+    private const float CONTINUE_KILL_TIME = 5f;
+    #endregion
 
+    #region private variable
+    private float _gravity = -9.81f;
     private int _jumpLayer;
     private float _vx;
     private float _vy;
     private float _moveX;
     private float _moveZ;
+    private float _doubleKillCheck;
+    private float _tripleKillCheck;
     private Vector3 _velocity;
+    private float _jumpTimer;
+    [SerializeField] private bool _isJumping;
+    [SerializeField] private bool _isFalling;
+    [SerializeField] private float _gravityBound;
+    [SerializeField] private Camera _subCamera;
+    [SerializeField] private Camera _mainCamera;
+    private CharacterController _cc;
 
+    #endregion
+
+    #region Event
     public Action ShotEvent;
     public Action<float> CrossValueEvent;
-
     public Action<int, int> HpEvent;
     public Action<int, int, int> BulletEvent;
     public Action<Player.WeaponController> ChangeEvent;
@@ -38,26 +51,17 @@ public class PlayerController : UnitBase, ITakeDamage
     public Action MenuEvent;
     public Action SettingEvent;
     public Action<bool> CollideItemEvent;
+    #endregion
 
-    private CharacterController _cc;
-
+    #region property
     public bool IsKill { get; set; }
     public bool IsDoubleKill { get; set; }
     public bool IstripleKill { get; set; }
     public float Sensitiv { get; set; } = 50f;
-
-    private float _doubleKillCheck;
-    private float _tripleKillCheck;
-
-    [SerializeField] private bool _isJumping;
-    [SerializeField] private bool _isFalling;
-    private float _jumpTimer;
-
     public PlayerStatus MyStatus { get { return _status as PlayerStatus; } set { _status = value; } }
     public Player.WeaponController CurrentWeapon => _currentWeapon as Player.WeaponController;
+    #endregion
 
-    [SerializeField] private Camera _subCamera;
-    [SerializeField] private Camera _mainCamera;
     #region Init
     protected override void Awake() {
         base.Awake();
@@ -71,17 +75,23 @@ public class PlayerController : UnitBase, ITakeDamage
 
     #endregion
 
+    #region Sfx
     public void JumpSfx() {
         int ran = UnityEngine.Random.Range((int)UnitSfx.Jump1, (int)UnitSfx.Jump3);
         _ufx.PlaySfx((UnitSfx)ran);
     }
+    #endregion
+
     #region Behaviour
     public void Shot() {
         if (!Managers.GameManager.InGame())
             return;
 
         if (_currentWeapon.TryShot(this)) {
-            State = UnitState.Shot;
+            if (State != UnitState.AimMode)
+                State = UnitState.Shot;
+            else
+                State = UnitState.AimShot;
         }
     }
 
@@ -108,6 +118,7 @@ public class PlayerController : UnitBase, ITakeDamage
     }
 
     #endregion
+
     #region Change
 
 
@@ -194,6 +205,15 @@ public class PlayerController : UnitBase, ITakeDamage
         if (Input.GetMouseButtonDown(0) 
             || Input.GetMouseButton(0)) {
             Shot();
+        }
+
+        if(Input.GetMouseButton(1)) {
+            State = UnitState.AimMode;
+        }
+
+        if(State == UnitState.AimMode &&
+            Input.GetMouseButtonUp(1)) {
+            State = UnitState.Idle;
         }
 
         if(_state == UnitState.Shot) {
@@ -303,7 +323,6 @@ public class PlayerController : UnitBase, ITakeDamage
     #endregion
 
     #region OtherEvent
-
     protected override void IsHitEvent(int damage, Transform attackerTrans, Transform myTrans) {
         base.IsHitEvent(damage, attackerTrans, myTrans);
         HpEvent.Invoke(_status._currentHp, _status._maxHp);

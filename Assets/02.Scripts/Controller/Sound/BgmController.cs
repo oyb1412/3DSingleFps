@@ -10,7 +10,6 @@ public class BgmController : MonoBehaviour
     protected AudioSource _sources;
     private void Awake() {
 
-
         if(instance == null) {
             instance = this;
 

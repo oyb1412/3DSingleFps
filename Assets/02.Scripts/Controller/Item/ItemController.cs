@@ -3,25 +3,27 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class ItemController : MonoBehaviour, IItem {
-    [SerializeField] private float _itemRotateSpeed;
+    private const float ITEM_ROTATE_SPEED = 0.2f;
+    public Transform MyTransform { get { return transform; }  }
+    public bool IsMine { get; private set; }
 
-    public Transform MyTransform { get; set; }
-    public bool IsMine { get ; set ; }
+    public virtual void Pickup(UnitBase unit) {
+        unit.CollideItem = null;
+        if (gameObject == null)
+            return;
 
-
-    public abstract void Pickup(UnitBase unit);
+        Managers.Resources.Destroy(gameObject);
+    }
 
     public void Init(Vector3 pos, bool trigger) {
         transform.position = pos;
         IsMine = trigger;
     }
-    private void Start() {
-        MyTransform = transform;
-    }
+
     private void Update() {
         if (!Managers.GameManager.InGame())
             return;
 
-        transform.Rotate(0f, _itemRotateSpeed, 0f);
+        transform.Rotate(0f, ITEM_ROTATE_SPEED, 0f);
     }
 }

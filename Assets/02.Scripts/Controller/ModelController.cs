@@ -15,7 +15,6 @@ public class ModelController : MonoBehaviour
     private void Awake() {
         _animator = GetComponent<Animator>();
     }
-
     private void Start() {
         _weapons = Util.FindChild(gameObject, "Weapons", true);
         _weaponList[(int)WeaponType.Pistol] = Util.FindChild(_weapons, WeaponType.Pistol.ToString(), false);

@@ -4,14 +4,14 @@ using static Define;
 
 namespace Base {
     public abstract class WeaponController : MonoBehaviour, IWeapon {
-        public GameObject myObject { get { return gameObject; } }
-        public GameObject CreateObject { get; set; }
-        public int CurrentBullet { get; set; }
-        public int RemainBullet { get; set; }
-        public int MaxBullet { get; set; }
-        public string Name { get; set; }
-        public Sprite WeaponIcon { get; set; }
-
+        public WeaponType Type { get; protected set; }
+        public int Damage { get; protected set; }
+        public GameObject CreateObject { get; protected set; }
+        public int CurrentBullet { get; protected set; }
+        public int RemainBullet { get; protected set; }
+        public int MaxBullet { get; protected set; }
+        public string Name { get; protected set; }
+        public Sprite WeaponIcon { get; protected set; }
         public float Delay { get { return _delay; }set { _delay = value; } }
 
         protected float _delay;
@@ -32,18 +32,17 @@ namespace Base {
         private UnitSfxController _sfx;
 
         protected Animator _animator;
-
         public Animator Animator => _animator;
         protected abstract void Enable();
 
-        public int Damage { get; set; }
-        public WeaponType Type { get ; set ; }
+        public GameObject myObject { get { return gameObject; } }
 
         protected virtual void Awake() {
             _animator = GetComponent<Animator>();
         }
 
         protected void Start() {
+            _unit = GetComponentInParent<UnitBase>();
             _layerMask = (1 << (int)LayerType.Head) | (1 << (int)LayerType.Body) | (1 << (int)LayerType.Obstacle) | (1 << (int)LayerType.Ground) | (1 << (int)LayerType.Wall);
             _firePos = Util.FindChild(gameObject, "FirePos", true).transform;
             _ejectEffect = Util.FindChild(_firePos.gameObject, "Eject", false).GetComponent<ParticleSystem>();
@@ -91,7 +90,38 @@ namespace Base {
             _unit.State = UnitState.Idle;
         }
 
-        protected virtual void DefaultShot(Vector3 angle) {        }
+        protected virtual void DefaultShot(Vector3 angle) { }
+
+        protected void DefaultShot(bool isHit, RaycastHit hit, UnitBase unit) {
+            if (!isHit)
+                return;
+
+            int layer = hit.collider.gameObject.layer;
+            if (layer == (int)LayerType.Head &&
+                hit.collider.GetComponentInParent<UnitBase>().gameObject != unit.gameObject) {
+                hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(Damage * 3, unit.transform, hit.collider.GetComponentInParent<UnitBase>().transform);
+                GameObject blood = CreateEffect(_bloodEffect, hit.point);
+                blood.transform.LookAt(_firePoint.position);
+                Destroy(blood, 1f);
+            } else if (layer == (int)LayerType.Body &&
+                hit.collider.GetComponentInParent<UnitBase>().gameObject != unit.gameObject) {
+                hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(Damage, unit.transform, hit.collider.GetComponentInParent<UnitBase>().transform);
+                GameObject blood = CreateEffect(_bloodEffect, hit.point);
+                blood.transform.LookAt(_firePoint.position);
+                Destroy(blood, 1f);
+            } else if (layer == (int)LayerType.Obstacle ||
+                 layer == (int)LayerType.Wall) {
+                GameObject impact = CreateEffect(_impactEffect, hit.point);
+                impact.transform.LookAt(_firePoint.position);
+                Destroy(impact, 1f);
+                return;
+            } else if (layer == (int)LayerType.Ground) {
+                GameObject impact = CreateEffect(_impactEffect, hit.point);
+                impact.transform.eulerAngles = new Vector3(-90f, 0f, 0f);
+                Destroy(impact, 1f);
+                return;
+            }
+        }
         
         public virtual void Shot() {
             if(CurrentBullet <= 0) {

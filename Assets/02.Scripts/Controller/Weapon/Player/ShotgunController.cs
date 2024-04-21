@@ -10,7 +10,7 @@ namespace Player {
             VerticalBoundValue = 4.0f;
             HorizontalBoundValue = 1f;
             _shotDelay = .8f;
-            Type = Define.WeaponType.Shotgun;
+            Type = WeaponType.Shotgun;
 
             CrossValue = 350f;
             Damage = 30;
