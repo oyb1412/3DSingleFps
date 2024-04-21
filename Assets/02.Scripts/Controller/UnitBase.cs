@@ -19,6 +19,9 @@ public class UnitBase : MonoBehaviour
     protected IWeapon _currentWeapon;
     protected IWeapon[] _weaponList = new IWeapon[(int)WeaponType.Count];
     [SerializeField]protected UnitState _state = UnitState.Idle;
+    protected UnitSfxController _ufx;
+
+    public UnitSfxController Ufx => _ufx;
 
     public Base.WeaponController BaseWeapon => _currentWeapon as Base.WeaponController;
 
@@ -93,6 +96,7 @@ public class UnitBase : MonoBehaviour
 
 
     protected virtual void Awake() {
+        _ufx = GetComponent<UnitSfxController>();
         Model = GetComponentInChildren<ModelController>();
         _status = GetComponent<StatusBase>();
 
@@ -165,6 +169,7 @@ public class UnitBase : MonoBehaviour
     }
 
     protected virtual void IsDeadEvent(Transform attackerTrans) {
+        _ufx.PlaySfx(UnitSfx.Dead);
         Invoke("Init", Managers.GameManager.RespawnTime);
         _bodyCollider.enabled = false;
         _headCollider.enabled = false;
@@ -201,12 +206,13 @@ public class UnitBase : MonoBehaviour
                 player.IsDoubleKill = true;
 
                 player.DoubleKillEvent.Invoke();
+                ShareSfxController.instance.SetShareSfx(ShareSfx.Dominate);
                 return;
             }
             if(!player.IsKill &&  player.IsDoubleKill && !player.IstripleKill) {
                 player.IsDoubleKill = false;
                 player.IstripleKill = true;
-
+                ShareSfxController.instance.SetShareSfx(ShareSfx.Rampage);
                 player.TripleKillEvent.Invoke();
             }
         }

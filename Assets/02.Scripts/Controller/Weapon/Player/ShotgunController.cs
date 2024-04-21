@@ -7,12 +7,12 @@ namespace Player {
         [SerializeField] private int _bulletNumber;
         protected override void Awake() {
             base.Awake();
-            VerticalBoundValue = 5.0f;
-            HorizontalBoundValue = 2f;
+            VerticalBoundValue = 4.0f;
+            HorizontalBoundValue = 1f;
             _shotDelay = .8f;
             Type = Define.WeaponType.Shotgun;
 
-            CrossValue = 450f;
+            CrossValue = 350f;
             Damage = 30;
             Name = "Shotgun";
             WeaponIcon = (Sprite)Managers.Resources.Load<Sprite>("Texture/ShotgunIcon");

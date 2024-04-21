@@ -33,6 +33,7 @@ public class UI_Setting : UI_Base
 
     private void SetVolume(float value) {
         Managers.GameManager.Volume = value;
+        Managers.GameManager.VolumeEvent.Invoke(value);
     }
 
     private void SetSensitivity(float value) {
@@ -45,7 +46,6 @@ public class UI_Setting : UI_Base
 
         PointerEventData data = eventData as PointerEventData;
         _name = data.pointerCurrentRaycast.gameObject.name;
-        Debug.Log($"클릭한 객체의 이름은 {_name}");
 
         Color color = new Color(0f, 0f, 0f, .5f);
         Vector3 scale = new Vector3(.95f, .95f, .95f);

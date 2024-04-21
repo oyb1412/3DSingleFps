@@ -4,10 +4,10 @@ namespace Player {
     public class PistolController : WeaponController {
         protected override void Awake() {
             base.Awake();
-            VerticalBoundValue = 4.5f;
-            HorizontalBoundValue = 1.5f;
+            VerticalBoundValue = 2.5f;
+            HorizontalBoundValue = 0.5f;
             _shotDelay = 0.4f;
-            CrossValue = 350f;
+            CrossValue = 200f;
             Type = Define.WeaponType.Pistol;
             Damage = 30;
             Name = "Pistol";

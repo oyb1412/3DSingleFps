@@ -166,8 +166,11 @@ public class EnemyController : UnitBase, ITakeDamage {
     }
 
     protected override void IsDeadEvent(Transform attackerTrans) {
+        if (attackerTrans.GetComponent<PlayerController>()) {
+            ShareSfxController.instance.SetShareSfx(ShareSfx.KillSound);
+        }
         base.IsDeadEvent(attackerTrans);
-        transform.LookAt(attackerTrans);
+         transform.LookAt(attackerTrans);
         TargetUnit = null;
         _collider.enabled = false;
     }

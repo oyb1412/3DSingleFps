@@ -12,6 +12,7 @@ public class StartScene : BaseScene
         Managers.Instance.StartInit();
         Managers.Scene.SetScene();
 
+        BgmController.instance.SetBgm(Define.Bgm.Startup, true);
         
     }
 }

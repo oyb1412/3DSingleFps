@@ -7,7 +7,9 @@ public class Item_RifleController : ItemController {
     public override void Pickup(UnitBase unit) {
         unit.ChangeWeapon(Define.WeaponType.Rifle);
         unit.CollideItem = null;
-        if (gameObject != null)
-            Managers.Resources.Destroy(gameObject);
+        if (gameObject == null)
+            return;
+
+        Managers.Resources.Destroy(gameObject);
     }
 }

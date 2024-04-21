@@ -17,10 +17,11 @@ public class GameManager
     public int KillLimit { get; private set; } = 0;
     public GameState State { get; private set; } = GameState.None;
 
+    public Action<float> VolumeEvent;
     public float Volume { get; set; } = 50f;
     public float WaitTime { get; private set; }
 
-    private float _doNextStateTime = 5f;
+    private float _doNextStateTime = 3f;
     private Transform _scoreBoardTransform;
     public Transform KillFeedParent { get; private set; }
 
@@ -62,6 +63,18 @@ public class GameManager
         _scoreBoardTransform.parent.gameObject.SetActive(false);
         Cursor.lockState = CursorLockMode.Locked;
         ChangeState(GameState.WaitFight);
+
+        VolumeEvent -= SetVolume;
+        VolumeEvent += SetVolume;
+    }
+
+    private void SetVolume(float volume) {
+        float realVolume = volume * 0.01f;
+        foreach(var t in _units) {
+            t.Ufx.ChangeVolume(realVolume);
+        }
+        BgmController.instance.ChangeVolume(realVolume);
+        ShareSfxController.instance.ChangeVolume(realVolume);
     }
 
     public void BoardSortToRank() {
@@ -69,6 +82,7 @@ public class GameManager
 
         for(int i = 0; i < _boardChild.Count; i++) {
             _boardChild[i].transform.SetSiblingIndex(i + 1);
+            _boardChild[i].SetRank(i + 1);
         }
     }
 
@@ -111,6 +125,7 @@ public class GameManager
                 GameoverAction?.Invoke();
                 Time.timeScale = 0f;
                 Cursor.lockState = CursorLockMode.Confined;
+                ShareSfxController.instance.SetShareSfx(ShareSfx.Gameover);
                 break;
             case GameState.Menu:
             case GameState.Setting:

@@ -25,4 +25,8 @@ public class UI_Scoreboard_Child : MonoBehaviour
         unit.DeathNumberEvent += ((death) => _deathText.text = $"{death:D2}");
         _bgImage.color = color;
     }
+
+    public void SetRank(int rank) {
+        _rankText.text = $"#{rank:D2}";
+    }
 }

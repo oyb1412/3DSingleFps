@@ -60,6 +60,6 @@ public class UI_Base : MonoBehaviour {
     }
 
     public virtual void OnPressUpButton() {
-
+        ShareSfxController.instance.SetShareSfx(Define.ShareSfx.Button);
     }
 }

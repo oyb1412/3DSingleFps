@@ -28,6 +28,12 @@ public class UI_SystemSetting : UI_Base
     private void Start() {
         _defaultColor = _startBtn.targetGraphic.color;
         _defaultScale = _startBtn.transform.localScale;
+
+        _enemyNumberDP.onValueChanged.AddListener((value) => ShareSfxController.instance.SetShareSfx(Define.ShareSfx.Button));
+        _enemyLevelDP.onValueChanged.AddListener((value) => ShareSfxController.instance.SetShareSfx(Define.ShareSfx.Button));
+        _timeLimitDP.onValueChanged.AddListener((value) => ShareSfxController.instance.SetShareSfx(Define.ShareSfx.Button));
+        _respawnTimeDP.onValueChanged.AddListener((value) => ShareSfxController.instance.SetShareSfx(Define.ShareSfx.Button));
+        _killLimitDP.onValueChanged.AddListener((value) => ShareSfxController.instance.SetShareSfx(Define.ShareSfx.Button));
     }
 
     public override void OnEnterButton(BaseEventData eventData) {
@@ -35,7 +41,6 @@ public class UI_SystemSetting : UI_Base
 
         PointerEventData data = eventData as PointerEventData;
         _name = data.pointerCurrentRaycast.gameObject.name;
-        Debug.Log($"클릭한 객체의 이름은 {_name}");
 
         Color color = new Color(.6f, .8f, 1f, 1f);
         Vector3 scale = new Vector3(1.05f, 1.05f, 1.05f);

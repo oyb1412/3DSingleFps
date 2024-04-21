@@ -7,8 +7,8 @@ using static Define;
 
 public class PlayerController : UnitBase, ITakeDamage
 {
-    private const float LIMIT_ROTATE_UP = -20f;
-    private const float LIMIT_ROTATE_DOWN = 10f;
+    private const float LIMIT_ROTATE_UP = -40f;
+    private const float LIMIT_ROTATE_DOWN = 20f;
     private const float CONTINUE_KILL_TIME = 3f;
     private float _gravity = -9.81f;
     [SerializeField]private float _gravityBound;
@@ -37,6 +37,7 @@ public class PlayerController : UnitBase, ITakeDamage
     public Action<bool> ScoreboardEvent;
     public Action MenuEvent;
     public Action SettingEvent;
+    public Action<bool> CollideItemEvent;
 
     private CharacterController _cc;
 
@@ -70,6 +71,10 @@ public class PlayerController : UnitBase, ITakeDamage
 
     #endregion
 
+    public void JumpSfx() {
+        int ran = UnityEngine.Random.Range((int)UnitSfx.Jump1, (int)UnitSfx.Jump3);
+        _ufx.PlaySfx((UnitSfx)ran);
+    }
     #region Behaviour
     public void Shot() {
         if (!Managers.GameManager.InGame())
@@ -96,6 +101,7 @@ public class PlayerController : UnitBase, ITakeDamage
             return;
         }
 
+        JumpSfx();
         _gravityBound = 0f;
         _isJumping = true;
         _velocity.y = Mathf.Sqrt(MyStatus._jumpValue * -2f * _gravity);
@@ -202,7 +208,7 @@ public class PlayerController : UnitBase, ITakeDamage
             Reload();
         }
 
-        if(Input.GetKeyDown(KeyCode.G)) {
+        if(Input.GetKeyDown(KeyCode.F)) {
             GetItem();
         }
 
@@ -321,11 +327,16 @@ public class PlayerController : UnitBase, ITakeDamage
 
         var col = Physics.Raycast(_firePoint.position, _firePoint.forward, out var hit, 2f,  layer);
         if (!col) {
+            CollideItemEvent.Invoke(false);
             CollideItem = null;
             return;
         }
 
         CollideItem = hit.collider.GetComponent<IItem>();
+
+        if(CollideItem != null) {
+            CollideItemEvent.Invoke(true);
+        }
     }
 
     private void OnDrawGizmos() {

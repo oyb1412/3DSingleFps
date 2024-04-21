@@ -69,6 +69,49 @@ public class Define
         High
     }
 
+    public enum UnitSfx {
+        GetPistol,
+        GetRifle,
+        GetShotgun,
+        Run1,
+        Run2,
+        Run3,
+        Run4,
+        Run5,
+        Run6,
+        Run7,
+        Jump1,
+        Jump2,
+        Jump3,
+        RifleReload,
+        PistolReload,
+        ShotgunReload,
+        RifleShot,
+        PistolShot,
+        ShotgunShot,
+        Dead,
+        Count,
+    }
+
+    public enum Bgm {
+        Startup,
+        Ingame,
+        Count,
+    }
+
+    public enum ShareSfx {
+        Dominate,
+        Rampage,
+        Three,
+        Two,
+        One,
+        Fight,
+        Gameover,
+        KillSound,
+        Button,
+        Count,
+    }
+
     public enum SceneType
     {
         None,

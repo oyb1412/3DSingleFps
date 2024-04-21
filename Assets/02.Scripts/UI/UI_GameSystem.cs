@@ -12,6 +12,8 @@ public class UI_GameSystem : UI_Base
     [SerializeField] private TextMeshProUGUI _waitTimeText;
     [SerializeField] private TextMeshProUGUI _continueKillText;
 
+
+    private bool[] _count = new bool[3];
     private void Start() {
         _player.DeadEvent -= (() => _deadNumberText.text = _player.MyDead.ToString());
         _player.KillEvent -= (() => _killNumberText.text = _player.MyKill.ToString());
@@ -72,7 +74,19 @@ public class UI_GameSystem : UI_Base
 
     private IEnumerator CoWaitUI() {
         _waitTimeText.gameObject.SetActive(true);
-        while(true) {
+        while (true) {
+            if (_count[2] == false && Managers.GameManager.WaitTime < 3) {
+                _count[2] = true;
+                ShareSfxController.instance.SetShareSfx(Define.ShareSfx.Three);
+            }
+            if (_count[1] == false && Managers.GameManager.WaitTime < 2) {
+                _count[1] = true;
+                ShareSfxController.instance.SetShareSfx(Define.ShareSfx.Two);
+            }
+            if (_count[0] == false && Managers.GameManager.WaitTime < 1) {
+                _count[0] = true;
+                ShareSfxController.instance.SetShareSfx(Define.ShareSfx.One);
+            }
             _waitTimeText.text = (Mathf.CeilToInt(Managers.GameManager.WaitTime)).ToString();
             if(Managers.GameManager.InGame()) {
                 _waitTimeText.gameObject.SetActive(false);
@@ -84,6 +98,7 @@ public class UI_GameSystem : UI_Base
     }
         
     private IEnumerator CoStartUI() {
+        ShareSfxController.instance.SetShareSfx(Define.ShareSfx.Fight);
         _gameStateText.gameObject.SetActive(true);
         _gameStateText.text = "START!";
         float alpha = 1f;

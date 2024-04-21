@@ -31,7 +31,6 @@ public class UI_Menu : UI_Base
         base.OnEnterButton(eventData);
         PointerEventData data = eventData as PointerEventData;
         _name = data.pointerCurrentRaycast.gameObject.name;
-        Debug.Log($"클릭한 객체의 이름은 {_name}");
 
         Color color = new Color(0f, 0f, 0f, .5f);
         Vector3 scale = new Vector3(.95f, .95f, .95f);

@@ -32,7 +32,6 @@ public class UI_Start : UI_Base
 
         PointerEventData data = eventData as PointerEventData;
         _name = data.pointerCurrentRaycast.gameObject.name;
-        Debug.Log($"클릭한 객체의 이름은 {_name}");
 
         Color color = new Color(.6f, .8f, 1f, 1f);
         Vector3 scale = new Vector3(.95f, .95f, .95f);

@@ -21,8 +21,14 @@ namespace Enemy {
             RaycastHit hit;
 
             if (Enemy.Level == (int)EnemyLevel.High) {
-                Debug.DrawRay(_firePoint.position, _firePoint.forward * 100f, Color.red, 1f);
-                isHit = Physics.Raycast(_firePoint.position, _firePoint.forward, out hit, float.MaxValue, _layerMask);
+                var ran1 = Random.Range(-_bulletAngle * 0.5f, _bulletAngle * 0.5f);
+                var ran2 = Random.Range(-_bulletAngle * 0.5f, _bulletAngle * 0.5f);
+
+                Quaternion pelletRotation = Quaternion.Euler(ran1, ran2, 0);
+                Vector3 pelletDirection = pelletRotation * angle;
+
+                Debug.DrawRay(_firePoint.position, pelletDirection * 100f, Color.green, 1f);
+                isHit = Physics.Raycast(_firePoint.position, pelletDirection, out hit, float.MaxValue, _layerMask);
             }
             else if(Enemy.Level == (int)EnemyLevel.Low) {
                 var ran1 = Random.Range(-_bulletAngle * 1.5f, _bulletAngle * 1.5f);

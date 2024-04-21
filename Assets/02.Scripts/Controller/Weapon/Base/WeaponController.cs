@@ -29,6 +29,7 @@ namespace Base {
         [SerializeField] protected GameObject _bloodEffect;
         [SerializeField] protected GameObject _impactEffect;
 
+        private UnitSfxController _sfx;
 
         protected Animator _animator;
 
@@ -46,6 +47,8 @@ namespace Base {
             _layerMask = (1 << (int)LayerType.Head) | (1 << (int)LayerType.Body) | (1 << (int)LayerType.Obstacle) | (1 << (int)LayerType.Ground) | (1 << (int)LayerType.Wall);
             _firePos = Util.FindChild(gameObject, "FirePos", true).transform;
             _ejectEffect = Util.FindChild(_firePos.gameObject, "Eject", false).GetComponent<ParticleSystem>();
+            _sfx = _unit.GetComponent<UnitSfxController>();
+
         }
 
         private void Update() {
@@ -145,6 +148,15 @@ namespace Base {
                 return false;
 
             return true;
+        }
+
+        public void SetWalkSfx() {
+            int ran = Random.Range((int)UnitSfx.Run1, (int)UnitSfx.Run7);
+            _sfx.PlaySfx((UnitSfx)ran);
+        }
+
+        public void SetSfx(int index) {
+            _sfx.PlaySfx((UnitSfx)index);
         }
     }
 }

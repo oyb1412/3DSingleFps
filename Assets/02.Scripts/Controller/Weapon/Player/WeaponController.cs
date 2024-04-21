@@ -13,6 +13,8 @@ namespace Player {
             Player.BulletEvent.Invoke(CurrentBullet, MaxBullet, RemainBullet);
         }
 
+        
+
         protected abstract override void Enable();
 
         protected override void DefaultShot(Vector3 angle) {
@@ -54,8 +56,6 @@ namespace Player {
                 Destroy(impact, 1f);
                 return;
             }
-
-
         }
         public override void Shot() {
             base.Shot();
