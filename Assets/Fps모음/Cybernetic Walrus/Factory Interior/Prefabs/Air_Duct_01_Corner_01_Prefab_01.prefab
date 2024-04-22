@@ -11,12 +11,12 @@ GameObject:
   - component: {fileID: 5906778905325176019}
   - component: {fileID: 7354874364964806408}
   - component: {fileID: 8292803676535337856}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Air_Duct_01_Corner_01_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 4294967295
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &5906778905325176019
 Transform:
@@ -93,13 +93,12 @@ GameObject:
   m_Component:
   - component: {fileID: 1212604010465866199}
   - component: {fileID: 6236948119524116134}
-  - component: {fileID: 1683978548080367161}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Air_Duct_01_Corner_01_Prefab_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 4294967295
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &1212604010465866199
 Transform:
@@ -141,28 +140,6 @@ LODGroup:
     renderers:
     - renderer: {fileID: 8292803676535337856}
   m_Enabled: 1
---- !u!64 &1683978548080367161
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1990547333396851565}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: -5828037677301075839, guid: 376d62be479578645a172d2930a7c677, type: 3}
 --- !u!1 &7322411292084890099
 GameObject:
   m_ObjectHideFlags: 0
@@ -174,12 +151,12 @@ GameObject:
   - component: {fileID: 4945655503031773975}
   - component: {fileID: 6730205124321963073}
   - component: {fileID: 117253293866800265}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Air_Duct_01_Corner_01_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 4294967295
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &4945655503031773975
 Transform:

@@ -69,14 +69,7 @@ public class EnemyController : UnitBase, ITakeDamage {
             return;
         }
 
-        //if (TargetUnit && !TargetUnit.IsDead() && _fov.isTracePlayer()) {
-        //    var target = _fov.isTracePlayer();
-        //    if (TargetUnit is not PlayerController && target is PlayerController) {
-        //        TargetUnit = target;
-        //        IsShotState = true;
-        //        StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
-        //    }
-        //}
+        
 
         if (IsShotState && TargetUnit && !TargetUnit.IsDead() && _state != UnitState.Reload) {
             if (_currentWeapon.TryShot(this)) {
@@ -177,11 +170,11 @@ public class EnemyController : UnitBase, ITakeDamage {
 
     public override void Init() {
         base.Init();
+        _bodyCollider.enabled = true;
+        _headCollider.enabled = true;
         _collider.enabled = true;
-        UnitRotate = Quaternion.identity;
-        WeaponInit();
+
         StopAllCoroutines();
-        CollideItem = null;
         ChangeState(UnitState.Idle);
         StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
     }

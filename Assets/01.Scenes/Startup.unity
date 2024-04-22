@@ -1365,7 +1365,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6441432905452931624, guid: efb22f6c5cb2aad438d740a0cb963f16, type: 3}
       propertyPath: m_Name
-      value: GameoverKillDP
+      value: SelectDP
       objectReference: {fileID: 0}
     - target: {fileID: 8334868684311617351, guid: efb22f6c5cb2aad438d740a0cb963f16, type: 3}
       propertyPath: m_RaycastTarget

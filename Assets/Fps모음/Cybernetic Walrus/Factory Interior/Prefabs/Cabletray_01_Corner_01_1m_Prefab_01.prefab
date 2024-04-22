@@ -10,13 +10,12 @@ GameObject:
   m_Component:
   - component: {fileID: 1093686136660250980}
   - component: {fileID: 5293860512275752469}
-  - component: {fileID: 623525082749875850}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Cabletray_01_Corner_01_1m_Prefab_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 4294967295
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &1093686136660250980
 Transform:
@@ -58,28 +57,6 @@ LODGroup:
     renderers:
     - renderer: {fileID: 2584407000006075460}
   m_Enabled: 1
---- !u!64 &623525082749875850
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 317043163146947550}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 1423382321170093461, guid: a8d1f726296548947bb0542184ab7775, type: 3}
 --- !u!1 &5768791973180581432
 GameObject:
   m_ObjectHideFlags: 0
@@ -91,12 +68,12 @@ GameObject:
   - component: {fileID: 8063094755514181953}
   - component: {fileID: 7074601812931494007}
   - component: {fileID: 8925024390022263318}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Cabletray_01_Corner_01_1m_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 4294967295
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &8063094755514181953
 Transform:
@@ -174,12 +151,12 @@ GameObject:
   - component: {fileID: 2409297268260891093}
   - component: {fileID: 3774138607934589243}
   - component: {fileID: 2584407000006075460}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Cabletray_01_Corner_01_1m_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 4294967295
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &2409297268260891093
 Transform:

@@ -11,12 +11,12 @@ GameObject:
   - component: {fileID: 2976243227603485023}
   - component: {fileID: 3984877047427732867}
   - component: {fileID: 7930915956988787789}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Cabletray_01_Corner_02_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 4294967295
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &2976243227603485023
 Transform:
@@ -94,12 +94,12 @@ GameObject:
   - component: {fileID: 5789444905199371671}
   - component: {fileID: 3992271205645732845}
   - component: {fileID: 4313008356070419955}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Cabletray_01_Corner_02_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 4294967295
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &5789444905199371671
 Transform:
@@ -176,13 +176,12 @@ GameObject:
   m_Component:
   - component: {fileID: 4301870690972932130}
   - component: {fileID: 9072869995093274451}
-  - component: {fileID: 4339756884021379014}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Cabletray_01_Corner_02_Prefab_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 4294967295
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &4301870690972932130
 Transform:
@@ -224,25 +223,3 @@ LODGroup:
     renderers:
     - renderer: {fileID: 7930915956988787789}
   m_Enabled: 1
---- !u!64 &4339756884021379014
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3528711275308335768}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 2003210757975146209, guid: cb327a156bb948245b4c4450118152cc, type: 3}

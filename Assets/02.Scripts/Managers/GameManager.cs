@@ -34,13 +34,11 @@ public class GameManager
 
     public void Init()
     {
-        if(Test.Instance.testType == Test.TestType.Test) {
-            EnemyNumber = PlayerPrefs.GetInt("EnemyNumber");
-            EnemyLevel = PlayerPrefs.GetInt("EnemyLevel");
-            GameTime *= PlayerPrefs.GetInt("TimeLimit");
-            RespawnTime = PlayerPrefs.GetInt("RespawnTime");
-            KillLimit = PlayerPrefs.GetInt("KillLimit");
-        }
+        EnemyNumber = PlayerPrefs.GetInt("EnemyNumber");
+        EnemyLevel = PlayerPrefs.GetInt("EnemyLevel");
+        GameTime *= PlayerPrefs.GetInt("TimeLimit");
+        RespawnTime = PlayerPrefs.GetInt("RespawnTime");
+        KillLimit = PlayerPrefs.GetInt("KillLimit");
 
         KillFeedParent = GameObject.Find("KIllFeeds").transform;
         var uiScoreBoard = GameObject.Find("UI_Scoreboard");

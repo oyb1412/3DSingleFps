@@ -11,6 +11,7 @@ public class PlayerController : UnitBase, ITakeDamage
     private const float LIMIT_ROTATE_UP = -40f;
     private const float LIMIT_ROTATE_DOWN = 20f;
     private const float CONTINUE_KILL_TIME = 3f;
+    private const float INVINCIBILITY_TIME = 1f;
     #endregion
 
     #region private variable
@@ -361,8 +362,11 @@ public class PlayerController : UnitBase, ITakeDamage
     }
 
     public override void Init() {
-        CurrentWeapon.ChangeAimAC(false);
         base.Init();
+
+        IsAiming = false;
+        AimEvent.Invoke(false);
+        CurrentWeapon.ChangeAimAC(false);
         _vx = _vy = _moveX = _moveZ = 0f;
         _velocity = Vector3.zero;
         UnitRotate = Quaternion.identity;
@@ -371,6 +375,12 @@ public class PlayerController : UnitBase, ITakeDamage
         _cc.enabled = true;
         RespawnEvent.Invoke();
         ChangeState(UnitState.Idle);
+        Invoke("InvincibilityEnd", INVINCIBILITY_TIME);
+    }
+
+    private void InvincibilityEnd() {
+        _bodyCollider.enabled = true;
+        _headCollider.enabled = true;
     }
 
     public override void ChangeState(UnitState state) {

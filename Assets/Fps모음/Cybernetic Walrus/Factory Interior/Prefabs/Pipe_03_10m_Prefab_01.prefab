@@ -11,12 +11,12 @@ GameObject:
   - component: {fileID: 5443347842517595637}
   - component: {fileID: 5689624256844741311}
   - component: {fileID: 8637362341949419686}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Pipe_03_10m_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 4294967295
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &5443347842517595637
 Transform:
@@ -92,13 +92,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6169602346896680510}
-  - component: {fileID: 6169602346896680511}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 4294967295
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &6169602346896680510
 Transform:
@@ -115,28 +114,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 5914472988193562345}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!64 &6169602346896680511
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6169602346896680481}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: -148042460040578071, guid: 1cd4244f51384f64da7533eb1144e716, type: 3}
 --- !u!1 &6440074298821166163
 GameObject:
   m_ObjectHideFlags: 0
@@ -147,12 +124,12 @@ GameObject:
   m_Component:
   - component: {fileID: 5914472988193562345}
   - component: {fileID: 1463232762577496472}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Pipe_03_10m_Prefab_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 4294967295
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &5914472988193562345
 Transform:
@@ -206,12 +183,12 @@ GameObject:
   - component: {fileID: 6010127540853427697}
   - component: {fileID: 6874340558829273039}
   - component: {fileID: 2292120898908695214}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Pipe_03_10m_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 4294967295
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &6010127540853427697
 Transform:

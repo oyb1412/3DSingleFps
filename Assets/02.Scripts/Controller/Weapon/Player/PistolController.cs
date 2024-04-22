@@ -15,6 +15,8 @@ namespace Player {
             CreateObject = (GameObject)Managers.Resources.Load<GameObject>("Prefabs/Item/Pistol");
         }
 
+
+
         protected override void Enable() {
             CurrentBullet = 12;
             RemainBullet = 12;

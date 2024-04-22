@@ -1,3 +1,4 @@
+using Fusion;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -24,21 +25,32 @@ public class RespawnManager
     public Vector3 GetRespawnPosition() {
         var unit = Managers.GameManager.UnitsList;
         foreach(Transform pos in _respawnList) {
-            int count = 0;
-            foreach(var u in unit) {
-                if (Vector3.Distance(pos.position, u.transform.position) > ALLOW_RESPAWN_RANGE) {
-                    count++;
-                } 
-                else {
-                    count = 0;
-                    continue;
-                }
-
-                if (count >= unit.Count) {
-                    Debug.Log($"유닛 소환 위치 : {pos.position}");
-                    return pos.position;
+            bool isSafe = true;  
+            foreach (var u in unit) {
+                if (Vector3.Distance(pos.position, u.transform.position) <= ALLOW_RESPAWN_RANGE) {
+                    isSafe = false;  
+                    break;  
                 }
             }
+            if (isSafe) {  
+                Debug.Log($"유닛 소환 위치 : {pos.position}");
+                return pos.position;  
+            }
+            //int count = 0;
+            //foreach(var u in unit) {
+            //    if (Vector3.Distance(pos.position, u.transform.position) > ALLOW_RESPAWN_RANGE) {
+            //        count++;
+            //    } 
+            //    else {
+            //        count = 0;
+            //        continue;
+            //    }
+
+            //    if (count >= unit.Count) {
+            //        Debug.Log($"유닛 소환 위치 : {pos.position}");
+            //        return pos.position;
+            //    }
+            //}
         }
 
         Debug.Log("스폰 위치 찾지 못함");

@@ -11,12 +11,12 @@ GameObject:
   - component: {fileID: 2139529188792408094}
   - component: {fileID: 909213634053557232}
   - component: {fileID: 8788064355143186198}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Cabletray_01_10m_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 4294967295
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &2139529188792408094
 Transform:
@@ -92,13 +92,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7281752786581893860}
-  - component: {fileID: 7281752786581893867}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 4294967295
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &7281752786581893860
 Transform:
@@ -115,28 +114,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 7099716907747820072}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!64 &7281752786581893867
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7281752786581893861}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 2969886284444082762, guid: 69cc99390083f7d40bec1da92bbbd326, type: 3}
 --- !u!1 &7623629098552957074
 GameObject:
   m_ObjectHideFlags: 0
@@ -147,12 +124,12 @@ GameObject:
   m_Component:
   - component: {fileID: 7099716907747820072}
   - component: {fileID: 2656381885750080857}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Cabletray_01_10m_Prefab_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 4294967295
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &7099716907747820072
 Transform:
@@ -206,12 +183,12 @@ GameObject:
   - component: {fileID: 2443990838289331831}
   - component: {fileID: 9138099761360889973}
   - component: {fileID: 820292958866128615}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Cabletray_01_10m_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 4294967295
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &2443990838289331831
 Transform:

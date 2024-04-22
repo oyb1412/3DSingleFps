@@ -7,6 +7,9 @@ using UnityEngine.UI;
 
 public class UI_SystemSetting : UI_Base
 {
+    private readonly string[] WAREHOUSE_OPTIONS = new string[] { "1", "2", "3", "4", "5", "6", "7", "8" };
+    private readonly string[] PORT_OPTIONS = new string[] { "8", "9", "10", "11", "12", "13", "14", "15" };
+
     [SerializeField] private GameObject _startView;
     [SerializeField] private GameObject _settingView;
 
@@ -26,6 +29,7 @@ public class UI_SystemSetting : UI_Base
     protected override void Init() {
     }
 
+
     private void Start() {
         _defaultColor = _startBtn.targetGraphic.color;
         _defaultScale = _startBtn.transform.localScale;
@@ -35,6 +39,20 @@ public class UI_SystemSetting : UI_Base
         _timeLimitDP.onValueChanged.AddListener((value) => ShareSfxController.instance.SetShareSfx(Define.ShareSfx.Button));
         _respawnTimeDP.onValueChanged.AddListener((value) => ShareSfxController.instance.SetShareSfx(Define.ShareSfx.Button));
         _killLimitDP.onValueChanged.AddListener((value) => ShareSfxController.instance.SetShareSfx(Define.ShareSfx.Button));
+
+        _selectMapDP.onValueChanged.AddListener(SelectMap);
+    }
+
+    private void SelectMap(int value) {
+        _enemyNumberDP.ClearOptions();
+        List<string> dpList = new List<string>();
+        if(value == 0) {
+            dpList.AddRange(WAREHOUSE_OPTIONS);
+        }
+        else {
+            dpList.AddRange(PORT_OPTIONS);
+        }
+        _enemyNumberDP.AddOptions(dpList);
     }
 
     public override void OnEnterButton(BaseEventData eventData) {
@@ -68,13 +86,18 @@ public class UI_SystemSetting : UI_Base
     }
 
     private void GameStart() {
-        PlayerPrefs.SetInt("EnemyNumber", _enemyNumberDP.value + 1);
+        int map = _selectMapDP.value + 2;
         PlayerPrefs.SetInt("EnemyLevel", _enemyLevelDP.value);
         PlayerPrefs.SetInt("TimeLimit", _timeLimitDP.value + 1);
         PlayerPrefs.SetInt("RespawnTime", _respawnTimeDP.value + 3);
         PlayerPrefs.SetInt("KillLimit", _killLimitDP.value * 50);
 
-        Managers.Scene.LoadScene(Define.SceneType.InGame);
+        if ((Define.SceneType)map == Define.SceneType.WareHouse)
+            PlayerPrefs.SetInt("EnemyNumber", _enemyNumberDP.value + 1);
+        else 
+            PlayerPrefs.SetInt("EnemyNumber", _enemyNumberDP.value + 8);
+
+        Managers.Scene.LoadScene((Define.SceneType)map);
     }
 
     private void Back() {

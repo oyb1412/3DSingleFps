@@ -165,13 +165,14 @@ public abstract class UnitBase : MonoBehaviour
     }
 
     public virtual void Init() {
-       _bodyCollider.enabled = true;
-        _headCollider.enabled = true;
+        CollideItem = null;
+
+        WeaponInit();
         _status._currentHp = _status._maxHp;
         transform.position = Managers.RespawnManager.GetRespawnPosition();
         ChangeState(UnitState.Get);
+        UnitRotate = Quaternion.identity;
     }
-
 
     public bool IsDead() {
         if (_status._currentHp <= 0)

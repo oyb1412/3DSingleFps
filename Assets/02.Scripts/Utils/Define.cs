@@ -116,7 +116,8 @@ public class Define
     {
         None,
         Startup,
-        InGame,
+        WareHouse,
+        Port,
         Exit,
     }
 }
