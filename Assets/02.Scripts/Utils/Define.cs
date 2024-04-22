@@ -49,9 +49,6 @@ public class Define
         Reload,
         Dead,
         Get,
-        AimMode,
-        AimMove,
-        AimShot,
     }
     public enum MouseEventType
     {

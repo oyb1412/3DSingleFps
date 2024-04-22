@@ -10,7 +10,7 @@ public class PlayerController : UnitBase, ITakeDamage
     #region const
     private const float LIMIT_ROTATE_UP = -40f;
     private const float LIMIT_ROTATE_DOWN = 20f;
-    private const float CONTINUE_KILL_TIME = 5f;
+    private const float CONTINUE_KILL_TIME = 3f;
     #endregion
 
     #region private variable
@@ -51,9 +51,11 @@ public class PlayerController : UnitBase, ITakeDamage
     public Action MenuEvent;
     public Action SettingEvent;
     public Action<bool> CollideItemEvent;
+    public Action<bool> AimEvent;
     #endregion
 
     #region property
+    public bool IsAiming { get; private set; }
     public bool IsKill { get; set; }
     public bool IsDoubleKill { get; set; }
     public bool IstripleKill { get; set; }
@@ -88,10 +90,7 @@ public class PlayerController : UnitBase, ITakeDamage
             return;
 
         if (_currentWeapon.TryShot(this)) {
-            if (State != UnitState.AimMode)
-                State = UnitState.Shot;
-            else
-                State = UnitState.AimShot;
+            ChangeState(UnitState.Shot);
         }
     }
 
@@ -100,10 +99,6 @@ public class PlayerController : UnitBase, ITakeDamage
             return;
 
         if (!IsGround()) {
-            return;
-        }
-
-        if (_isFalling) {
             return;
         }
 
@@ -190,7 +185,7 @@ public class PlayerController : UnitBase, ITakeDamage
 
         if(!IsGround() && !_isJumping) {
             _isFalling = true;
-            _gravityBound = 10f;
+            _gravityBound = 15f;
         }
 
         if(IsGround()) {
@@ -208,15 +203,18 @@ public class PlayerController : UnitBase, ITakeDamage
         }
 
         if(Input.GetMouseButton(1)) {
-            State = UnitState.AimMode;
+            if(!IsAiming) {
+                IsAiming = true;
+                AimEvent.Invoke(true);
+            }
         }
 
-        if(State == UnitState.AimMode &&
-            Input.GetMouseButtonUp(1)) {
-            State = UnitState.Idle;
+        if(IsAiming && Input.GetMouseButtonUp(1)) {
+            IsAiming = false;
+            AimEvent.Invoke(false);
         }
 
-        if(_state == UnitState.Shot) {
+        if (_state == UnitState.Shot) {
             if (Input.GetMouseButtonUp(0)) {
                 if(BaseWeapon.Type == WeaponType.Rifle)
                     BaseWeapon.Delay = 1f;
@@ -231,8 +229,6 @@ public class PlayerController : UnitBase, ITakeDamage
         if(Input.GetKeyDown(KeyCode.F)) {
             GetItem();
         }
-
-
 
         switch (_state) {
             case UnitState.Idle:
@@ -254,9 +250,9 @@ public class PlayerController : UnitBase, ITakeDamage
 
         if(_state != UnitState.Reload && _state != UnitState.Shot) {
             if (_moveX == 0 && _moveZ == 0) {
-                State = UnitState.Idle;
+                ChangeState(UnitState.Idle);
             } else {
-                State = UnitState.Move;
+                ChangeState(UnitState.Move);
             }
         }
         
@@ -289,14 +285,14 @@ public class PlayerController : UnitBase, ITakeDamage
     #endregion
 
     #region Bound
-    public IEnumerator COBound() {
+    public IEnumerator COBound(float verticla, float horizontal) {
         float exitTime = 0;
         float horizontalRecoil = UnityEngine.Random.Range(-0.2f, 0.2f); 
 
         while (true) {
             exitTime += Time.deltaTime;
-            _vx += exitTime * CurrentWeapon.VerticalBoundValue;
-            _vy += horizontalRecoil * CurrentWeapon.HorizontalBoundValue; 
+            _vx += exitTime * verticla;
+            _vy += horizontalRecoil * horizontal; 
 
             if (exitTime > MyStatus._boundTime) {
                 StartCoroutine(CORebound());
@@ -333,11 +329,13 @@ public class PlayerController : UnitBase, ITakeDamage
         _moveX = 0f;
         _moveZ = 0f;
         base.IsDeadEvent(attackerTrans);
+        CurrentWeapon.ChangeAimAC(false);
         _cc.enabled = false;
         DeadEvent.Invoke();
         _mainCamera.gameObject.SetActive(false);
         _subCamera.gameObject.SetActive(true);
     }
+
 
     private void CheckForward() {
 
@@ -358,16 +356,12 @@ public class PlayerController : UnitBase, ITakeDamage
         }
     }
 
-    private void OnDrawGizmos() {
-        Gizmos.color = Color.red;
-        Gizmos.DrawRay(transform.position + Vector3.up, -Vector3.up * 1.2f);
-    }
-
     private bool IsGround() {
         return Physics.Raycast(transform.position + Vector3.up, -Vector3.up, 1.2f, _jumpLayer);
     }
 
     public override void Init() {
+        CurrentWeapon.ChangeAimAC(false);
         base.Init();
         _vx = _vy = _moveX = _moveZ = 0f;
         _velocity = Vector3.zero;
@@ -376,7 +370,71 @@ public class PlayerController : UnitBase, ITakeDamage
         _subCamera.gameObject.SetActive(false);
         _cc.enabled = true;
         RespawnEvent.Invoke();
-        State = UnitState.Idle;
+        ChangeState(UnitState.Idle);
+    }
+
+    public override void ChangeState(UnitState state) {
+        switch (state) {
+            case UnitState.Idle:
+                if (_state == UnitState.Dead || _state == UnitState.Shot)
+                    return;
+
+                Model.Animator.SetBool("Move", false);
+                CurrentWeapon.CurrentAnime.SetBool("Move", false);
+                break;
+            case UnitState.Move:
+                if (_state == UnitState.Dead || _state == UnitState.Reload || _state == UnitState.Shot)
+                    return;
+
+                Model.Animator.SetBool("Move", true);
+                CurrentWeapon.CurrentAnime.SetBool("Move", true);
+                break;
+            case UnitState.Shot:
+                if (_state == UnitState.Reload || _state == UnitState.Dead)
+                    return;
+
+                Model.Animator.SetBool("Move", false);
+                CurrentWeapon.CurrentAnime.SetBool("Move", false);
+                Model.Animator.SetTrigger($"Shot{BaseWeapon.Type.ToString()}");
+                CurrentWeapon.CurrentAnime.SetTrigger("Shot");
+
+                break;
+            case UnitState.Reload:
+                if (_state == UnitState.Reload || _state == UnitState.Dead)
+                    return;
+
+                CurrentWeapon.ChangeAimAC(false);
+
+                Model.Animator.SetBool("Move", false);
+                BaseWeapon.Animator.SetBool("Move", false);
+                Model.Animator.SetTrigger("Reload");
+                BaseWeapon.Animator.SetTrigger("Reload");
+                break;
+            case UnitState.Dead:
+                if (_state == UnitState.Dead)
+                    return;
+
+                CurrentWeapon.ChangeAimAC(false);
+
+                Model.Animator.SetBool("Move", false);
+                BaseWeapon.Animator.SetBool("Move", false);
+                Model.Animator.SetTrigger("Dead");
+                BaseWeapon.Animator.SetTrigger("Dead");
+                break;
+            case UnitState.Get:
+                if (_state == UnitState.Get)
+                    return;
+
+                CurrentWeapon.ChangeAimAC(false);
+
+                Model.Animator.SetBool("Move", false);
+                BaseWeapon.Animator.SetBool("Move", false);
+                Model.Animator.SetTrigger("Get");
+                BaseWeapon.Animator.SetTrigger("Get");
+                break;
+        }
+        _state = state;
+
     }
     #endregion
 }

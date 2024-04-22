@@ -11,9 +11,9 @@ namespace Player {
             HorizontalBoundValue = 1f;
             _shotDelay = .8f;
             Type = WeaponType.Shotgun;
-
+            
             CrossValue = 350f;
-            Damage = 30;
+            Damage = 15;
             Name = "Shotgun";
             WeaponIcon = (Sprite)Managers.Resources.Load<Sprite>("Texture/ShotgunIcon");
             CreateObject = (GameObject)Managers.Resources.Load<GameObject>("Prefabs/Item/Shotgun");

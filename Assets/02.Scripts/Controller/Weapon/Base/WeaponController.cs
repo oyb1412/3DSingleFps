@@ -87,7 +87,7 @@ namespace Base {
                 MaxBullet -= RemainBullet;
             }
 
-            _unit.State = UnitState.Idle;
+            _unit.ChangeState(UnitState.Idle);
         }
 
         protected virtual void DefaultShot(Vector3 angle) { }
@@ -102,12 +102,18 @@ namespace Base {
                 hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(Damage * 3, unit.transform, hit.collider.GetComponentInParent<UnitBase>().transform);
                 GameObject blood = CreateEffect(_bloodEffect, hit.point);
                 blood.transform.LookAt(_firePoint.position);
+                if(unit.TryGetComponent<PlayerController>(out var player)) {
+                    player.HeadshotEvent.Invoke();
+                }
                 Destroy(blood, 1f);
             } else if (layer == (int)LayerType.Body &&
                 hit.collider.GetComponentInParent<UnitBase>().gameObject != unit.gameObject) {
                 hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(Damage, unit.transform, hit.collider.GetComponentInParent<UnitBase>().transform);
                 GameObject blood = CreateEffect(_bloodEffect, hit.point);
                 blood.transform.LookAt(_firePoint.position);
+                if (unit.TryGetComponent<PlayerController>(out var player)) {
+                    player.BodyshotEvent.Invoke();
+                }
                 Destroy(blood, 1f);
             } else if (layer == (int)LayerType.Obstacle ||
                  layer == (int)LayerType.Wall) {
@@ -131,13 +137,7 @@ namespace Base {
             _isShot = true;
             CurrentBullet--;
             _ejectEffect.Play();
-            var ran = Random.Range(0, 5);
-            CreateEffect(_muzzleEffect[ran], _firePos.position, _unit.UnitRotate);
-
-            if (CurrentBullet <= 0) {
-                _unit.Reload();
-                return;
-            }
+            
         }
 
         protected GameObject CreateEffect(GameObject go, Vector3 pos, Quaternion rot = default ) {

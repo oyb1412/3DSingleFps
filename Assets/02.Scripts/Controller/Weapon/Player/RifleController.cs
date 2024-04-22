@@ -8,7 +8,7 @@ namespace Player {
             HorizontalBoundValue = .5f;
             _shotDelay = 0.1f;
             CrossValue = 100f;
-            Damage = 40;
+            Damage = 27;
             Type = Define.WeaponType.Rifle;
 
             Name = "Rifle";

@@ -35,9 +35,18 @@ public class UI_Crosshair : UI_Base
         _player.CrossValueEvent += SetCross;
         _player.ShotEvent -= ShotMethod;
         _player.ShotEvent += ShotMethod;
+        _player.AimEvent -= SetCrossHair;
+        _player.AimEvent += SetCrossHair;
 
         _player.BodyshotEvent += (() => StartCoroutine(CoBodyShotImageActive(_bodyShotImage)));
         _player.HeadshotEvent += (() => StartCoroutine(CoHeadShotImageActive(_headShotImage)));
+    }
+
+    private void SetCrossHair(bool trigger) {
+        _crossLeft.gameObject.SetActive(!trigger);
+        _crossRight.gameObject.SetActive(!trigger);
+        _crossUp.gameObject.SetActive(!trigger);
+        _crossDown.gameObject.SetActive(!trigger); 
     }
 
     private void Start() {

@@ -22,7 +22,7 @@ public class RespawnManager
     }
 
     public Vector3 GetRespawnPosition() {
-        var unit = Object.FindObjectsOfType<UnitBase>();
+        var unit = Managers.GameManager.UnitsList;
         foreach(Transform pos in _respawnList) {
             int count = 0;
             foreach(var u in unit) {
@@ -34,7 +34,8 @@ public class RespawnManager
                     continue;
                 }
 
-                if (count >= unit.Length) {
+                if (count >= unit.Count) {
+                    Debug.Log($"유닛 소환 위치 : {pos.position}");
                     return pos.position;
                 }
             }

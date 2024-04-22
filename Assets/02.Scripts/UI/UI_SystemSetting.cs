@@ -18,6 +18,7 @@ public class UI_SystemSetting : UI_Base
     [SerializeField] private TMP_Dropdown _timeLimitDP;
     [SerializeField] private TMP_Dropdown _respawnTimeDP;
     [SerializeField] private TMP_Dropdown _killLimitDP;
+    [SerializeField] private TMP_Dropdown _selectMapDP;
     private enum BtnType {
         BackBG,
         StartBG,

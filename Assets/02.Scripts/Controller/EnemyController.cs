@@ -81,7 +81,7 @@ public class EnemyController : UnitBase, ITakeDamage {
         if (IsShotState && TargetUnit && !TargetUnit.IsDead() && _state != UnitState.Reload) {
             if (_currentWeapon.TryShot(this)) {
                 _agent.SetDestination(transform.position);
-                State = UnitState.Shot;
+                ChangeState(UnitState.Shot);
             }
         }
     }
@@ -117,7 +117,7 @@ public class EnemyController : UnitBase, ITakeDamage {
         _agent.SetDestination(pos);
         BaseWeapon.Animator.ResetTrigger("Shot");
         _state = UnitState.Move;
-        State = UnitState.Move;
+        ChangeState(UnitState.Move);
         while (true) {
             float dir = (new Vector3(pos.x, 0f, pos.z)
                 - new Vector3(transform.position.x, 0f, transform.position.z)).magnitude;
@@ -132,7 +132,7 @@ public class EnemyController : UnitBase, ITakeDamage {
 
             if(IsDead()) {
                 _agent.SetDestination(transform.position);
-                State = UnitState.Dead;
+                ChangeState(UnitState.Dead);
                 StopAllCoroutines();
                 break;
             }
@@ -182,7 +182,63 @@ public class EnemyController : UnitBase, ITakeDamage {
         WeaponInit();
         StopAllCoroutines();
         CollideItem = null;
-        State = UnitState.Idle;
+        ChangeState(UnitState.Idle);
         StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
+    }
+
+    public override void ChangeState(UnitState state) {
+        switch (state) {
+            case UnitState.Idle:
+                if (_state == UnitState.Dead || _state == UnitState.Shot)
+                    return;
+
+                Model.Animator.SetBool("Move", false);
+                BaseWeapon.Animator.SetBool("Move", false);
+                break;
+            case UnitState.Move:
+                if (_state == UnitState.Dead || _state == UnitState.Reload || _state == UnitState.Shot)
+                    return;
+
+                Model.Animator.SetBool("Move", true);
+                BaseWeapon.Animator.SetBool("Move", true);
+                break;
+            case UnitState.Shot:
+                if (_state == UnitState.Reload || _state == UnitState.Dead)
+                    return;
+
+                Model.Animator.SetBool("Move", false);
+                BaseWeapon.Animator.SetBool("Move", false);
+                Model.Animator.SetTrigger($"Shot{BaseWeapon.Type.ToString()}");
+                BaseWeapon.Animator.SetTrigger("Shot");
+                break;
+            case UnitState.Reload:
+                if (_state == UnitState.Reload || _state == UnitState.Dead)
+                    return;
+
+                Model.Animator.SetBool("Move", false);
+                BaseWeapon.Animator.SetBool("Move", false);
+                Model.Animator.SetTrigger("Reload");
+                BaseWeapon.Animator.SetTrigger("Reload");
+                break;
+            case UnitState.Dead:
+                if (_state == UnitState.Dead)
+                    return;
+
+                Model.Animator.SetBool("Move", false);
+                BaseWeapon.Animator.SetBool("Move", false);
+                Model.Animator.SetTrigger("Dead");
+                BaseWeapon.Animator.SetTrigger("Dead");
+                break;
+            case UnitState.Get:
+                if (_state == UnitState.Get)
+                    return;
+
+                Model.Animator.SetBool("Move", false);
+                BaseWeapon.Animator.SetBool("Move", false);
+                Model.Animator.SetTrigger("Get");
+                BaseWeapon.Animator.SetTrigger("Get");
+                break;
+        }
+        _state = state;
     }
 }

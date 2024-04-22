@@ -51,37 +51,6 @@ namespace Enemy {
             }
 
             DefaultShot(isHit, hit, Enemy);
-            //if (!isHit)
-            //    return;
-
-            //int layer = hit.collider.gameObject.layer;
-            //if (layer == (int)LayerType.Head &&
-            //    hit.collider.GetComponentInParent<UnitBase>().gameObject != Enemy.gameObject) {
-            //    hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(Damage * 3, Enemy.transform, hit.collider.GetComponentInParent<UnitBase>().transform);
-            //    GameObject blood = CreateEffect(_bloodEffect, hit.point);
-            //    blood.transform.LookAt(_firePoint.position);
-            //    Destroy(blood, 1f);
-            //} else if (layer == (int)LayerType.Body &&
-            //    hit.collider.GetComponentInParent<UnitBase>().gameObject != Enemy.gameObject) {
-            //    hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(Damage, Enemy.transform, hit.collider.GetComponentInParent<UnitBase>().transform);
-            //    GameObject blood = CreateEffect(_bloodEffect, hit.point);
-            //    blood.transform.LookAt(_firePoint.position);
-            //    Destroy(blood, 1f);
-            //} else if (layer == (int)LayerType.Obstacle ||
-            //     layer == (int)LayerType.Wall) {
-            //    GameObject impact = CreateEffect(_impactEffect, hit.point);
-            //    impact.transform.LookAt(_firePoint.position);
-            //    Destroy(impact, 1f);
-            //    return;
-            //} else if (layer == (int)LayerType.Ground) {
-            //    GameObject impact = CreateEffect(_impactEffect, hit.point);
-            //    impact.transform.eulerAngles = new Vector3(-90f, 0f, 0f);
-            //    Destroy(impact, 1f);
-            //    return;
-            //}
-
-
-
         }
 
         public override void Shot() {
@@ -93,6 +62,14 @@ namespace Enemy {
 
             StartCoroutine(CoRotate());
             base.Shot();
+
+            var ran = Random.Range(0, 5);
+            CreateEffect(_muzzleEffect[ran], _firePos.position, _unit.UnitRotate);
+
+            if (CurrentBullet <= 0) {
+                _unit.Reload();
+                return;
+            }
         }
 
         private IEnumerator CoRotate() {

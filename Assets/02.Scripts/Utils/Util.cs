@@ -41,7 +41,7 @@ public class Util : MonoBehaviour
     }
 
     public static void QuitGame() {
-#if UNITY_EDITOR || UNITY_STANDALONE_WIN
+#if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else
         Application.Quit();
