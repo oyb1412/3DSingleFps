@@ -1,13 +1,14 @@
+using DG.Tweening;
 using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 using static Define;
-using static UnityEngine.UI.CanvasScaler;
 
 public class EnemyController : UnitBase, ITakeDamage {
     private NavMeshAgent _agent;
 
+    [SerializeField] private float _searchRange;
     public int Level { get; private set; } = (int)EnemyLevel.Middle;
     public string Name { get; private set; }
     [field:SerializeField] public UnitBase TargetUnit { get; private set; }
@@ -15,8 +16,8 @@ public class EnemyController : UnitBase, ITakeDamage {
     private bool _isTraceItem;
     [field: SerializeField] public bool IsShotState { get; set; }
     [SerializeField] float _viewRange;
-    public EnemyStatus MyStatus { get { return _status as EnemyStatus; } set { _status = value; } }
 
+    public Enemy.WeaponController EnemyWeapon { get { return _currentWeapon as Enemy.WeaponController; } }
     public void Create(Vector3 pos, string name, int level) {
         transform.position = pos;
         gameObject.name = name;
@@ -27,13 +28,15 @@ public class EnemyController : UnitBase, ITakeDamage {
         base.Awake();
         _collider = GetComponent<Collider>();
         _agent = GetComponent<NavMeshAgent>();
-        _agent.speed = MyStatus._moveSpeed;
+        _agent.speed = _moveSpeed;
+        _agent.enabled = false;
     }
 
     private void Start() {
         Invoke("StartMove", Managers.GameManager.WaitTime);
     }
     private void StartMove() {
+        _agent.enabled = true;
         StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
     }
 
@@ -42,6 +45,9 @@ public class EnemyController : UnitBase, ITakeDamage {
             return;
 
         if (State == UnitState.Dead)
+            return;
+
+        if (!_agent.enabled)
             return;
 
         UnitRotate = transform.rotation;
@@ -61,7 +67,7 @@ public class EnemyController : UnitBase, ITakeDamage {
             StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
             return;
         }
-
+        //move && shotstate
         if (TargetUnit && !SearchUnit()/* && State == UnitState.Shot*/) {
             TargetUnit = null;
             IsShotState = false;
@@ -69,14 +75,26 @@ public class EnemyController : UnitBase, ITakeDamage {
             return;
         }
 
-        
-
-        if (IsShotState && TargetUnit && !TargetUnit.IsDead() && _state != UnitState.Reload) {
-            if (_currentWeapon.TryShot(this)) {
-                _agent.SetDestination(transform.position);
-                ChangeState(UnitState.Shot);
+        if(IsShotState) {
+            if(!TargetUnit || TargetUnit.IsDead()) {
+                IsShotState = false;
+                StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
+                return;
+            }
+            if(_state != UnitState.Reload) {
+                if (_currentWeapon.TryShot(this)) {
+                    _agent.SetDestination(transform.position);
+                    ChangeState(UnitState.Shot);
+                }
             }
         }
+
+        //if (IsShotState && TargetUnit && !TargetUnit.IsDead() && _state != UnitState.Reload) {
+        //    if (_currentWeapon.TryShot(this)) {
+        //        _agent.SetDestination(transform.position);
+        //        ChangeState(UnitState.Shot);
+        //    }
+        //}
     }
 
     private UnitBase SearchUnit() {
@@ -110,6 +128,7 @@ public class EnemyController : UnitBase, ITakeDamage {
         _agent.SetDestination(pos);
         BaseWeapon.Animator.ResetTrigger("Shot");
         _state = UnitState.Move;
+        IsShotState = false;
         ChangeState(UnitState.Move);
         while (true) {
             float dir = (new Vector3(pos.x, 0f, pos.z)
@@ -117,7 +136,7 @@ public class EnemyController : UnitBase, ITakeDamage {
 
             if (TargetUnit) {
                 _agent.SetDestination(transform.position);
-                transform.LookAt(TargetUnit.transform.position);
+                transform.LookAt(TargetUnit.transform);
                 IsShotState = true;
                 StopAllCoroutines();
                 break;
@@ -234,4 +253,6 @@ public class EnemyController : UnitBase, ITakeDamage {
         }
         _state = state;
     }
+
+    
 }

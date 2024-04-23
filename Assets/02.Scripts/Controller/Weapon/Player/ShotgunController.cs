@@ -3,8 +3,11 @@ using static Define;
 
 namespace Player {
     public class ShotgunController : WeaponController {
+        private const float AIM_ANGLE = 1f;
+
         [SerializeField] private float _bulletAngle;
         [SerializeField] private int _bulletNumber;
+
         protected override void Awake() {
             base.Awake();
             VerticalBoundValue = 4.0f;
@@ -19,6 +22,15 @@ namespace Player {
             CreateObject = (GameObject)Managers.Resources.Load<GameObject>("Prefabs/Item/Shotgun");
         }
 
+        protected override void Start() {
+            base.Start();
+            Player.AimEvent += SetBulletAngle;
+        }
+
+        public void SetBulletAngle(bool trigger) {
+            _bulletAngle = trigger ? AIM_ANGLE : _bulletAngle; 
+        }
+
         protected override void Enable() {
             CurrentBullet = 6;
             RemainBullet = 6;
@@ -26,7 +38,6 @@ namespace Player {
         }
         public override void Shot() {
             base.Shot();
-            Vector3 angle = transform.forward;
             for (int i = 0; i < _bulletNumber; i++) {
                 Player.ShotEvent.Invoke();
 
@@ -34,7 +45,7 @@ namespace Player {
                 var ran2 = Random.Range(-_bulletAngle, _bulletAngle);
 
                 Quaternion pelletRotation = Quaternion.Euler(ran1, ran2, 0);
-                Vector3 pelletDirection = pelletRotation * angle;
+                Vector3 pelletDirection = pelletRotation * transform.forward;
 
                 DefaultShot(pelletDirection);
             }

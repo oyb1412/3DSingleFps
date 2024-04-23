@@ -49,9 +49,11 @@ public class GameManager
         child.Init(player.name, player, Color.green);
         _units.Add(player);
         _boardChild.Add(child);
+
         for (int i = 0; i< EnemyNumber; i++) {
             EnemyController go = Managers.Resources.Instantiate("Unit/Enemy", null).GetComponent<EnemyController>();
-            go.Create(Managers.RespawnManager.GetRespawnPosition(), ENEMY_NAME[i], EnemyLevel);
+            Vector3 ranPos = Managers.RespawnManager.GetRespawnPosition();
+            go.Create(ranPos, ENEMY_NAME[i], EnemyLevel);
             UI_Scoreboard_Child child2 = Managers.Resources.Instantiate("UI/ScoreboardChild", _scoreBoardTransform).GetComponent<UI_Scoreboard_Child>();
             child2.Init(go.name, go, Color.gray);
             _boardChild.Add(child2);

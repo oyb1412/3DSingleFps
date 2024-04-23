@@ -8,7 +8,8 @@ using UnityEngine.SceneManagement;
 
 public class SceneManagerEX
 {
-    public BaseScene CurrentScene => GameObject.FindFirstObjectByType(typeof(BaseScene)).GetComponent<BaseScene>();
+    public Define.SceneType CurrentScene = Define.SceneType.Startup;
+    public BaseScene CurrentSceneManager => GameObject.FindObjectOfType<BaseScene>();
 
     private UI_Fade _fade;
 
@@ -35,6 +36,7 @@ public class SceneManagerEX
 
     private void DoNextScene(Define.SceneType type) {
         SceneManager.LoadScene(type.ToString());
+        CurrentScene = type;
     }
 
 }

@@ -10,11 +10,12 @@ public class UI_PlayerInfo : UI_Base
     [SerializeField]private TextMeshProUGUI _currentWeaponNameText;
     [SerializeField]private TextMeshProUGUI _currentBulletNumberText;
     [SerializeField]private TextMeshProUGUI _maxBulletNumberText;
+    [SerializeField]private TextMeshProUGUI _healText;
     [SerializeField]private Image _currentHpBarImage;
     [SerializeField]private Image _currentWeaponIconImage;
     [SerializeField]private Image _currentBulletBarImage;
 
-    private PlayerStatus _status;
+    private Vector3 _healTextDefaultPos;
     protected override void Init() {
         base.Init();
 
@@ -28,13 +29,15 @@ public class UI_PlayerInfo : UI_Base
         _player.RespawnEvent -= RespawnEvent;
         _player.RespawnEvent += RespawnEvent;
 
-        _status = _player.MyStatus;
-        _currentHpText.text = _status._currentHp.ToString();
-        _currentHpBarImage.fillAmount = (float)_status._currentHp / _status._maxHp;
+        _currentHpText.text = _player.GetCurrentHp.ToString();
+        _currentHpBarImage.fillAmount = (float)_player.GetCurrentHp / _player.GetMaxHp;
         _currentBulletBarImage.fillAmount = (float)_player.CurrentWeapon.CurrentBullet / _player.CurrentWeapon.RemainBullet;
         _currentBulletNumberText.text = _player.CurrentWeapon.CurrentBullet.ToString();
         _maxBulletNumberText.text = _player.CurrentWeapon.MaxBullet.ToString();
         _currentWeaponNameText.text = _player.CurrentWeapon.Name;
+
+        _healTextDefaultPos = _healText.transform.position;
+        _healText.gameObject.SetActive(false);
     }
 
     private void ChangeWeaponEvent(Player.WeaponController weapon) {
@@ -44,14 +47,29 @@ public class UI_PlayerInfo : UI_Base
     }
 
     private void RespawnEvent() {
-        HpEvent(_player.Status._currentHp, _player.Status._maxHp);
+        HpEvent(_player.GetCurrentHp, _player.GetMaxHp);
         BulletEvent(_player.CurrentWeapon.CurrentBullet, _player.CurrentWeapon.MaxBullet, _player.CurrentWeapon.RemainBullet);
         ChangeWeaponEvent(_player.CurrentWeapon);
     }
 
-    private void HpEvent(int currentHp, int maxHp) {
+    private void HpEvent(int currentHp, int maxHp, int damage = 0) {
         _currentHpText.text = currentHp.ToString();
         _currentHpBarImage.fillAmount = (float)currentHp / maxHp;
+        int damageText = Mathf.Min(damage, maxHp - currentHp);
+        StartCoroutine(CoHealTextMove(damageText));
+    }
+
+    private IEnumerator CoHealTextMove(int damage) {
+        float time = 1f;
+        _healText.gameObject.SetActive(true);
+        _healText.transform.position = _healTextDefaultPos;
+        _healText.text = $"+{damage:D2} HP";
+        while (time > 0f) {
+            time -= Time.deltaTime * 2f;
+            _healText.transform.position += (Vector3.up * (1 - time));
+            yield return null;
+        }
+        _healText.gameObject.SetActive(false);
     }
 
     private void BulletEvent(int currentBullet, int maxBullet, int remainBullet) {

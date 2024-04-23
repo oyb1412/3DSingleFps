@@ -3,21 +3,26 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
+using UnityEngine.UI;
 using static Define;
 
 public abstract class UnitBase : MonoBehaviour
 {
-    protected StatusBase _status;
+    private const int OUTLINE_NUMBER = 6;
     protected GameObject _weapons;
     protected Transform _firePoint;
-    [SerializeField]protected Collider _bodyCollider;
-    [SerializeField] protected Collider _headCollider;
 
+    [SerializeField] protected int _currentHp = 100;
+    [SerializeField] protected int _maxHp = 100;
+    [SerializeField] protected float _moveSpeed = 5f;
+    [SerializeField] protected Collider _bodyCollider;
+    [SerializeField] protected Collider _headCollider;
 
     protected IWeapon _currentWeapon;
     protected IWeapon[] _weaponList = new IWeapon[(int)WeaponType.Count];
     [SerializeField]protected UnitState _state = UnitState.Idle;
     protected UnitSfxController _ufx;
+    private Outline[] _outlines;
 
     public UnitSfxController Ufx => _ufx;
 
@@ -29,22 +34,25 @@ public abstract class UnitBase : MonoBehaviour
 
     public Action<int> KillNumberEvent;
     public Action<int> DeathNumberEvent;
-    public StatusBase Status => _status;
 
     public Transform FirePoint => _firePoint;
+
+    public int GetCurrentHp => _currentHp;
+    public int GetMaxHp => _maxHp;
     public int MyKill { get; private set; }
     public int MyDead { get; private set; }
     public ModelController Model { get; private set; }
     public IItem CollideItem { get; set; }
     public Quaternion UnitRotate { get; protected set; }
 
-
-
-
     protected virtual void Awake() {
+        _outlines = new Outline[OUTLINE_NUMBER];
+        for(int i = 0; i < _outlines.Length; i++) {
+            _outlines[i] = GetComponentsInChildren<Outline>()[i];
+        }
+
         _ufx = GetComponent<UnitSfxController>();
         Model = GetComponentInChildren<ModelController>();
-        _status = GetComponent<StatusBase>();
 
         _weapons = Util.FindChild(gameObject, "Weapons", false);
         _firePoint = Util.FindChild(gameObject, "FirePoint", true).transform;
@@ -77,7 +85,7 @@ public abstract class UnitBase : MonoBehaviour
     private void DropWeapon() {
         if (_currentWeapon != _weaponList[(int)WeaponType.Pistol]) {
             ItemController go = Managers.Resources.Instantiate(BaseWeapon.CreateObject, null).GetComponent<ItemController>();
-            go.Init(new Vector3(transform.position.x, 1f, transform.position.z), true);
+            go.Init(new Vector3(transform.position.x, transform.position.y + 1f, transform.position.z), true);
         }
     }
 
@@ -96,6 +104,12 @@ public abstract class UnitBase : MonoBehaviour
         Model.ChangeWeapon(type);
     }
 
+    private void SetOutlineColor(float value) {
+        foreach(var t in _outlines) {
+            t.OutlineWidth = value;
+        }
+    }
+
     protected void GetItem() {
         if (CollideItem == null)
             return;
@@ -105,16 +119,31 @@ public abstract class UnitBase : MonoBehaviour
 
     public void TakeDamage(int damage, Transform attackerTrans, Transform myTrans) {
         IsHitEvent(damage, attackerTrans, myTrans);
-        if (_status._currentHp <= 0 && State != UnitState.Dead) {
+        int hp = SetHp(-damage);
+        if (hp <= 0 && State != UnitState.Dead) {
             IsDeadEvent(attackerTrans);
         }
     }
 
     protected virtual void IsHitEvent(int damage,Transform attackerTrans, Transform myTrans) {
-        _status._currentHp -= damage;
+        SetHp(-damage);
+    }
+
+    private void SetOutline(bool trigger) {
+        if(trigger) {
+            foreach(var t in _outlines) {
+                t.enabled = true;
+            }
+        }
+        else {
+            foreach (var t in _outlines) {
+                t.enabled = false;
+            }
+        }
     }
 
     protected virtual void IsDeadEvent(Transform attackerTrans) {
+        SetOutline(false);
         _ufx.PlaySfx(UnitSfx.Dead);
         Invoke("Init", Managers.GameManager.RespawnTime);
         _bodyCollider.enabled = false;
@@ -128,6 +157,8 @@ public abstract class UnitBase : MonoBehaviour
         Managers.GameManager.BoardSortToRank();
         Model.ResetAnimator();
         ChangeState(UnitState.Dead);
+        GameObject kit = Managers.Resources.Instantiate("Item/Healkit", null);
+        kit.transform.position = transform.position + Vector3.up;
         UI_KillFeed feed =  Managers.Resources.Instantiate("UI/KillFeed", Managers.GameManager.KillFeedParent).GetComponent<UI_KillFeed>();
         feed.Init(target.BaseWeapon.Type, attackerTrans.gameObject.name, gameObject.name);
         feed.transform.SetSiblingIndex(0);
@@ -164,18 +195,25 @@ public abstract class UnitBase : MonoBehaviour
         }
     }
 
+
+    public virtual int SetHp(int damage) {
+        _currentHp += damage;
+        _currentHp = Mathf.Clamp(_currentHp, 0, _maxHp);
+        return _currentHp;
+    }
+
     public virtual void Init() {
         CollideItem = null;
-
+        SetOutline(true);
         WeaponInit();
-        _status._currentHp = _status._maxHp;
+        _currentHp = _maxHp;
         transform.position = Managers.RespawnManager.GetRespawnPosition();
         ChangeState(UnitState.Get);
         UnitRotate = Quaternion.identity;
     }
 
     public bool IsDead() {
-        if (_status._currentHp <= 0)
+        if (_currentHp <= 0)
             return true;
         return false;
     }

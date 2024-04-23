@@ -5,12 +5,14 @@ using UnityEngine;
 
 public class RespawnManager 
 {
-    private const float ALLOW_RESPAWN_RANGE = 15f;
+    private const float WARDHOUSE_ALLOW_RESPAWN_RANGE = 15f;
+    private const float PORT_ALLOW_RESPAWN_RANGE = 20f;
     private Transform _respawnPoint;
     private List<Transform> _respawnList;
     public void Init() {
         _respawnPoint = GameObject.Find("@SpawnPoints").transform;
         _respawnList = new List<Transform>(_respawnPoint.childCount);
+
         foreach (Transform t in _respawnPoint) {
             _respawnList.Add(t);
         }
@@ -23,37 +25,22 @@ public class RespawnManager
     }
 
     public Vector3 GetRespawnPosition() {
+        float aollow = Managers.Scene.CurrentScene == Define.SceneType.WareHouse ? WARDHOUSE_ALLOW_RESPAWN_RANGE : PORT_ALLOW_RESPAWN_RANGE;
         var unit = Managers.GameManager.UnitsList;
-        foreach(Transform pos in _respawnList) {
+        Shuffle(_respawnList);
+        foreach (Transform pos in _respawnList) {
             bool isSafe = true;  
             foreach (var u in unit) {
-                if (Vector3.Distance(pos.position, u.transform.position) <= ALLOW_RESPAWN_RANGE) {
+                if (Vector3.Distance(pos.position, u.transform.position) <= aollow) {
                     isSafe = false;  
                     break;  
                 }
             }
             if (isSafe) {  
-                Debug.Log($"유닛 소환 위치 : {pos.position}");
                 return pos.position;  
             }
-            //int count = 0;
-            //foreach(var u in unit) {
-            //    if (Vector3.Distance(pos.position, u.transform.position) > ALLOW_RESPAWN_RANGE) {
-            //        count++;
-            //    } 
-            //    else {
-            //        count = 0;
-            //        continue;
-            //    }
-
-            //    if (count >= unit.Count) {
-            //        Debug.Log($"유닛 소환 위치 : {pos.position}");
-            //        return pos.position;
-            //    }
-            //}
         }
 
-        Debug.Log("스폰 위치 찾지 못함");
         return Vector3.zero;
     }
 

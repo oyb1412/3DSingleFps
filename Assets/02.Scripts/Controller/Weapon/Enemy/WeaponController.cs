@@ -6,9 +6,26 @@ namespace Enemy {
     public abstract class WeaponController : Base.WeaponController {
 
         public EnemyController Enemy { get { return _unit as EnemyController; } }
-        [SerializeField] private float _bulletAngle;
+        [SerializeField] private float _defaultTargetingChance;
+        private float _currentTargetingChance;
+        public float RandomBulletPos { get; private set; }
         protected override void Awake() {
             base.Awake();
+        }
+
+        protected override void Start() {
+            base.Start();
+            switch (Enemy.Level) {
+                case (int)EnemyLevel.Low:
+                    _currentTargetingChance = _defaultTargetingChance * 0.7f;
+                    break;
+                case (int)EnemyLevel.Middle:
+                    _currentTargetingChance = _defaultTargetingChance;
+                    break;
+                case (int)EnemyLevel.High:
+                    _currentTargetingChance = _defaultTargetingChance * 1.3f;
+                    break;
+            }
         }
         protected abstract override void Enable();
 
@@ -19,36 +36,19 @@ namespace Enemy {
             bool isHit;
             RaycastHit hit;
 
-            if (Enemy.Level == (int)EnemyLevel.High) {
-                var ran1 = Random.Range(-_bulletAngle * 0.5f, _bulletAngle * 0.5f);
-                var ran2 = Random.Range(-_bulletAngle * 0.5f, _bulletAngle * 0.5f);
+            Debug.DrawRay(_firePoint.position, angle * float.MaxValue, Color.green, 1f);
+            isHit = Physics.Raycast(_firePoint.position, angle, out hit, float.MaxValue, _layerMask);
+            
+            float ran = Random.Range(0, 100f);
 
-                Quaternion pelletRotation = Quaternion.Euler(ran1, ran2, 0);
-                Vector3 pelletDirection = pelletRotation * angle;
+            float dir = Mathf.Abs((Enemy.transform.position - Enemy.TargetUnit.transform.position).magnitude);
 
-                Debug.DrawRay(_firePoint.position, pelletDirection * 100f, Color.green, 1f);
-                isHit = Physics.Raycast(_firePoint.position, pelletDirection, out hit, float.MaxValue, _layerMask);
-            }
-            else if(Enemy.Level == (int)EnemyLevel.Low) {
-                var ran1 = Random.Range(-_bulletAngle * 1.5f, _bulletAngle * 1.5f);
-                var ran2 = Random.Range(-_bulletAngle * 1.5f, _bulletAngle * 1.5f);
+            //todo
+            //거리 30이상 
+            //float chance = Mathf.Clamp()
 
-                Quaternion pelletRotation = Quaternion.Euler(ran1, ran2, 0);
-                Vector3 pelletDirection = pelletRotation * angle;
-
-                Debug.DrawRay(_firePoint.position, pelletDirection * 100f, Color.green, 1f);
-                isHit = Physics.Raycast(_firePoint.position, pelletDirection, out hit, float.MaxValue, _layerMask);
-            }
-            else {
-                var ran1 = Random.Range(-_bulletAngle, _bulletAngle);
-                var ran2 = Random.Range(-_bulletAngle, _bulletAngle);
-
-                Quaternion pelletRotation = Quaternion.Euler(ran1, ran2, 0);
-                Vector3 pelletDirection = pelletRotation * angle;
-
-                Debug.DrawRay(_firePoint.position, pelletDirection * 100f, Color.green, 1f);
-                isHit = Physics.Raycast(_firePoint.position, pelletDirection, out hit, float.MaxValue, _layerMask);
-            }
+            if (ran < _currentTargetingChance)
+                return;
 
             DefaultShot(isHit, hit, Enemy);
         }
@@ -74,7 +74,6 @@ namespace Enemy {
 
         private IEnumerator CoRotate() {
             float startTime = Time.time;
-
             while (Time.time < startTime + 1f) {
                 if(Enemy.TargetUnit == null) {
                     break;
@@ -84,6 +83,6 @@ namespace Enemy {
                 yield return null;
             }
         }
-    }
 
+    }
 }

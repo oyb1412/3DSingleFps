@@ -1,7 +1,0 @@
-using UnityEngine;
-
-public class StatusBase :MonoBehaviour {
-    public int _currentHp;
-    public int _maxHp;
-    public float _moveSpeed;
-}

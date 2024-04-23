@@ -1,9 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public class MainCameraController : MonoBehaviour
 {
+    private const float FADE_TIME = 0.3f;
     private Vector3 _defaultPos;
     private PlayerController _player;
     private Camera _camera;
@@ -19,12 +19,12 @@ public class MainCameraController : MonoBehaviour
 
     private void AimEvent(bool trigger) {
         if(trigger) {
-            transform.localPosition = _player.CurrentWeapon._cameraPos;
-            _camera.fieldOfView = _player.CurrentWeapon._cameraView;
+            transform.DOLocalMove(_player.CurrentWeapon._cameraPos, FADE_TIME);
+            DOTween.To(() => _camera.fieldOfView, x => _camera.fieldOfView = x, _player.CurrentWeapon._cameraView, FADE_TIME);
         }
         else {
-            transform.localPosition = _defaultPos;
-            _camera.fieldOfView = _defaultView;
+            transform.DOLocalMove(_defaultPos, FADE_TIME);
+            DOTween.To(() => _camera.fieldOfView, x => _camera.fieldOfView = x, _defaultView, FADE_TIME);
         }
     }
     

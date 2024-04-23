@@ -41,7 +41,7 @@ namespace Base {
             _animator = GetComponent<Animator>();
         }
 
-        protected void Start() {
+        protected virtual void Start() {
             _unit = GetComponentInParent<UnitBase>();
             _layerMask = (1 << (int)LayerType.Head) | (1 << (int)LayerType.Body) | (1 << (int)LayerType.Obstacle) | (1 << (int)LayerType.Ground) | (1 << (int)LayerType.Wall);
             _firePos = Util.FindChild(gameObject, "FirePos", true).transform;
@@ -96,6 +96,7 @@ namespace Base {
             if (!isHit)
                 return;
 
+
             int layer = hit.collider.gameObject.layer;
             if (layer == (int)LayerType.Head &&
                 hit.collider.GetComponentInParent<UnitBase>().gameObject != unit.gameObject) {
@@ -120,12 +121,10 @@ namespace Base {
                 GameObject impact = CreateEffect(_impactEffect, hit.point);
                 impact.transform.LookAt(_firePoint.position);
                 Destroy(impact, 1f);
-                return;
             } else if (layer == (int)LayerType.Ground) {
                 GameObject impact = CreateEffect(_impactEffect, hit.point);
                 impact.transform.eulerAngles = new Vector3(-90f, 0f, 0f);
                 Destroy(impact, 1f);
-                return;
             }
         }
         

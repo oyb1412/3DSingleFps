@@ -10,6 +10,7 @@ TagManager:
   - BulletSpawn
   - LevelPart
   - Dummie
+  - Unit
   layers:
   - Default
   - TransparentFX
@@ -25,13 +26,13 @@ TagManager:
   - Wall
   - Item
   - Enemy
-  - Unit
+  - 
   - Head
   - Body
-  - RightArm
-  - LeftArm
-  - RightLeg
-  - LeftLeg
+  - Unit
+  - 
+  - 
+  - 
   - 
   - 
   - 

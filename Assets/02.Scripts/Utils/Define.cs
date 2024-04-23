@@ -13,19 +13,15 @@ public class Define
         Gameover,
     }
     public enum LayerType {
-        Obstacle = 10,
-        Player = 9,
         Ground = 6,
-        Wall = 11,
-        Item = 12,
-        Enemy = 13,
-        Unit = 14,
-        Head,
+        Player = 9,
+        Obstacle,
+        Wall,
+        Item,
+        Enemy,
+        Head = 15,
         Body,
-        RightArm,
-        LeftArm,
-        RightLeg,
-        LeftLeg,
+        Unit,
     }
 
     public enum DirType {
@@ -49,6 +45,7 @@ public class Define
         Reload,
         Dead,
         Get,
+        Run,
     }
     public enum MouseEventType
     {

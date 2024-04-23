@@ -4,7 +4,7 @@ namespace Enemy {
     public class PistolController : WeaponController {
         protected override void Awake() {
             base.Awake();
-            Damage = 20;
+            Damage = 25;
             Type = Define.WeaponType.Pistol;
             Name = "Pistol";
             _shotDelay = 0.4f;

@@ -3,10 +3,11 @@ using static Define;
 
 namespace Enemy {
     public class ShotgunController : WeaponController {
-        private float _bulletNumber = 6;
+        [SerializeField] private float _shotAngle;
+        private float _bulletNumber = 8;
         protected override void Awake() {
             base.Awake();
-            Damage = 30;
+            Damage = 15;
             _shotDelay = 1f;
             Name = "Shotgun";
             Type = WeaponType.Shotgun;
@@ -22,8 +23,15 @@ namespace Enemy {
         }
         public override void Shot() {
             base.Shot();
+
             for (int i = 0; i < _bulletNumber; i++) {
-                DefaultShot(transform.forward);
+                var ran1 = Random.Range(-_shotAngle, _shotAngle);
+                var ran2 = Random.Range(-_shotAngle, _shotAngle);
+
+                Quaternion pelletRotation = Quaternion.Euler(ran1, ran2, 0);
+                Vector3 pelletDirection = pelletRotation * transform.forward;
+
+                DefaultShot(pelletDirection);
             }
         }
     }

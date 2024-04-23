@@ -51,7 +51,7 @@ public class PoolManager
             
             poolable.gameObject.SetActive(true);
 
-            poolable.transform.parent = Managers.Scene.CurrentScene.transform;
+            poolable.transform.parent = Managers.Scene.CurrentSceneManager.transform;
 
             poolable.transform.parent = Root;
 
