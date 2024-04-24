@@ -32,7 +32,10 @@ public class UI_Setting : UI_Base
         CloseBG,
     }
 
-    private void Start() {
+
+    protected override void Init() {
+        base.Init();
+
         _sensitivitySlider.onValueChanged.AddListener(SetSensitivity);
         _volumeSlider.onValueChanged.AddListener(SetVolume);
         _outlineDP.onValueChanged.AddListener(SetOutlineColor);

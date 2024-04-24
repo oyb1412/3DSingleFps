@@ -14,12 +14,22 @@ public class UI_GameSystem : UI_Base
 
 
     private bool[] _count = new bool[3];
-    private void Start() {
+
+    private void Awake() {
+
+        Managers.GameManager.WaitStateEvent -= SetWaitUI;
+        Managers.GameManager.WaitStateEvent += SetWaitUI;
+    }
+
+    protected override void Init() {
+        base.Init();
+
+
         _player.DeadEvent -= (() => _deadNumberText.text = _player.MyDead.ToString());
         _player.KillEvent -= (() => _killNumberText.text = _player.MyKill.ToString());
         _player.DoubleKillEvent -= (() => StartCoroutine("CoDoubleKill"));
-        _player.TripleKillEvent -= TripleKillEvent;  
-        
+        _player.TripleKillEvent -= TripleKillEvent;
+
         _player.DeadEvent += (() => _deadNumberText.text = _player.MyDead.ToString());
         _player.KillEvent += (() => _killNumberText.text = _player.MyKill.ToString());
         _player.DoubleKillEvent += (() => StartCoroutine("CoDoubleKill"));
@@ -27,13 +37,6 @@ public class UI_GameSystem : UI_Base
 
         _deadNumberText.text = "0";
         _killNumberText.text = "0";
-    }
-
-    protected override void Init() {
-        base.Init();
-
-        Managers.GameManager.WaitStateEvent -= SetWaitUI;
-        Managers.GameManager.WaitStateEvent += SetWaitUI;
     }
 
     

@@ -27,10 +27,7 @@ public class UI_SystemSetting : UI_Base
         StartBG,
     }
     protected override void Init() {
-    }
-
-
-    private void Start() {
+        base.Init();
         _defaultColor = _startBtn.targetGraphic.color;
         _defaultScale = _startBtn.transform.localScale;
 
@@ -42,6 +39,8 @@ public class UI_SystemSetting : UI_Base
 
         _selectMapDP.onValueChanged.AddListener(SelectMap);
     }
+
+
 
     private void SelectMap(int value) {
         _enemyNumberDP.ClearOptions();

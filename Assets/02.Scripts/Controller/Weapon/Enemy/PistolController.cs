@@ -4,6 +4,7 @@ namespace Enemy {
     public class PistolController : WeaponController {
         protected override void Awake() {
             base.Awake();
+
             Damage = 25;
             Type = Define.WeaponType.Pistol;
             Name = "Pistol";
@@ -19,6 +20,7 @@ namespace Enemy {
         }
         public override void Shot() {
             base.Shot();
+
             DefaultShot(transform.forward);
         }
     }
