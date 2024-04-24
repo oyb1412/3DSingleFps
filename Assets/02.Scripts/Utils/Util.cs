@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using static Define;
 
 public class Util : MonoBehaviour
 {
@@ -29,6 +30,25 @@ public class Util : MonoBehaviour
         return null;
     }
 
+    public static DirType DirectionCalculation(Transform attackerTrans, Transform myTrans) {
+        Vector3 relativePosition = attackerTrans.position - myTrans.position;
+
+        float forwardDot = Vector3.Dot(myTrans.forward, relativePosition.normalized);
+        float rightDot = Vector3.Dot(myTrans.right, relativePosition.normalized);
+        float backDot = Vector3.Dot(-myTrans.forward, relativePosition.normalized);
+        float leftDot = Vector3.Dot(-myTrans.right, relativePosition.normalized);
+
+        float maxDot = Mathf.Max(forwardDot, Mathf.Max(backDot, Mathf.Max(rightDot, leftDot)));
+
+        if (maxDot == forwardDot)
+            return DirType.Front;
+        else if (maxDot == backDot)
+            return DirType.Back;
+        else if (maxDot == rightDot)
+            return DirType.Right;
+        else
+            return DirType.Left;
+    }
 
 
     public static T GetorAddComponent<T>(GameObject go) where T : Component

@@ -12,7 +12,6 @@ namespace Player {
         [SerializeField] private RuntimeAnimatorController _AimAC;
         protected Transform _aimFirePos;
 
-
         public PlayerController Player { get { return _unit as PlayerController; } }
 
         public Animator CurrentAnime { get {
@@ -53,7 +52,7 @@ namespace Player {
 
         protected override void DefaultShot(Vector3 angle) {
             Vector3 pos = Player.IsAiming ? _firePoint.position + (_firePoint.forward * .5f) : _firePoint.position;
-            Debug.DrawRay(pos, angle * 100f, Color.cyan, 1f);
+            Debug.DrawRay(pos, angle * float.MaxValue, Color.cyan, 1f);
             bool isHit = Physics.Raycast(pos, angle, out var hit, float.MaxValue, _layerMask);
             DefaultShot(isHit, hit, Player);
         }

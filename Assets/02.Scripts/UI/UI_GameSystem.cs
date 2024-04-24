@@ -36,6 +36,8 @@ public class UI_GameSystem : UI_Base
         Managers.GameManager.WaitStateEvent += SetWaitUI;
     }
 
+    
+
     private void Update() {
         int min = (int)Managers.GameManager.GameTime / 60;
         int sec = (int)Managers.GameManager.GameTime % 60;

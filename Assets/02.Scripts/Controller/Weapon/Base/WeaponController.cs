@@ -100,7 +100,7 @@ namespace Base {
             int layer = hit.collider.gameObject.layer;
             if (layer == (int)LayerType.Head &&
                 hit.collider.GetComponentInParent<UnitBase>().gameObject != unit.gameObject) {
-                hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(Damage * 3, unit.transform, hit.collider.GetComponentInParent<UnitBase>().transform);
+                hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(Damage * 3, unit.TargetPos, hit.collider.GetComponentInParent<UnitBase>().transform, true);
                 GameObject blood = CreateEffect(_bloodEffect, hit.point);
                 blood.transform.LookAt(_firePoint.position);
                 if(unit.TryGetComponent<PlayerController>(out var player)) {
@@ -109,7 +109,7 @@ namespace Base {
                 Destroy(blood, 1f);
             } else if (layer == (int)LayerType.Body &&
                 hit.collider.GetComponentInParent<UnitBase>().gameObject != unit.gameObject) {
-                hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(Damage, unit.transform, hit.collider.GetComponentInParent<UnitBase>().transform);
+                hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(Damage, unit.TargetPos, hit.collider.GetComponentInParent<UnitBase>().transform, false);
                 GameObject blood = CreateEffect(_bloodEffect, hit.point);
                 blood.transform.LookAt(_firePoint.position);
                 if (unit.TryGetComponent<PlayerController>(out var player)) {

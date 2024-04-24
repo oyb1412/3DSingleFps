@@ -40,7 +40,6 @@ public class ResourcesManager
         return go;
     }
 
-
     public GameObject Instantiate(GameObject obj, Transform parent) {
 
         if (obj == null) {

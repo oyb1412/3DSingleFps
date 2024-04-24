@@ -29,7 +29,6 @@ public class UI_Gameover : UI_Base
         base.OnEnterButton(eventData);
         PointerEventData data = eventData as PointerEventData;
         _name = data.pointerCurrentRaycast.gameObject.name;
-        Debug.Log($"클릭한 객체의 이름은 {_name}");
 
         SetColorAndScale(_continueBtn, _name, "RestartBG", Color.black, new Vector3(.95f, .95f, .95f));
     }

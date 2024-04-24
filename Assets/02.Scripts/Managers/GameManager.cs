@@ -10,9 +10,10 @@ public class GameManager
     public Action WaitStateEvent;
     public Action FightStateEvent;
     public Action GameoverAction;
+    public Action<int> EnemyNumberAction;
     public float GameTime { get; private set; } = 60f;
     public float RespawnTime { get; private set; } = 3f;
-    public int EnemyNumber { get; private set; } = 4;
+    public int EnemyNumber { get; private set; }
     public int EnemyLevel { get; private set; } = 1;
     public int KillLimit { get; private set; } = 0;
     public GameState State { get; private set; } = GameState.None;
@@ -34,11 +35,22 @@ public class GameManager
 
     public void Init()
     {
+        GameTime = 60f;
+        RespawnTime = 3f;
+        EnemyNumber = 4;
+        EnemyLevel = 1;
+        Volume = 50f;
+        _doNextStateTime = 3f;
+
         EnemyNumber = PlayerPrefs.GetInt("EnemyNumber");
         EnemyLevel = PlayerPrefs.GetInt("EnemyLevel");
         GameTime *= PlayerPrefs.GetInt("TimeLimit");
         RespawnTime = PlayerPrefs.GetInt("RespawnTime");
         KillLimit = PlayerPrefs.GetInt("KillLimit");
+
+        EnemyNumberAction.Invoke(EnemyNumber);
+
+        PlayerPrefs.DeleteAll();
 
         KillFeedParent = GameObject.Find("KIllFeeds").transform;
         var uiScoreBoard = GameObject.Find("UI_Scoreboard");
@@ -66,6 +78,16 @@ public class GameManager
 
         VolumeEvent -= SetVolume;
         VolumeEvent += SetVolume;
+    }
+
+    public void Clear() {
+        WaitStateEvent = null;
+        FightStateEvent = null;
+        GameoverAction = null;
+        VolumeEvent = null;
+        _units?.Clear();
+        _boardChild?.Clear();
+        ChangeState(GameState.None);
     }
 
     private void SetVolume(float volume) {
@@ -96,7 +118,7 @@ public class GameManager
             case GameState.WaitFight:
                 WaitTime -= Time.deltaTime;
                 if(WaitTime <= 0f) {
-                    State = GameState.StartFight;
+                    ChangeState(GameState.StartFight);
                 }
                 break;
             case GameState.StartFight:
@@ -125,6 +147,7 @@ public class GameManager
                 GameoverAction?.Invoke();
                 Time.timeScale = 0f;
                 Cursor.lockState = CursorLockMode.Confined;
+                BgmController.instance.SetBgm(Bgm.Ingame, false);
                 ShareSfxController.instance.SetShareSfx(ShareSfx.Gameover);
                 break;
             case GameState.Menu:

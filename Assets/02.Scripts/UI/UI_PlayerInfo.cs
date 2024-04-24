@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using static Define;
 
 public class UI_PlayerInfo : UI_Base
 {
@@ -11,6 +12,8 @@ public class UI_PlayerInfo : UI_Base
     [SerializeField]private TextMeshProUGUI _currentBulletNumberText;
     [SerializeField]private TextMeshProUGUI _maxBulletNumberText;
     [SerializeField]private TextMeshProUGUI _healText;
+    [SerializeField]private TextMeshProUGUI _killInfomationText;
+
     [SerializeField]private Image _currentHpBarImage;
     [SerializeField]private Image _currentWeaponIconImage;
     [SerializeField]private Image _currentBulletBarImage;
@@ -29,6 +32,9 @@ public class UI_PlayerInfo : UI_Base
         _player.RespawnEvent -= RespawnEvent;
         _player.RespawnEvent += RespawnEvent;
 
+        _player.KillAndDeadEvent -= KillInfomationEvent;
+        _player.KillAndDeadEvent += KillInfomationEvent;
+
         _currentHpText.text = _player.GetCurrentHp.ToString();
         _currentHpBarImage.fillAmount = (float)_player.GetCurrentHp / _player.GetMaxHp;
         _currentBulletBarImage.fillAmount = (float)_player.CurrentWeapon.CurrentBullet / _player.CurrentWeapon.RemainBullet;
@@ -38,6 +44,40 @@ public class UI_PlayerInfo : UI_Base
 
         _healTextDefaultPos = _healText.transform.position;
         _healText.gameObject.SetActive(false);
+    }
+
+    private void KillInfomationEvent(DirType dir, string name, bool kill, bool headShot) {
+        string text = string.Empty;
+        if(kill) {
+            if(headShot) {
+                text = $"Killer the {name} ({dir.ToString()}, HeadShot)";
+            }
+            else {
+                text = $"Killer the {name} ({dir.ToString()})";
+            }
+        }
+        else {
+            if (headShot) {
+                text = $"killed by that {name} ({dir.ToString()}, HeadShot)";
+            } else {
+                text = $"killed by that {name} ({dir.ToString()})";
+            }
+        }
+        
+        StartCoroutine(CoKillInfomation(text));
+    }
+
+    private IEnumerator CoKillInfomation(string text) {
+        float alpha = 1f;
+        _killInfomationText.gameObject.SetActive(true);
+        _killInfomationText.text = text;
+        while (alpha > 0f)
+        {
+            _killInfomationText.color = new Color(1f, 1f, 1f, alpha);
+            alpha -= Time.deltaTime * .3f;
+            yield return null;
+        }
+        _killInfomationText.gameObject.SetActive(false);
     }
 
     private void ChangeWeaponEvent(Player.WeaponController weapon) {

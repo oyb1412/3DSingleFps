@@ -12,7 +12,11 @@ public class UI_Scoreboard : UI_Base
     private void Start() {
         _player.ScoreboardEvent -= ((trigger) => transform.GetChild(0).gameObject.SetActive(trigger) );
         _player.ScoreboardEvent += ((trigger) => transform.GetChild(0).gameObject.SetActive(trigger) );
-        _playerNumber.text = $"PLAYERS ({Managers.GameManager.EnemyNumber + 1})";
+        Managers.GameManager.EnemyNumberAction += SetEnemyNumber;
         transform.GetChild(0).gameObject.SetActive(false);
+    }
+
+    private void SetEnemyNumber(int number) {
+        _playerNumber.text = $"PLAYERS ({number + 1})";
     }
 }

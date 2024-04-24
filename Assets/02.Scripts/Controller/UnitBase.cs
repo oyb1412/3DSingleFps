@@ -11,6 +11,7 @@ public abstract class UnitBase : MonoBehaviour
     private const int OUTLINE_NUMBER = 6;
     protected GameObject _weapons;
     protected Transform _firePoint;
+    public Transform TargetPos { get; private set; }
 
     [SerializeField] protected int _currentHp = 100;
     [SerializeField] protected int _maxHp = 100;
@@ -56,6 +57,7 @@ public abstract class UnitBase : MonoBehaviour
 
         _weapons = Util.FindChild(gameObject, "Weapons", false);
         _firePoint = Util.FindChild(gameObject, "FirePoint", true).transform;
+        TargetPos = Util.FindChild(gameObject, "TargetPos", false).transform;
 
         _weaponList[(int)WeaponType.Pistol] = Util.FindChild(_weapons, WeaponType.Pistol.ToString(), false).GetComponent<IWeapon>();
         _weaponList[(int)WeaponType.Rifle] = Util.FindChild(_weapons, WeaponType.Rifle.ToString(), false).GetComponent<IWeapon>();
@@ -104,9 +106,9 @@ public abstract class UnitBase : MonoBehaviour
         Model.ChangeWeapon(type);
     }
 
-    private void SetOutlineColor(float value) {
+    public void SetOutlineColor(Color color) {
         foreach(var t in _outlines) {
-            t.OutlineWidth = value;
+            t.OutlineColor = color;
         }
     }
 
@@ -117,11 +119,11 @@ public abstract class UnitBase : MonoBehaviour
         CollideItem.Pickup(this);
     }
 
-    public void TakeDamage(int damage, Transform attackerTrans, Transform myTrans) {
+    public void TakeDamage(int damage, Transform attackerTrans, Transform myTrans, bool headShot) {
         IsHitEvent(damage, attackerTrans, myTrans);
         int hp = SetHp(-damage);
         if (hp <= 0 && State != UnitState.Dead) {
-            IsDeadEvent(attackerTrans);
+            IsDeadEvent(attackerTrans, headShot);
         }
     }
 
@@ -142,7 +144,7 @@ public abstract class UnitBase : MonoBehaviour
         }
     }
 
-    protected virtual void IsDeadEvent(Transform attackerTrans) {
+    protected virtual void IsDeadEvent(Transform attackerTrans, bool headShot) {
         SetOutline(false);
         _ufx.PlaySfx(UnitSfx.Dead);
         Invoke("Init", Managers.GameManager.RespawnTime);
@@ -151,7 +153,7 @@ public abstract class UnitBase : MonoBehaviour
         MyDead++;
         DeathNumberEvent?.Invoke(MyDead);
         ChangeWeapon(WeaponType.Pistol);
-        UnitBase target = attackerTrans.GetComponent<UnitBase>();
+        UnitBase target = attackerTrans.GetComponentInParent<UnitBase>();
         target.MyKill++;
         target.KillNumberEvent?.Invoke(target.MyKill);
         Managers.GameManager.BoardSortToRank();

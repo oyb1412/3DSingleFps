@@ -24,12 +24,27 @@ public class Define
         Unit,
     }
 
+    public enum OutlineColorType {
+        Red,
+        Yellow,
+        Green,
+    }
+
+    public enum CrosshairType {
+        Line,
+        Point,
+        PointAndLine,
+    }
+    
+
     public enum DirType {
         Left,
         Back,
         Right,
         Front,
     }
+
+    
     public enum WeaponType {
         Pistol,
         Rifle,

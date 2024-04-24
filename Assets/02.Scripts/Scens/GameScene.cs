@@ -10,6 +10,7 @@ public class GameScene : BaseScene
 
     protected override void Start() {
         base.Start();
+
         Managers.Scene.SetScene();
         Managers.Instance.IngameInit();
 

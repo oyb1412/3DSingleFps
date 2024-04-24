@@ -20,6 +20,10 @@ public class RespawnManager
         Shuffle(_respawnList);
     }
 
+    public void Clear() {
+        _respawnList?.Clear();
+    }
+
     public Vector3 GetRandomPosition() {
         return _respawnList[Random.Range(0, _respawnPoint.childCount - 1)].position;
     }

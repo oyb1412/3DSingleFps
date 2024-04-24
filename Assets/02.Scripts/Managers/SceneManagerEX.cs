@@ -22,8 +22,18 @@ public class SceneManagerEX
         var tween = _fade.SetFade(true);
         if (type == Define.SceneType.Exit) {
             tween.OnComplete(QuitGame);
-        } else
-            tween.OnComplete(() => DoNextScene(type));
+        } else {
+            if(type == Define.SceneType.Startup) {
+                tween.OnComplete(() => ClearLoadScene(type));
+            } else {
+                tween.OnComplete(() => DoNextScene(type));
+            }
+        }
+    }
+
+    private void ClearLoadScene(Define.SceneType type) {
+        Managers.Instance.Ingameclear();
+        DoNextScene(type);
     }
 
     public void SetScene() {

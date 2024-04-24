@@ -57,6 +57,8 @@ public class PlayerController : UnitBase, ITakeDamage
     public Action SettingEvent;
     public Action<bool> CollideItemEvent;
     public Action<bool> AimEvent;
+    public Action<int> ChangeCrosshairEvent;
+    public Action<DirType, string, bool, bool> KillAndDeadEvent;
     #endregion
 
     #region property
@@ -359,12 +361,14 @@ public class PlayerController : UnitBase, ITakeDamage
         return _currentHp;
     }
 
-    protected override void IsDeadEvent(Transform attackerTrans) {
+    protected override void IsDeadEvent(Transform attackerTrans, bool headShot) {
         _moveX = 0f;
         _moveZ = 0f;
-        base.IsDeadEvent(attackerTrans);
+        base.IsDeadEvent(attackerTrans, headShot);
         CurrentWeapon.ChangeAimAC(false);
         _cc.enabled = false;
+        DirType dir = Util.DirectionCalculation(attackerTrans, transform);
+        KillAndDeadEvent.Invoke(dir, attackerTrans.parent.name, false, headShot);
         DeadEvent.Invoke();
         _mainCamera.gameObject.SetActive(false);
         _subCamera.gameObject.SetActive(true);

@@ -50,33 +50,13 @@ public class UI_PlayerHurt : UI_Base
         while(HitDirections.transform.childCount > count) {
             if(!HitDirections.transform.GetChild(count).gameObject.activeSelf) 
             {
-                DirType rotate = DirectionCalculation(attackerTrans, myTrans);
+                DirType rotate = Util.DirectionCalculation(attackerTrans, myTrans);
                 HitDirections.transform.GetChild(count).transform.eulerAngles = new Vector3(0f, 0f, HURTIMAGE_ROTATE[(int)rotate]);
                 StartCoroutine(CoPlayerHurt(HitDirections.transform.GetChild(count).GetComponent<Image>(), 1f));
                 break;
             }
             count++;
         }
-    }
-
-    private DirType DirectionCalculation(Transform attackerTrans, Transform myTrans) {
-        Vector3 relativePosition = attackerTrans.position - myTrans.position;
-
-        float forwardDot = Vector3.Dot(myTrans.forward, relativePosition.normalized);
-        float rightDot = Vector3.Dot(myTrans.right, relativePosition.normalized);
-        float backDot = Vector3.Dot(-myTrans.forward, relativePosition.normalized);
-        float leftDot = Vector3.Dot(-myTrans.right, relativePosition.normalized);
-
-        float maxDot = Mathf.Max(forwardDot, Mathf.Max(backDot, Mathf.Max(rightDot, leftDot)));
-
-        if (maxDot == forwardDot)
-            return DirType.Front;
-        else if (maxDot == backDot)
-            return DirType.Back;
-        else if (maxDot == rightDot)
-            return DirType.Right;
-        else
-            return DirType.Left;
     }
 
     private IEnumerator CoPlayerHurt(Image image, float startAlpha) {

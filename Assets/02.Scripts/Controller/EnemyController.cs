@@ -136,7 +136,7 @@ public class EnemyController : UnitBase, ITakeDamage {
 
             if (TargetUnit) {
                 _agent.SetDestination(transform.position);
-                transform.LookAt(TargetUnit.transform);
+                transform.LookAt(TargetUnit.TargetPos);
                 IsShotState = true;
                 StopAllCoroutines();
                 break;
@@ -171,17 +171,19 @@ public class EnemyController : UnitBase, ITakeDamage {
     protected override void IsHitEvent(int damage, Transform attackerTrans, Transform myTrans) {
         base.IsHitEvent(damage, attackerTrans, myTrans);
         if(TargetUnit == null) {
-            TargetUnit = attackerTrans.GetComponent<UnitBase>();
-            transform.LookAt(attackerTrans);
+            TargetUnit = attackerTrans.GetComponentInParent<UnitBase>();
+            transform.LookAt(TargetUnit.TargetPos);
             IsShotState = true;
         }
     }
 
-    protected override void IsDeadEvent(Transform attackerTrans) {
-        if (attackerTrans.GetComponent<PlayerController>()) {
+    protected override void IsDeadEvent(Transform attackerTrans, bool headShot) {
+        if (attackerTrans.parent.TryGetComponent<PlayerController>(out var player)) {
             ShareSfxController.instance.SetShareSfx(ShareSfx.KillSound);
+            DirType dir = Util.DirectionCalculation(attackerTrans, transform);
+            player.KillAndDeadEvent.Invoke(dir, name, true, headShot);
         }
-        base.IsDeadEvent(attackerTrans);
+        base.IsDeadEvent(attackerTrans, headShot);
          transform.LookAt(attackerTrans);
         TargetUnit = null;
         _collider.enabled = false;

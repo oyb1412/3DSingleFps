@@ -7,15 +7,13 @@ namespace Player {
             VerticalBoundValue = 1.8f;
             HorizontalBoundValue = 0.5f;
             _shotDelay = 0.4f;
-            CrossValue = 130f;
+            CrossValue = 100f;
             Type = Define.WeaponType.Pistol;
             Damage = 34;
             Name = "Pistol";
             WeaponIcon = (Sprite)Managers.Resources.Load<Sprite>("Texture/PistolIcon");
             CreateObject = (GameObject)Managers.Resources.Load<GameObject>("Prefabs/Item/Pistol");
         }
-
-
 
         protected override void Enable() {
             CurrentBullet = 12;

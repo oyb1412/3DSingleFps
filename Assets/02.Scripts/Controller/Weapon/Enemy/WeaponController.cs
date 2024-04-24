@@ -43,11 +43,19 @@ namespace Enemy {
 
             float dir = Mathf.Abs((Enemy.transform.position - Enemy.TargetUnit.transform.position).magnitude);
 
-            //todo
-            //거리 30이상 
-            //float chance = Mathf.Clamp()
+            float chance = _currentTargetingChance;
 
-            if (ran < _currentTargetingChance)
+            if(dir <= 10f && dir > 5f) {
+                chance = _currentTargetingChance * .9f;
+            } if (dir > 10f &&  dir < 20f) {
+                chance = _currentTargetingChance * .7f;
+            } else if(dir >= 20f) {
+                chance = _currentTargetingChance * .5f;
+            }
+
+            Debug.Log($"적의 공격 적중 확률{chance}, {ran}보다 클 시 적중");
+
+            if (ran < chance)
                 return;
 
             DefaultShot(isHit, hit, Enemy);
@@ -78,7 +86,7 @@ namespace Enemy {
                 if(Enemy.TargetUnit == null) {
                     break;
                 }
-                Quaternion targetQ = Quaternion.LookRotation(Enemy.TargetUnit.transform.position - Enemy.transform.position);
+                Quaternion targetQ = Quaternion.LookRotation(Enemy.TargetUnit.TargetPos.position - Enemy.transform.position);
                 Enemy.transform.rotation = Quaternion.Slerp(Enemy.transform.rotation, targetQ, 20f * Time.deltaTime);
                 yield return null;
             }

@@ -40,6 +40,11 @@ public class Managers : MonoBehaviour
         GameManager.Init();
     }
 
+    public void Ingameclear() {
+        RespawnManager.Clear();
+        GameManager.Clear();
+    }
+
     private void Start() {
     }
 
