@@ -1,3 +1,4 @@
+using Fusion;
 using Photon.Pun;
 using System;
 using System.Collections;
@@ -31,7 +32,6 @@ public abstract class UnitBase : MonoBehaviourPunCallbacks
 
     public Base.WeaponController BaseWeapon => _currentWeapon as Base.WeaponController;
 
-    public abstract void ChangeState(UnitState state);
 
     public UnitState State => _state;
 
@@ -83,7 +83,7 @@ public abstract class UnitBase : MonoBehaviourPunCallbacks
     }
 
     public virtual void Reload() {
-        if (!Managers.GameManager.InGame())
+        if (!GameManager.Instance.InGame())
             return;
 
         if (_currentWeapon.TryReload(this))
@@ -91,11 +91,33 @@ public abstract class UnitBase : MonoBehaviourPunCallbacks
     }
 
     private void DropWeapon() {
-
         if (_currentWeapon != _weaponList[(int)WeaponType.Pistol]) {
-            ItemController go = Managers.Resources.Instantiate(BaseWeapon.CreateObject, null).GetComponent<ItemController>();
-            go.Init(new Vector3(transform.position.x, transform.position.y + 1f, transform.position.z), true);
+
+            PV.RPC("RPC_DropWeapon", RpcTarget.AllBuffered,  PV.OwnerActorNr);
         }
+    }
+
+
+    [PunRPC]
+    private void RPC_DropWeapon(int actorNumber) {
+        if (PV.OwnerActorNr != actorNumber)
+            return;
+
+        NetworkManager.Instance.PhotonCreate($"Prefabs/Item/{BaseWeapon.Type.ToString()}", transform.position + Vector3.up,
+            Quaternion.identity);
+    }
+
+    private void DeadWeaponEvent() {
+        DropWeapon();
+        _weaponList[(int)WeaponType.Pistol].myObject.SetActive(true);
+        _currentWeapon = _weaponList[(int)WeaponType.Pistol];
+        _currentWeapon.Activation(_firePoint, this);
+        foreach (var item in _weaponList) {
+            if (_currentWeapon != item)
+                item.myObject.SetActive(false);
+        }
+        CollideItem = null;
+        Model.ChangeWeapon(WeaponType.Pistol);
     }
 
     public virtual void ChangeWeapon(WeaponType type) {
@@ -128,16 +150,13 @@ public abstract class UnitBase : MonoBehaviourPunCallbacks
 
     public void TakeDamage(int damage, Transform attackerTrans, Transform myTrans, bool headShot) {
         IsHitEvent(damage, attackerTrans, myTrans);
-        int hp = SetHp(-damage);
-        if (hp <= 0 && State != UnitState.Dead) {
+        SetHp(-damage);
+        if (_currentHp <= 0 && State != UnitState.Dead) {
             IsDeadEvent(attackerTrans, headShot);
         }
     }
 
     protected virtual void IsHitEvent(int damage, Transform attackerTrans, Transform myTrans) {
-
-
-        SetHp(-damage);
     }
 
     private void SetOutline(bool trigger) {
@@ -159,8 +178,58 @@ public abstract class UnitBase : MonoBehaviourPunCallbacks
             return;
 
         UI_KillFeed feed = PhotonNetwork.Instantiate("Prefabs/UI/KillFeed", Vector3.zero, Quaternion.identity).GetComponent<UI_KillFeed>();
-        feed.Init((WeaponType)type, attackName, myName, Managers.GameManager.KillFeedParent);
+        feed.Init((WeaponType)type, attackName, myName, GameManager.Instance.KillFeedParent);
         feed.transform.SetSiblingIndex(0);
+    }
+
+    [PunRPC]
+    public void SetScoreBoard(int attackerNumber, int myNumber) {
+        if (PV.OwnerActorNr != myNumber)
+            return;
+
+        UnitBase my = Util.FindPlayerByActorNumber(myNumber);
+        my.MyDead++;
+        my.DeathNumberEvent?.Invoke(MyDead);
+
+        my._bodyCollider.enabled = false;
+        my._headCollider.enabled = false;
+        my.Model.ResetAnimator();
+        GameManager.Instance.BoardSortToRank();
+
+        UnitBase attacker = Util.FindPlayerByActorNumber(attackerNumber);
+        attacker.MyKill++;
+        attacker.KillNumberEvent?.Invoke(attacker.MyKill);
+    }
+
+    [PunRPC]
+    public void SetPlayerKillEvent(int targetNumber) {
+        PlayerController player = Util.FindPlayerByActorNumber(targetNumber).GetComponent<PlayerController>();
+
+        if (player.PV.OwnerActorNr != targetNumber)
+            return;
+        player.KillEvent?.Invoke();
+        if (player.IstripleKill) {
+            return;
+        }
+        if (!player.IsKill && !player.IsDoubleKill) {
+            player.IsKill = true;
+            return;
+        }
+        if (player.IsKill && !player.IsDoubleKill) {
+            player.IsKill = false;
+            player.IsDoubleKill = true;
+
+            player.DoubleKillEvent?.Invoke();
+            ShareSfxController.instance.SetShareSfx(ShareSfx.Dominate);
+            return;
+        }
+        if (!player.IsKill && player.IsDoubleKill && !player.IstripleKill) {
+
+            player.IsDoubleKill = false;
+            player.IstripleKill = true;
+            ShareSfxController.instance.SetShareSfx(ShareSfx.Rampage);
+            player.TripleKillEvent?.Invoke();
+        }
     }
 
     protected virtual void IsDeadEvent(Transform attackerTrans, bool headShot) {
@@ -169,62 +238,63 @@ public abstract class UnitBase : MonoBehaviourPunCallbacks
 
         SetOutline(false);
         _ufx.PlaySfx(UnitSfx.Dead);
-        Invoke("Init", Managers.GameManager.RespawnTime);
-        _bodyCollider.enabled = false;
-        _headCollider.enabled = false;
-        MyDead++;
-        DeathNumberEvent?.Invoke(MyDead);
-        ChangeWeapon(WeaponType.Pistol);
+        Invoke("Init", GameManager.Instance.RespawnTime);
+
+        DeadWeaponEvent();
         UnitBase target = attackerTrans.GetComponent<UnitBase>();
-        target.MyKill++;
-        target.KillNumberEvent?.Invoke(target.MyKill);
-        Managers.GameManager.BoardSortToRank();
-        Model.ResetAnimator();
+
+        PV.RPC("SetScoreBoard", RpcTarget.AllBuffered, target.PV.OwnerActorNr, PV.OwnerActorNr);
+
         ChangeState(UnitState.Dead);
-        GameObject kit = PhotonNetwork.Instantiate("Prefabs/Item/Healkit", transform.position + Vector3.up, Quaternion.identity);
+
+        NetworkManager.Instance.PhotonCreate("Prefabs/Item/Healkit", transform.position + Vector3.up, Quaternion.identity);
 
         PV.RPC("RPC_FeedInit", RpcTarget.AllBuffered, PV.OwnerActorNr, (int)target.BaseWeapon.Type, attackerTrans.gameObject.name, gameObject.name);
 
-        if (Managers.GameManager.KillLimit > 0) {
-            if (target.MyKill >= Managers.GameManager.KillLimit) {
-                Managers.GameManager.ChangeState(GameState.Gameover);
+        if (GameManager.Instance.KillLimit > 0) {
+            if (target.MyKill >= GameManager.Instance.KillLimit) {
+                GameManager.Instance.ChangeState(GameState.Gameover);
                 return;
             }
         }
 
         if (attackerTrans.TryGetComponent<PlayerController>(out var player)) {
-            player.KillEvent?.Invoke();
-            if(player.IstripleKill) {
-                return;
-            }
-            if(!player.IsKill && !player.IsDoubleKill) {
-                player.IsKill = true;
-                return;
-            }
-            if(player.IsKill && !player.IsDoubleKill) {
-                player.IsKill = false;
-                player.IsDoubleKill = true;
+            int number = player.PV.OwnerActorNr;
+            PV.RPC("SetPlayerKillEvent", RpcTarget.AllBuffered, number);
 
-                player.DoubleKillEvent?.Invoke();
-                ShareSfxController.instance.SetShareSfx(ShareSfx.Dominate);
-                return;
-            }
-            if(!player.IsKill &&  player.IsDoubleKill && !player.IstripleKill) {
-
-                player.IsDoubleKill = false;
-                player.IstripleKill = true;
-                ShareSfxController.instance.SetShareSfx(ShareSfx.Rampage);
-                player.TripleKillEvent?.Invoke();
-            }
         }
     }
 
+    protected void SetWeaponTriggerAnimation(string type, int actorNumber) {
+        PV.RPC("RPC_WeaponSetTrigger", RpcTarget.AllBuffered, type, actorNumber);
+    }
 
-    public virtual int SetHp(int damage) {
+    protected void SetModelTriggerAnimation(string type, int actorNumber) {
+        PV.RPC("RPC_ModelSetTrigger", RpcTarget.AllBuffered, type, actorNumber);
+    }
+
+    [PunRPC]
+    public void RPC_WeaponSetTrigger(string type, int actorNumber) {
+        if (PV.OwnerActorNr != actorNumber)
+            return;
+
+        BaseWeapon.Animator.SetTrigger(type);
+    }
+
+    [PunRPC]
+    public void RPC_ModelSetTrigger(string type, int actorNumber) {
+        if (PV.OwnerActorNr != actorNumber)
+            return;
+
+        Model.Animator.SetTrigger(type);
+    }
+
+    public virtual void SetHp(int damage) {
         _currentHp += damage;
         _currentHp = Mathf.Clamp(_currentHp, 0, _maxHp);
-        return _currentHp;
     }
+
+
 
     public virtual void Init() {
         CollideItem = null;
@@ -235,6 +305,9 @@ public abstract class UnitBase : MonoBehaviourPunCallbacks
         ChangeState(UnitState.Get);
         UnitRotate = Quaternion.identity;
     }
+
+    public abstract void ChangeState(UnitState state);
+
 
     public bool IsDead() {
         if (_currentHp <= 0)

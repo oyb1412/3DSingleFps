@@ -30,7 +30,7 @@ public class RespawnManager
 
     public Vector3 GetRespawnPosition() {
         float aollow = Managers.Scene.CurrentScene == Define.SceneType.WareHouse ? WARDHOUSE_ALLOW_RESPAWN_RANGE : PORT_ALLOW_RESPAWN_RANGE;
-        var unit = Managers.GameManager.UnitsList;
+        var unit = GameManager.Instance.UnitsList;
         Shuffle(_respawnList);
         foreach (Transform pos in _respawnList) {
             bool isSafe = true;  

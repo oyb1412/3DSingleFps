@@ -1,3 +1,4 @@
+using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -31,8 +32,7 @@ public class UI_KillFeed : MonoBehaviour
             _canvasGroup.alpha = alpha;
             yield return null;
         }
-        Managers.Resources.Destroy(gameObject);
+        PhotonNetwork.Destroy(gameObject);
     }
-
    
 }

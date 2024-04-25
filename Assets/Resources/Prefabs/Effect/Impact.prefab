@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 1486588925057410616}
   - component: {fileID: 2700415101060697499}
   - component: {fileID: 255128124137681282}
-  - component: {fileID: -3630638199980965958}
   - component: {fileID: 8411690728337902603}
   m_Layer: 0
   m_Name: Impact
@@ -4703,18 +4702,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lifeTime: 5
---- !u!114 &-3630638199980965958
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1855723973631607767}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5c25a679888cafe4991738648a7d7488, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &8411690728337902603
 MonoBehaviour:
   m_ObjectHideFlags: 0

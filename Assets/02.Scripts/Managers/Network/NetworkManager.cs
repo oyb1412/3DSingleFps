@@ -5,15 +5,19 @@ using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine.UI;
 using UnityEngine.Events;
+using UnityEngine.Rendering.PostProcessing;
 
 public class NetworkManager : MonoBehaviourPunCallbacks {
     public Text StatusText;
     public InputField roomInput, NickNameInput;
     public static NetworkManager Instance;
+    public PhotonView PV { get; private set; }
+
 
 
     private void Awake() {
         Screen.SetResolution(960, 540, false);
+        PV = GetComponent<PhotonView>();    
         if(Instance == null)
         {
             Instance = this;
@@ -21,6 +25,58 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
         }
         else {
             Destroy(gameObject);
+        }
+    }
+    public void PhotonDestroy(GameObject go, float time) {
+        StartCoroutine(CO_PhotonDestroy(go, time));
+    }
+
+    public void PhotonDestroy(float time,int viewId) {
+        if(time > 0f)
+            StartCoroutine(CO_PhotonDestroy(time, viewId));
+        else
+            PV.RPC("RPC_PhotonDestroy", RpcTarget.MasterClient, viewId);
+    }
+
+    private IEnumerator CO_PhotonDestroy(GameObject go, float time) {
+        yield return new WaitForSeconds(time);
+        PhotonNetwork.Destroy(go);
+    }
+
+    private IEnumerator CO_PhotonDestroy(float time,int viewId) {
+        yield return new WaitForSeconds(time);
+        PV.RPC("RPC_PhotonDestroy", RpcTarget.MasterClient, viewId);
+    }
+
+    public void PhotonCreate(string path, Vector3 pos, Quaternion rot) {
+        PV.RPC("RPC_PhotonCreate", RpcTarget.MasterClient, path, pos, rot);
+    }
+
+    [PunRPC]
+    public void RPC_PhotonCreate(string path, Vector3 pos, Quaternion rot) {
+        if (!PV.IsMine)
+            return;
+
+        PhotonNetwork.Instantiate(path, pos, rot);
+    }
+
+    [PunRPC]    
+    public void RPC_PhotonDestroy(int viewId) {
+        PhotonView view = PhotonView.Find(viewId);
+        //if (view == null)
+        //    return;
+
+        //if(view.OwnerActorNr != PhotonNetwork.MasterClient.ActorNumber)
+        //    view.TransferOwnership(PhotonNetwork.MasterClient.ActorNumber);
+
+        //PhotonNetwork.Destroy(view.gameObject);
+        if (view != null && view.IsMine) {
+            PhotonNetwork.Destroy(view.gameObject);
+        } else if (view != null && PhotonNetwork.IsMasterClient) {
+            if (view.OwnerActorNr != PhotonNetwork.MasterClient.ActorNumber)
+                view.TransferOwnership(PhotonNetwork.MasterClient.ActorNumber);
+
+            PhotonNetwork.Destroy(view.gameObject);
         }
     }
 
@@ -38,7 +94,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
         JoinOrCreateRoom();
         yield return new WaitUntil(() => PhotonNetwork.InRoom);
 
-        call.Invoke();
+        call?.Invoke();
     }
 
 

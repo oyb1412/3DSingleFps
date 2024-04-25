@@ -48,7 +48,7 @@ public class UI_Setting : UI_Base
     }
 
     private void SetOutlineColor(int value) {
-        var units = Managers.GameManager.UnitsList;
+        var units = GameManager.Instance.UnitsList;
         Color color = Color.red;
 
         switch (value) 
@@ -71,12 +71,12 @@ public class UI_Setting : UI_Base
 
     private void SetCrosshair(int value) {
         _crosshairIconImage.sprite = _crosshairIconSprites[value];
-        _player.ChangeCrosshairEvent(value);
+        _player.ChangeCrosshairEvent?.Invoke(value);
     }
 
     private void SetVolume(float value) {
-        Managers.GameManager.Volume = value;
-        Managers.GameManager.VolumeEvent.Invoke(value);
+        GameManager.Instance.Volume = value;
+        GameManager.Instance.VolumeEvent.Invoke(value);
     }
 
     private void SetSensitivity(float value) {
@@ -118,7 +118,7 @@ public class UI_Setting : UI_Base
     private void ActiveMenuView() {
         _crosshairView.SetActive(true);
         _settingView.SetActive(false);
-        Managers.GameManager.ChangeState(Define.GameState.StartFight);
+        GameManager.Instance.ChangeState(Define.GameState.StartFight);
         Cursor.lockState = CursorLockMode.Locked;
     }
 }

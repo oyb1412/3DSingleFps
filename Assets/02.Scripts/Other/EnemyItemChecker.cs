@@ -15,7 +15,7 @@ public class EnemyItemChecker : MonoBehaviour
     }
 
     private void OnTriggerEnter(Collider c) {
-        if (!Managers.GameManager.InGame())
+        if (!GameManager.Instance.InGame())
             return;
 
         if (_enemy.CollideItem != null)

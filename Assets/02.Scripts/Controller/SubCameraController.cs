@@ -25,7 +25,7 @@ public class SubCameraController : MonoBehaviour
         if (!PV.IsMine)
             return;
 
-        if (!Managers.GameManager.InGame())
+        if (!GameManager.Instance.InGame())
             return;
         transform.position += Vector3.up * _cameraSpeed * Time.deltaTime;
     }

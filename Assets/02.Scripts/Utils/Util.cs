@@ -1,11 +1,12 @@
 using Photon.Pun;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using static Define;
 
-public class Util : MonoBehaviour
+public class Util : MonoBehaviourPunCallbacks
 {
     public static void SetLayer(GameObject go, LayerType type) {
         if( go == null)
@@ -21,6 +22,13 @@ public class Util : MonoBehaviour
             SetLayer(child.gameObject, type);
         }
     }
+
+    public static int GetViewId(GameObject go) {
+        PhotonView view = go.GetComponent<PhotonView>();
+        return view.ViewID;
+    }
+
+
 
     public static UnitBase FindPlayerByActorNumber(int actorNumber) {
         Debug.Log($"ÃÑ À¯´Ö ¼ö´Â {PhotonNetwork.PlayerList}¸í");

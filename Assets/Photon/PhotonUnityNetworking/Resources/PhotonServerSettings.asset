@@ -42,6 +42,20 @@ MonoBehaviour:
   - RPC_TakeDamage
   - SavePlayersInfo
   - RPC_FeedInit
+  - RPC_ModelSetTrigger
+  - RPC_WeaponSetTrigger
+  - PlayerInit
+  - RPC_DropWeapon
+  - SetList
+  - SetScoreBoard
+  - SetPlayerKillEvent
+  - RPC_Respawn
+  - RPC_CreateObjectToNetwork
+  - RPC_DeleteObjectToNetwork
+  - RPC_PlayerDeadEvent
+  - RPC_PhotonCreate
+  - RPC_PhotonDestroy
+  - RPC_SetHp
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

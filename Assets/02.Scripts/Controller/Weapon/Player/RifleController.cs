@@ -31,7 +31,7 @@ namespace Player {
             base.Shot();
     
             DefaultShot(transform.forward);
-            Player.ShotEvent.Invoke();
+            Player?.ShotEvent.Invoke();
         }
     }
 }

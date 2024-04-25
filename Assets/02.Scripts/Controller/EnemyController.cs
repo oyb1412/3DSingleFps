@@ -33,7 +33,7 @@ public class EnemyController : UnitBase, ITakeDamage {
     }
 
     private void Start() {
-        Invoke("StartMove", Managers.GameManager.WaitTime);
+        Invoke("StartMove", GameManager.Instance.WaitTime);
     }
     private void StartMove() {
         _agent.enabled = true;
@@ -41,7 +41,7 @@ public class EnemyController : UnitBase, ITakeDamage {
     }
 
     private void Update() {
-        if (!Managers.GameManager.InGame())
+        if (!GameManager.Instance.InGame())
             return;
 
         if (State == UnitState.Dead)
@@ -98,7 +98,7 @@ public class EnemyController : UnitBase, ITakeDamage {
     }
 
     private UnitBase SearchUnit() {
-        var units = Managers.GameManager.UnitsList;
+        var units = GameManager.Instance.UnitsList;
         foreach(var unit in units) {
             Vector3 dir = (unit.transform.position - transform.position).normalized;
             float product = Vector3.Dot(transform.forward, dir);
@@ -182,11 +182,13 @@ public class EnemyController : UnitBase, ITakeDamage {
         if (attackerTrans.parent.TryGetComponent<PlayerController>(out var player)) {
             ShareSfxController.instance.SetShareSfx(ShareSfx.KillSound);
             DirType dir = Util.DirectionCalculation(attackerTrans, transform);
-            player.KillAndDeadEvent.Invoke(dir, name, true, headShot);
+            player.KillAndDeadEvent?.Invoke(dir, name, true, headShot);
         }
         base.IsDeadEvent(attackerTrans, headShot);
          transform.LookAt(attackerTrans);
         TargetUnit = null;
+        _bodyCollider.enabled = false;
+        _headCollider.enabled = false;
         _collider.enabled = false;
     }
 
@@ -223,8 +225,9 @@ public class EnemyController : UnitBase, ITakeDamage {
 
                 Model.Animator.SetBool("Move", false);
                 BaseWeapon.Animator.SetBool("Move", false);
-                Model.Animator.SetTrigger($"Shot{BaseWeapon.Type.ToString()}");
-                BaseWeapon.Animator.SetTrigger("Shot");
+
+                SetWeaponTriggerAnimation("Shot", PV.OwnerActorNr);
+                SetModelTriggerAnimation($"Shot{BaseWeapon.Type.ToString()}", PV.OwnerActorNr);
                 break;
             case UnitState.Reload:
                 if (_state == UnitState.Reload || _state == UnitState.Dead)
@@ -232,8 +235,9 @@ public class EnemyController : UnitBase, ITakeDamage {
 
                 Model.Animator.SetBool("Move", false);
                 BaseWeapon.Animator.SetBool("Move", false);
-                Model.Animator.SetTrigger("Reload");
-                BaseWeapon.Animator.SetTrigger("Reload");
+
+                SetWeaponTriggerAnimation("Reload", PV.OwnerActorNr);
+                SetModelTriggerAnimation("Reload", PV.OwnerActorNr);
                 break;
             case UnitState.Dead:
                 if (_state == UnitState.Dead)
@@ -241,8 +245,9 @@ public class EnemyController : UnitBase, ITakeDamage {
 
                 Model.Animator.SetBool("Move", false);
                 BaseWeapon.Animator.SetBool("Move", false);
-                Model.Animator.SetTrigger("Dead");
-                BaseWeapon.Animator.SetTrigger("Dead");
+
+                SetWeaponTriggerAnimation("Dead", PV.OwnerActorNr);
+                SetModelTriggerAnimation("Dead", PV.OwnerActorNr);
                 break;
             case UnitState.Get:
                 if (_state == UnitState.Get)
@@ -250,8 +255,9 @@ public class EnemyController : UnitBase, ITakeDamage {
 
                 Model.Animator.SetBool("Move", false);
                 BaseWeapon.Animator.SetBool("Move", false);
-                Model.Animator.SetTrigger("Get");
-                BaseWeapon.Animator.SetTrigger("Get");
+
+                SetWeaponTriggerAnimation("Get", PV.OwnerActorNr);
+                SetModelTriggerAnimation("Get", PV.OwnerActorNr);
                 break;
         }
         _state = state;

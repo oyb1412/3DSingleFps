@@ -68,7 +68,7 @@ public class UI_Menu : UI_Base
     private void OnSettingUI() {
         _menuView.SetActive(false);
         _settingView.SetActive(true);
-        Managers.GameManager.ChangeState(Define.GameState.Setting);
+        GameManager.Instance.ChangeState(Define.GameState.Setting);
     }
 
     private void ActiveMenuView() {
@@ -76,13 +76,13 @@ public class UI_Menu : UI_Base
             _menuView.SetActive(false);
             _settingView.SetActive(false);
             _crosshairView.SetActive(true);
-            Managers.GameManager.ChangeState(Define.GameState.StartFight);
+            GameManager.Instance.ChangeState(Define.GameState.StartFight);
             Cursor.lockState = CursorLockMode.Locked;
 
         } else {
             _menuView.SetActive(true);
             _crosshairView.SetActive(false);
-            Managers.GameManager.ChangeState(Define.GameState.Menu);
+            GameManager.Instance.ChangeState(Define.GameState.Menu);
             Cursor.lockState = CursorLockMode.Confined;
         }
     }
