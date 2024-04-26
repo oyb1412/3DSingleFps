@@ -158,6 +158,7 @@ namespace Base {
             }
         }
 
+        //todo
         [PunRPC]
         public void RPC_TakeDamage(int damage, int attackerHandle, int myHandle, bool headShot) {
             if (PV.OwnerActorNr != attackerHandle)
@@ -165,7 +166,7 @@ namespace Base {
 
             UnitBase attacker = Util.FindPlayerByActorNumber(attackerHandle);
             UnitBase me = Util.FindPlayerByActorNumber(myHandle);
-            me.TakeDamage(damage, attacker.transform, me.transform, headShot);
+            me?.TakeDamage(damage, attacker.transform, me.transform, headShot);
         }
 
         public virtual void Shot() {
