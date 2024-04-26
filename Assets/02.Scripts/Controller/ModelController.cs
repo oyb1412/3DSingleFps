@@ -25,9 +25,7 @@ public class ModelController : MonoBehaviour
         }
     }
     private void Start() {
-        
-
-        _unit = GetComponentInParent<UnitBase>();
+        _unit = transform.GetComponentInParent<UnitBase>();
         PV.OwnerActorNr = _unit.PV.OwnerActorNr;
         _animator = GetComponent<Animator>();
         _weapons = Util.FindChild(gameObject, "Weapons", true);
@@ -42,8 +40,13 @@ public class ModelController : MonoBehaviour
         _weaponList[(int)WeaponType.Pistol].SetActive(true);
     }
 
-    public void ChangeWeapon(WeaponType type) {
-        if (!PV.IsMine)
+    private void Update() {
+        //transform.eulerAngles = new Vector3(0f, transform.parent.eulerAngles.y, 0f); 
+    }
+
+    [PunRPC]
+    public void RPC_ChangeWeapon(int type, int actorNumber) {
+        if (PV.OwnerActorNr != actorNumber)
             return;
 
         foreach (var t in _weaponList) {
@@ -51,6 +54,10 @@ public class ModelController : MonoBehaviour
         }
 
         _weaponList[(int)type].SetActive(true);
+    }
+
+    public void ChangeWeapon(WeaponType type) {
+        PV.RPC("RPC_ChangeWeapon", RpcTarget.AllBuffered, (int)type, PV.OwnerActorNr);
     }
 
     public void ResetAnimator() {

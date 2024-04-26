@@ -17,8 +17,10 @@ public class Managers : MonoBehaviour
     private InputManager _input = new InputManager();
     private ResourcesManager _resources = new ResourcesManager();
     private SceneManagerEX _scene = new SceneManagerEX();
+    private Data _data = new Data();
 
     public static RespawnManager RespawnManager => _instance._respawnManager;
+    public static Data Data => _instance._data;
     public static PoolManager Pool => _instance._pool;
     public static SceneManagerEX Scene => _instance._scene;
     public static InputManager Input => Instance._input;

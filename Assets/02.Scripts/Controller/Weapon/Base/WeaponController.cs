@@ -100,7 +100,7 @@ namespace Base {
             _unit.ChangeState(UnitState.Idle);
         }
 
-        protected virtual void DefaultShot(Vector3 angle) { }
+        protected abstract void DefaultShot(Vector3 angle);
 
         protected void DefaultShot(bool isHit, RaycastHit hit, UnitBase unit) {
             if (!PV.IsMine)
@@ -119,7 +119,7 @@ namespace Base {
                     PV.RPC("RPC_TakeDamage", RpcTarget.AllBuffered, Damage * 2, PV.OwnerActorNr, targetPlayer.PV.OwnerActorNr, true);
                 }
                 else {
-                    hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(Damage * 2, unit.TargetPos, targetUnit.transform, true);
+                    hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(Damage * 2, unit.transform, targetUnit.transform, true);
                 }
 
                 if (unit.TryGetComponent<PlayerController>(out var player)) {
@@ -136,7 +136,7 @@ namespace Base {
                 if (targetUnit.TryGetComponent<PlayerController>(out var targetPlayer)) {
                     PV.RPC("RPC_TakeDamage", RpcTarget.AllBuffered, Damage, PV.OwnerActorNr, targetPlayer.PV.OwnerActorNr, false);
                 } else {
-                    hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(Damage, unit.TargetPos, targetUnit.transform, false);
+                    hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(Damage, unit.transform, targetUnit.transform, false);
                 }
 
                 if (unit.TryGetComponent<PlayerController>(out var player)) {
@@ -165,7 +165,6 @@ namespace Base {
 
             UnitBase attacker = Util.FindPlayerByActorNumber(attackerHandle);
             UnitBase me = Util.FindPlayerByActorNumber(myHandle);
-            Debug.Log($"공격자 번호 {attacker.PV.OwnerActorNr}, 피격자 번호 {me.PV.OwnerActorNr}");
             me.TakeDamage(damage, attacker.transform, me.transform, headShot);
         }
 
@@ -177,6 +176,7 @@ namespace Base {
                 _unit.Reload();
                 return;
             }
+
             _isShot = true;
             CurrentBullet--;
             _ejectEffect.Play();
@@ -244,7 +244,7 @@ namespace Base {
             if (!PV.IsMine)
                 return;
 
-            _sfx.PlaySfx((UnitSfx)index);
+            _sfx?.PlaySfx((UnitSfx)index);
         }
     }
 }

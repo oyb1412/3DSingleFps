@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class RespawnManager 
 {
-    private const float WARDHOUSE_ALLOW_RESPAWN_RANGE = 15f;
-    private const float PORT_ALLOW_RESPAWN_RANGE = 20f;
+    private const float WARDHOUSE_ALLOW_RESPAWN_RANGE = 10f;
+    private const float PORT_ALLOW_RESPAWN_RANGE = 15f;
     private Transform _respawnPoint;
     private List<Transform> _respawnList;
     public void Init() {
@@ -40,11 +40,13 @@ public class RespawnManager
                     break;  
                 }
             }
-            if (isSafe) {  
+            if (isSafe) {
+                Debug.Log($"생성 위치 {pos.position}");
                 return pos.position;  
             }
         }
 
+        Debug.Log($"생성 위치 탐색 실패");
         return Vector3.zero;
     }
 

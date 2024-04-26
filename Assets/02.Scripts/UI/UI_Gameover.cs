@@ -19,8 +19,6 @@ public class UI_Gameover : UI_Base
 
     [SerializeField] private Transform _scoreBoard;
 
-
-
     protected override void Init() {
         base.Init();
 

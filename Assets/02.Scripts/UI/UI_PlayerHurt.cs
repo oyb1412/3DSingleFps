@@ -44,7 +44,7 @@ public class UI_PlayerHurt : UI_Base
         if(_hurtCoroutine != null) {
             StopCoroutine(_hurtCoroutine);
         }
-        _hurtCoroutine = StartCoroutine(CoPlayerHurt(HurtEffect, 0.5f));
+        StartCoroutine(Co_ImageGradualInvisible(HurtEffect, 2f, 1f, 1f, 1f, 0.5f));
         PlayerHitDirection(attackerTrans, myTrans);
     }
 
@@ -55,22 +55,12 @@ public class UI_PlayerHurt : UI_Base
             {
                 DirType rotate = Util.DirectionCalculation(attackerTrans, myTrans);
                 HitDirections.transform.GetChild(count).transform.eulerAngles = new Vector3(0f, 0f, HURTIMAGE_ROTATE[(int)rotate]);
-                StartCoroutine(CoPlayerHurt(HitDirections.transform.GetChild(count).GetComponent<Image>(), 1f));
+                StartCoroutine(Co_ImageGradualInvisible(HitDirections.transform.GetChild(count).GetComponent<Image>(),
+                    2f, 1f, 1f, 1f));
                 break;
             }
             count++;
         }
-    }
-
-    private IEnumerator CoPlayerHurt(Image image, float startAlpha) {
-        float alpha = startAlpha;
-        image.gameObject.SetActive(true);
-        while (alpha > 0f) {
-            alpha -= Time.deltaTime * 2f;
-            image.color = new Color(1f, 1f, 1f, alpha);
-            yield return null;
-        }
-        image.gameObject.SetActive(false);
     }
 
     private IEnumerator CoPlayerDead(Image image) {

@@ -8,12 +8,9 @@ using UnityEngine.Events;
 using UnityEngine.Rendering.PostProcessing;
 
 public class NetworkManager : MonoBehaviourPunCallbacks {
-    public Text StatusText;
-    public InputField roomInput, NickNameInput;
+    
     public static NetworkManager Instance;
     public PhotonView PV { get; private set; }
-
-
 
     private void Awake() {
         Screen.SetResolution(960, 540, false);
@@ -127,9 +124,9 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
 
 
 
-    public void CreateRoom() => PhotonNetwork.CreateRoom(roomInput.text, new RoomOptions { MaxPlayers = 2 });
+    public void CreateRoom() => PhotonNetwork.CreateRoom("room1", new RoomOptions { MaxPlayers = 2 });
 
-    public void JoinRoom() => PhotonNetwork.JoinRoom(roomInput.text);
+    public void JoinRoom() => PhotonNetwork.JoinRoom("room2");
 
     public void JoinOrCreateRoom() => PhotonNetwork.JoinOrCreateRoom("Room", new RoomOptions { MaxPlayers = 2 }, null);
 

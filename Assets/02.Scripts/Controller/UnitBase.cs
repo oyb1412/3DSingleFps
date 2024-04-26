@@ -7,7 +7,6 @@ using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.UI;
 using static Define;
-using static UnityEngine.GraphicsBuffer;
 
 public abstract class UnitBase : MonoBehaviourPunCallbacks
 {
@@ -59,7 +58,7 @@ public abstract class UnitBase : MonoBehaviourPunCallbacks
         }
 
         _ufx = GetComponent<UnitSfxController>();
-        Model = GetComponentInChildren<ModelController>();
+        Model = transform.GetComponentInChildren<ModelController>();
 
         _weapons = Util.FindChild(gameObject, "Weapons", false);
         _firePoint = Util.FindChild(gameObject, "FirePoint", true).transform;
@@ -83,6 +82,9 @@ public abstract class UnitBase : MonoBehaviourPunCallbacks
     }
 
     public virtual void Reload() {
+        if (!PV.IsMine)
+            return;
+
         if (!GameManager.Instance.InGame())
             return;
 
@@ -91,19 +93,32 @@ public abstract class UnitBase : MonoBehaviourPunCallbacks
     }
 
     private void DropWeapon() {
-        if (_currentWeapon != _weaponList[(int)WeaponType.Pistol]) {
+        if (BaseWeapon.Type == WeaponType.Pistol)
+            return;
 
-            PV.RPC("RPC_DropWeapon", RpcTarget.AllBuffered,  PV.OwnerActorNr);
-        }
+        if (_currentWeapon == _weaponList[(int)WeaponType.Pistol])
+            return;
+
+        if (!PV.IsMine)
+            return;
+
+        //아이템 2개 생성
+        //아이템 픽업시 사라지지 않음
+        //PV.RPC("RPC_DropWeapon", RpcTarget.AllBuffered, PV.OwnerActorNr);
+        NetworkManager.Instance.PhotonCreate($"Prefabs/Item/{BaseWeapon.Type.ToString()}", transform.position + Vector3.up,
+            Quaternion.identity);
     }
 
-
     [PunRPC]
-    private void RPC_DropWeapon(int actorNumber) {
+    public void RPC_DropWeapon(int actorNumber) {
         if (PV.OwnerActorNr != actorNumber)
             return;
 
-        NetworkManager.Instance.PhotonCreate($"Prefabs/Item/{BaseWeapon.Type.ToString()}", transform.position + Vector3.up,
+        if (BaseWeapon.Type == WeaponType.Pistol)
+            return;
+
+        Debug.Log($"{PV.OwnerActorNr}번 플레이어 아이템 드랍");
+        PhotonNetwork.Instantiate($"Prefabs/Item/{BaseWeapon.Type.ToString()}", transform.position + Vector3.up,
             Quaternion.identity);
     }
 
@@ -120,8 +135,10 @@ public abstract class UnitBase : MonoBehaviourPunCallbacks
         Model.ChangeWeapon(WeaponType.Pistol);
     }
 
-    public virtual void ChangeWeapon(WeaponType type) {
-        DropWeapon();
+    [PunRPC]
+    public void RPC_ChangeWeapon(int type, int actorNumber) {
+        if(PV.OwnerActorNr != actorNumber)
+            return;
 
         _weaponList[(int)type].myObject.SetActive(true);
         _currentWeapon = _weaponList[(int)type];
@@ -132,7 +149,13 @@ public abstract class UnitBase : MonoBehaviourPunCallbacks
                 item.myObject.SetActive(false);
         }
         CollideItem = null;
-        Model.ChangeWeapon(type);
+        Model.ChangeWeapon((WeaponType)type);
+    }
+
+    public virtual void ChangeWeapon(WeaponType type) {
+        DropWeapon();
+
+        PV.RPC("RPC_ChangeWeapon", RpcTarget.AllBuffered, (int)type, PV.OwnerActorNr);
     }
 
     public void SetOutlineColor(Color color) {
@@ -156,16 +179,22 @@ public abstract class UnitBase : MonoBehaviourPunCallbacks
         }
     }
 
-    protected virtual void IsHitEvent(int damage, Transform attackerTrans, Transform myTrans) {
-    }
+    protected abstract void IsHitEvent(int damage, Transform attackerTrans, Transform myTrans);
 
     private void SetOutline(bool trigger) {
-        if(trigger) {
-            foreach(var t in _outlines) {
+        PV.RPC("RPC_SetOutline", RpcTarget.AllBuffered, trigger, PV.OwnerActorNr);
+    }
+
+    [PunRPC]
+    public void RPC_SetOutline(bool trigger, int actorNumber) {
+        if (PV.OwnerActorNr != actorNumber)
+            return;
+
+        if (trigger) {
+            foreach (var t in _outlines) {
                 t.enabled = true;
             }
-        }
-        else {
+        } else {
             foreach (var t in _outlines) {
                 t.enabled = false;
             }
@@ -202,34 +231,12 @@ public abstract class UnitBase : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    public void SetPlayerKillEvent(int targetNumber) {
-        PlayerController player = Util.FindPlayerByActorNumber(targetNumber).GetComponent<PlayerController>();
+    public void RPC_UnitDeadEvent(int actorNumber) {
+        if (PV.OwnerActorNr != actorNumber)
+            return;
 
-        if (player.PV.OwnerActorNr != targetNumber)
-            return;
-        player.KillEvent?.Invoke();
-        if (player.IstripleKill) {
-            return;
-        }
-        if (!player.IsKill && !player.IsDoubleKill) {
-            player.IsKill = true;
-            return;
-        }
-        if (player.IsKill && !player.IsDoubleKill) {
-            player.IsKill = false;
-            player.IsDoubleKill = true;
-
-            player.DoubleKillEvent?.Invoke();
-            ShareSfxController.instance.SetShareSfx(ShareSfx.Dominate);
-            return;
-        }
-        if (!player.IsKill && player.IsDoubleKill && !player.IstripleKill) {
-
-            player.IsDoubleKill = false;
-            player.IstripleKill = true;
-            ShareSfxController.instance.SetShareSfx(ShareSfx.Rampage);
-            player.TripleKillEvent?.Invoke();
-        }
+        _bodyCollider.enabled = false;
+        _headCollider.enabled = false;
     }
 
     protected virtual void IsDeadEvent(Transform attackerTrans, bool headShot) {
@@ -242,6 +249,8 @@ public abstract class UnitBase : MonoBehaviourPunCallbacks
 
         DeadWeaponEvent();
         UnitBase target = attackerTrans.GetComponent<UnitBase>();
+
+        PV.RPC("RPC_UnitDeadEvent", RpcTarget.AllBuffered, PV.OwnerActorNr);
 
         PV.RPC("SetScoreBoard", RpcTarget.AllBuffered, target.PV.OwnerActorNr, PV.OwnerActorNr);
 
@@ -259,9 +268,29 @@ public abstract class UnitBase : MonoBehaviourPunCallbacks
         }
 
         if (attackerTrans.TryGetComponent<PlayerController>(out var player)) {
-            int number = player.PV.OwnerActorNr;
-            PV.RPC("SetPlayerKillEvent", RpcTarget.AllBuffered, number);
+            player.KillEvent?.Invoke();
+            if (player.IstripleKill) {
+                return;
+            }
+            if (!player.IsKill && !player.IsDoubleKill) {
+                player.IsKill = true;
+                return;
+            }
+            if (player.IsKill && !player.IsDoubleKill) {
+                player.IsKill = false;
+                player.IsDoubleKill = true;
 
+                player.MutilKillEvent?.Invoke(PlayerController.DOUBLE_KILL);
+                ShareSfxController.instance.SetShareSfx(ShareSfx.Dominate);
+                return;
+            }
+            if (!player.IsKill && player.IsDoubleKill && !player.IstripleKill) {
+
+                player.IsDoubleKill = false;
+                player.IstripleKill = true;
+                ShareSfxController.instance.SetShareSfx(ShareSfx.Rampage);
+                player.MutilKillEvent?.Invoke(PlayerController.TRIPLE_KILL);
+            }
         }
     }
 
@@ -294,8 +323,6 @@ public abstract class UnitBase : MonoBehaviourPunCallbacks
         _currentHp = Mathf.Clamp(_currentHp, 0, _maxHp);
     }
 
-
-
     public virtual void Init() {
         CollideItem = null;
         SetOutline(true);
@@ -304,10 +331,19 @@ public abstract class UnitBase : MonoBehaviourPunCallbacks
         transform.position = Managers.RespawnManager.GetRespawnPosition();
         ChangeState(UnitState.Get);
         UnitRotate = Quaternion.identity;
+        PV.RPC("RPC_Init", RpcTarget.AllBuffered, PV.OwnerActorNr);
+    }
+
+    [PunRPC]
+    public void RPC_Init(int actorNumber) {
+        if (PV.OwnerActorNr != actorNumber)
+            return;
+
+        _bodyCollider.enabled = true;
+        _headCollider.enabled = true;
     }
 
     public abstract void ChangeState(UnitState state);
-
 
     public bool IsDead() {
         if (_currentHp <= 0)

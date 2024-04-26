@@ -35,7 +35,6 @@ public class Healkit : MonoBehaviour
 
         _col.enabled = false;
 
-        Debug.Log($"{c.GetComponent<UnitBase>().PV.OwnerActorNr}번 플레이어가{name}습득");
         NetworkManager.Instance.PhotonDestroy(0f, PV.ViewID);
     }
 }

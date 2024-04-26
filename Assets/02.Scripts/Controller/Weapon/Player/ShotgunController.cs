@@ -44,7 +44,7 @@ namespace Player {
             base.Shot();
 
             for (int i = 0; i < _bulletNumber; i++) {
-                Player?.ShotEvent.Invoke();
+                Player?.ShotEvent?.Invoke();
 
                 var ran1 = Random.Range(-_bulletAngle, _bulletAngle);
                 var ran2 = Random.Range(-_bulletAngle, _bulletAngle);

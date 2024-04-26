@@ -12,7 +12,6 @@ namespace Enemy {
             WeaponIcon = (Sprite)Managers.Resources.Load<Sprite>("Texture/RifleIcon");
             CreateObject = (GameObject)Managers.Resources.Load<GameObject>("Prefabs/Item/Rifle");
         }
-
         protected override void Enable() {
             CurrentBullet = 30;
             RemainBullet = 30;

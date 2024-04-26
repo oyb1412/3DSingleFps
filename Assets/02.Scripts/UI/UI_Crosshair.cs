@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using static Define;
@@ -47,8 +48,11 @@ public class UI_Crosshair : UI_Base
         _player.ChangeCrosshairEvent -= ChangeCrosshair;
         _player.ChangeCrosshairEvent += ChangeCrosshair;
 
-        _player.BodyshotEvent += (() => StartCoroutine(CoBodyShotImageActive(_bodyShotImage)));
-        _player.HeadshotEvent += (() => StartCoroutine(CoHeadShotImageActive(_headShotImage)));
+        _player.BodyshotEvent += (() => StartCoroutine(Co_ImageGradualInvisible(
+                _bodyShotImage, 1f, 1f, 1f, 0f)));
+
+        _player.HeadshotEvent += (() => StartCoroutine(Co_ImageGradualInvisible(
+            _headShotImage, 1f, 1f, 0f, 0f)));
 
         _defalutLeft = _crossLeft[0].transform.position.x;
         _defalutRight = _crossRight[0].transform.position.x;
@@ -62,6 +66,7 @@ public class UI_Crosshair : UI_Base
 
         _crosshairView.SetActive(true);
     }
+
 
     public void ChangeCrosshair(int value) {
         _currentCrosshair = (CrosshairType)value;
@@ -98,24 +103,6 @@ public class UI_Crosshair : UI_Base
         }
         if(_defalutDown > _crossDown[index].transform.position.y) {
             _crossDown[index].transform.position = Vector3.Lerp(_crossDown[index].transform.position, _crossDown[index].transform.position + Vector3.up, Time.deltaTime * _crossValue * 0.5f);
-        }
-    }
-
-    IEnumerator CoHeadShotImageActive(Image image) {
-        float alpha = 1f;
-        while(alpha > 0f) {
-            alpha -= Time.deltaTime;
-            image.color = new Color(1f, 0f, 0f, alpha);
-            yield return null;
-        }
-    }
-
-    IEnumerator CoBodyShotImageActive(Image image) {
-        float alpha = 1f;
-        while (alpha > 0f) {
-            alpha -= Time.deltaTime;
-            image.color = new Color(1f, 1f, 0f, alpha);
-            yield return null;
         }
     }
 

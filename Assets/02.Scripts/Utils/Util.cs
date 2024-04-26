@@ -31,11 +31,9 @@ public class Util : MonoBehaviourPunCallbacks
 
 
     public static UnitBase FindPlayerByActorNumber(int actorNumber) {
-        Debug.Log($"총 유닛 수는 {PhotonNetwork.PlayerList}명");
-        foreach (PlayerController player in FindObjectsByType(typeof(PlayerController), FindObjectsSortMode.None)) {
+        foreach (UnitBase player in FindObjectsByType(typeof(UnitBase), FindObjectsSortMode.None)) {
             if (player.PV.OwnerActorNr == actorNumber) {
                 {
-                    Debug.Log($"{actorNumber}의 플레이어는 {player.name}");
                     return player;
                 }
             }

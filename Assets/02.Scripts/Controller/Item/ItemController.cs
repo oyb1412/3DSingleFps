@@ -15,30 +15,20 @@ public abstract class ItemController : MonoBehaviour, IItem {
     }
 
     public virtual void Pickup(UnitBase unit) {
-        if (!PV.IsMine)
-            return;
+        //if (!PV.IsMine)
+        //    return;
 
-        Debug.Log($"{unit.PV.OwnerActorNr}번 플레이어가{name}습득");
 
         unit.CollideItem = null;
 
-        if (gameObject == null)
-            return;
-
-        PhotonNetwork.Destroy(gameObject);
+        NetworkManager.Instance.PhotonDestroy(0f, PV.ViewID);
     }
 
     public void Init(bool trigger) {
-        if (!PV.IsMine)
-            return;
-
         IsMine = trigger;
     }
 
     private void Update() {
-        if (!PV.IsMine)
-            return;
-
         if (!GameManager.Instance.InGame())
             return;
 

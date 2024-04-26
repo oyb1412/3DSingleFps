@@ -27201,19 +27201,19 @@ MonoBehaviour:
     SynchronizeType: 1
     Name: Move
   - Type: 9
-    SynchronizeType: 1
+    SynchronizeType: 0
     Name: Shot
   - Type: 9
-    SynchronizeType: 1
+    SynchronizeType: 0
     Name: Reload
   - Type: 9
-    SynchronizeType: 1
+    SynchronizeType: 0
     Name: Get
   - Type: 9
-    SynchronizeType: 1
+    SynchronizeType: 0
     Name: Dead
   - Type: 9
-    SynchronizeType: 1
+    SynchronizeType: 0
     Name: Reset
   - Type: 4
     SynchronizeType: 1
@@ -32518,19 +32518,19 @@ MonoBehaviour:
     SynchronizeType: 1
     Name: Move
   - Type: 9
-    SynchronizeType: 1
+    SynchronizeType: 0
     Name: Shot
   - Type: 9
-    SynchronizeType: 1
+    SynchronizeType: 0
     Name: Reload
   - Type: 9
-    SynchronizeType: 1
+    SynchronizeType: 0
     Name: Get
   - Type: 9
-    SynchronizeType: 1
+    SynchronizeType: 0
     Name: Dead
   - Type: 9
-    SynchronizeType: 1
+    SynchronizeType: 0
     Name: Reset
   - Type: 4
     SynchronizeType: 1
@@ -33118,25 +33118,25 @@ MonoBehaviour:
   ShowParameterInspector: 1
   m_SynchronizeParameters:
   - Type: 9
-    SynchronizeType: 1
+    SynchronizeType: 0
     Name: Reload
   - Type: 9
-    SynchronizeType: 1
+    SynchronizeType: 0
     Name: ShotPistol
   - Type: 9
-    SynchronizeType: 1
+    SynchronizeType: 0
     Name: Dead
   - Type: 9
-    SynchronizeType: 1
+    SynchronizeType: 0
     Name: ShotRifle
   - Type: 9
-    SynchronizeType: 1
+    SynchronizeType: 0
     Name: ShotShotgun
   - Type: 9
-    SynchronizeType: 1
+    SynchronizeType: 0
     Name: Respawn
   - Type: 9
-    SynchronizeType: 1
+    SynchronizeType: 0
     Name: Get
   - Type: 4
     SynchronizeType: 1
@@ -39055,7 +39055,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &6972373230356339162
 Transform:
   m_ObjectHideFlags: 0
@@ -52638,19 +52638,19 @@ MonoBehaviour:
     SynchronizeType: 1
     Name: Move
   - Type: 9
-    SynchronizeType: 1
+    SynchronizeType: 0
     Name: Shot
   - Type: 9
-    SynchronizeType: 1
+    SynchronizeType: 0
     Name: Reload
   - Type: 9
-    SynchronizeType: 1
+    SynchronizeType: 0
     Name: Get
   - Type: 9
-    SynchronizeType: 1
+    SynchronizeType: 0
     Name: Dead
   - Type: 9
-    SynchronizeType: 1
+    SynchronizeType: 0
     Name: Reset
   - Type: 4
     SynchronizeType: 1
