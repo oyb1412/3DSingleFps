@@ -46,8 +46,8 @@ public class EnemyController : UnitBase, ITakeDamage {
         _agent = GetComponent<NavMeshAgent>();
         _agent.speed = _moveSpeed;
         _agent.enabled = false;
-        PV.OwnerActorNr = PV.ViewID;
 
+        PV.OwnerActorNr = PV.ViewID;
     }
 
     private void Start() {
