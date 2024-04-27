@@ -1,4 +1,3 @@
-using Photon.Pun;
 using System;
 using System.Collections;
 using System.Runtime.InteropServices;
@@ -74,33 +73,18 @@ public class PlayerController : UnitBase, ITakeDamage
     #region Init
     protected override void Awake() {
         base.Awake();
-        if (!PV.IsMine)
-            return;
-
-        PV.OwnerActorNr = PhotonNetwork.LocalPlayer.ActorNumber;
         _cc = GetComponent<CharacterController>();
     }
 
     private void Start() {
-        _mainCamera.GetComponent<MainCameraController>().SetCameraView(PV.OwnerActorNr);
-        _subCamera.GetComponent<SubCameraController>().SetCameraView(PV.OwnerActorNr);
-
-        CrossValueEvent?.Invoke(CurrentWeapon.CrossValue);
+        CrossValueEvent.Invoke(CurrentWeapon.CrossValue);
         _jumpLayer = (1 << (int)LayerType.Obstacle) | (1 << (int)LayerType.Ground);
-
-        if (!PV.IsMine)
-            return;
-
-        _mainCamera.gameObject.SetActive(true);
-
-
     }
 
     #endregion
 
     #region Sfx
     public void JumpSfx() {
-     
         int ran = UnityEngine.Random.Range((int)UnitSfx.Jump1, (int)UnitSfx.Jump3);
         _ufx.PlaySfx((UnitSfx)ran);
     }
@@ -108,8 +92,6 @@ public class PlayerController : UnitBase, ITakeDamage
 
     #region Behaviour
     public void Shot() {
-
-
         if (!Managers.GameManager.InGame())
             return;
 
@@ -139,11 +121,9 @@ public class PlayerController : UnitBase, ITakeDamage
     #endregion
 
     #region Change
+
+
     public override void ChangeWeapon(WeaponType type) {
-        if (!PV.IsMine)
-            return;
-
-
         base.ChangeWeapon(type);
         CrossValueEvent.Invoke(CurrentWeapon.CrossValue);
         ChangeEvent.Invoke(CurrentWeapon);
@@ -152,9 +132,6 @@ public class PlayerController : UnitBase, ITakeDamage
 
     #region Update
     private void Update() {
-        if (!PV.IsMine)
-            return;
-
         if (Input.GetKeyDown(KeyCode.Escape)) {
             if(Managers.GameManager.State == GameState.StartFight ||
                 Managers.GameManager.State == GameState.Menu)
@@ -294,9 +271,6 @@ public class PlayerController : UnitBase, ITakeDamage
     }
 
     private void PlayerPhycisc() {
-        if (!PV.IsMine)
-            return;
-
         _moveX = Input.GetAxisRaw("Horizontal");
         _moveZ = Input.GetAxisRaw("Vertical");
 
@@ -342,8 +316,6 @@ public class PlayerController : UnitBase, ITakeDamage
 
     #region Bound
     public IEnumerator COBound(float verticla, float horizontal) {
-
-
         float exitTime = 0;
         float horizontalRecoil = UnityEngine.Random.Range(-0.2f, 0.2f); 
 
@@ -378,43 +350,32 @@ public class PlayerController : UnitBase, ITakeDamage
 
     #region OtherEvent
     protected override void IsHitEvent(int damage, Transform attackerTrans, Transform myTrans) {
- 
-
         base.IsHitEvent(damage, attackerTrans, myTrans);
-        Debug.Log($"{PV.OwnerActorNr}플레이어가 공격받음. 남은 체력 {_currentHp}");
-        HpEvent?.Invoke(_currentHp, _maxHp, damage);
-        HurtEvent?.Invoke(attackerTrans, myTrans);
-        ShareSfxController.instance.SetShareSfx(ShareSfx.Hurt);
+        HpEvent.Invoke(_currentHp, _maxHp, damage);
+        HurtEvent.Invoke(attackerTrans, myTrans);
     }
 
     public override int SetHp(int damage) {
-    
-
         base.SetHp(damage);
-        HpEvent?.Invoke(_currentHp, _maxHp, damage);
+        HpEvent.Invoke(_currentHp, _maxHp, damage);
         return _currentHp;
-    }   
+    }
 
     protected override void IsDeadEvent(Transform attackerTrans, bool headShot) {
-        if (!PV.IsMine)
-            return;
-
         _moveX = 0f;
         _moveZ = 0f;
         base.IsDeadEvent(attackerTrans, headShot);
         CurrentWeapon.ChangeAimAC(false);
         _cc.enabled = false;
         DirType dir = Util.DirectionCalculation(attackerTrans, transform);
-        KillAndDeadEvent?.Invoke(dir, attackerTrans.parent.name, false, headShot);
-        DeadEvent?.Invoke();
+        KillAndDeadEvent.Invoke(dir, attackerTrans.parent.name, false, headShot);
+        DeadEvent.Invoke();
         _mainCamera.gameObject.SetActive(false);
         _subCamera.gameObject.SetActive(true);
     }
 
 
     private void CheckForward() {
-   
-
         if (_state == UnitState.Dead)
             return;
 
@@ -441,9 +402,6 @@ public class PlayerController : UnitBase, ITakeDamage
     }
 
     public override void Init() {
-        if (!PV.IsMine)
-            return;
-
         base.Init();
 
         _isFalling = false;
@@ -463,15 +421,11 @@ public class PlayerController : UnitBase, ITakeDamage
     }
 
     private void InvincibilityEnd() {
-  
         _bodyCollider.enabled = true;
         _headCollider.enabled = true;
     }
 
     public override void ChangeState(UnitState state) {
-        if (!PV.IsMine)
-            return;
-
         switch (state) {
             case UnitState.Idle:
                 if (_state == UnitState.Dead || _state == UnitState.Shot)

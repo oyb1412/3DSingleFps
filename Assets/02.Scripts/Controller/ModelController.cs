@@ -1,4 +1,3 @@
-using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
 using System.Resources;
@@ -11,25 +10,12 @@ public class ModelController : MonoBehaviour
     private Animator _animator;
     private GameObject _weapons;
     private GameObject[] _weaponList = new GameObject[(int)WeaponType.Count];
-    public PhotonView PV { get; private set; }
-
-    private UnitBase _unit;
 
     public Animator Animator => _animator;
     private void Awake() {
-        PV = GetComponent<PhotonView>();
-
-        if (!PV.IsMine) {
-            Util.SetLayer(gameObject, LayerType.OtherModel);
-            return;
-        }
+        _animator = GetComponent<Animator>();
     }
     private void Start() {
-        
-
-        _unit = GetComponentInParent<UnitBase>();
-        PV.OwnerActorNr = _unit.PV.OwnerActorNr;
-        _animator = GetComponent<Animator>();
         _weapons = Util.FindChild(gameObject, "Weapons", true);
         _weaponList[(int)WeaponType.Pistol] = Util.FindChild(_weapons, WeaponType.Pistol.ToString(), false);
         _weaponList[(int)WeaponType.Rifle] = Util.FindChild(_weapons, WeaponType.Rifle.ToString(), false);
@@ -43,9 +29,6 @@ public class ModelController : MonoBehaviour
     }
 
     public void ChangeWeapon(WeaponType type) {
-        if (!PV.IsMine)
-            return;
-
         foreach (var t in _weaponList) {
             t.SetActive(false);
         }
@@ -54,9 +37,6 @@ public class ModelController : MonoBehaviour
     }
 
     public void ResetAnimator() {
-        if (!PV.IsMine)
-            return;
-
         _animator.gameObject.SetActive(false);
         _animator.gameObject.SetActive(true);
     }

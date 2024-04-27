@@ -27855,8 +27855,6 @@ GameObject:
   - component: {fileID: 7040524049905301629}
   - component: {fileID: 4867172142894478615}
   - component: {fileID: 805728299706000470}
-  - component: {fileID: 3704366138055608425}
-  - component: {fileID: 1621523349670825770}
   m_Layer: 7
   m_Name: Shotgun
   m_TagString: Untagged
@@ -27934,70 +27932,8 @@ MonoBehaviour:
   - {fileID: 6148920792605415406, guid: 1cc815d5cf0127c438d79733361a546f, type: 3}
   _bloodEffect: {fileID: 6742844538414016715, guid: 0765930e04532e148bb2ab54ce1acd97, type: 3}
   _impactEffect: {fileID: 1855723973631607767, guid: 1cd00a7265e3b2948b92fd96bcc06b8c, type: 3}
-  _defaultTargetingChance: 60
+  _defaultTargetingChance: 50
   _shotAngle: 2
---- !u!114 &3704366138055608425
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6243358526711467269}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ObservedComponentsFoldoutOpen: 1
-  Group: 0
-  prefixField: -1
-  Synchronization: 3
-  OwnershipTransfer: 0
-  observableSearch: 2
-  ObservedComponents:
-  - {fileID: 1621523349670825770}
-  sceneViewId: 0
-  InstantiationId: 0
-  isRuntimeInstantiated: 0
---- !u!114 &1621523349670825770
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6243358526711467269}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9b8c4a61274f60b4ea5fb4299cfdbf14, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowLayerWeightsInspector: 1
-  ShowParameterInspector: 1
-  m_SynchronizeParameters:
-  - Type: 4
-    SynchronizeType: 1
-    Name: Move
-  - Type: 9
-    SynchronizeType: 1
-    Name: Shot
-  - Type: 9
-    SynchronizeType: 1
-    Name: Reload
-  - Type: 9
-    SynchronizeType: 1
-    Name: Get
-  - Type: 9
-    SynchronizeType: 1
-    Name: Dead
-  - Type: 9
-    SynchronizeType: 1
-    Name: Reset
-  - Type: 4
-    SynchronizeType: 1
-    Name: Run
-  m_SynchronizeLayers:
-  - SynchronizeType: 0
-    LayerIndex: 0
 --- !u!1 &6285808338391533502
 GameObject:
   m_ObjectHideFlags: 0
@@ -28160,11 +28096,9 @@ GameObject:
   m_Component:
   - component: {fileID: 7734668219465943297}
   - component: {fileID: 7005635806659582251}
-  - component: {fileID: 4442620507146221454}
   - component: {fileID: 4776531162846884288}
+  - component: {fileID: 4442620507146221454}
   - component: {fileID: 4591555748179444198}
-  - component: {fileID: 9137621127331945989}
-  - component: {fileID: 2096654366249180908}
   m_Layer: 13
   m_Name: Model
   m_TagString: Untagged
@@ -28226,6 +28160,18 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &4776531162846884288
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6339189262912873409}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85eb0f79f38a9c74097ef3901d7156c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!136 &4442620507146221454
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -28249,18 +28195,6 @@ CapsuleCollider:
   m_Height: 0
   m_Direction: 1
   m_Center: {x: 0, y: 0.88, z: 0}
---- !u!114 &4776531162846884288
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6339189262912873409}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 85eb0f79f38a9c74097ef3901d7156c0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &4591555748179444198
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28273,71 +28207,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f69a13788258bb439508771249e6fc6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &9137621127331945989
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6339189262912873409}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ObservedComponentsFoldoutOpen: 1
-  Group: 0
-  prefixField: -1
-  Synchronization: 3
-  OwnershipTransfer: 0
-  observableSearch: 2
-  ObservedComponents:
-  - {fileID: 2096654366249180908}
-  sceneViewId: 0
-  InstantiationId: 0
-  isRuntimeInstantiated: 0
---- !u!114 &2096654366249180908
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6339189262912873409}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9b8c4a61274f60b4ea5fb4299cfdbf14, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowLayerWeightsInspector: 1
-  ShowParameterInspector: 1
-  m_SynchronizeParameters:
-  - Type: 9
-    SynchronizeType: 1
-    Name: Reload
-  - Type: 9
-    SynchronizeType: 1
-    Name: ShotPistol
-  - Type: 9
-    SynchronizeType: 1
-    Name: Dead
-  - Type: 9
-    SynchronizeType: 1
-    Name: ShotRifle
-  - Type: 9
-    SynchronizeType: 1
-    Name: ShotShotgun
-  - Type: 9
-    SynchronizeType: 1
-    Name: Respawn
-  - Type: 9
-    SynchronizeType: 1
-    Name: Get
-  - Type: 4
-    SynchronizeType: 1
-    Name: Move
-  m_SynchronizeLayers:
-  - SynchronizeType: 0
-    LayerIndex: 0
 --- !u!1 &6346983563322743776
 GameObject:
   m_ObjectHideFlags: 0
@@ -28497,9 +28366,6 @@ GameObject:
   - component: {fileID: 1109050328668398096}
   - component: {fileID: 5736638725747493357}
   - component: {fileID: 7407345046802638548}
-  - component: {fileID: 7506919955571285604}
-  - component: {fileID: -2643244888164847570}
-  - component: {fileID: 493379594293009965}
   m_Layer: 17
   m_Name: Enemy
   m_TagString: Unit
@@ -28633,9 +28499,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sfxClips:
-  - {fileID: 8300000, guid: 8b5a6a693022e9342acd0ca34e0246e2, type: 3}
-  - {fileID: 8300000, guid: 5388b4ee74b38bc4395b8196ba35c0ee, type: 3}
-  - {fileID: 8300000, guid: c61b58b13f3596f428c14d696d9def6e, type: 3}
+  - {fileID: 8300000, guid: af36f16e0a6742146b5ff259abbc6f13, type: 3}
+  - {fileID: 8300000, guid: b2b6ab2f5d8119848901a04e09b44e14, type: 3}
+  - {fileID: 8300000, guid: 75a61c22873aaf24fb796df27f818e59, type: 3}
   - {fileID: 8300000, guid: d7aa67db40121f0468bf2f1ff8203518, type: 3}
   - {fileID: 8300000, guid: 6a06ead78049498419565aa18134ab57, type: 3}
   - {fileID: 8300000, guid: fc89ceb1a1234dc4588f53f8f2428b9a, type: 3}
@@ -28649,66 +28515,10 @@ MonoBehaviour:
   - {fileID: 8300000, guid: cc988050393583047ad560d1ce931d72, type: 3}
   - {fileID: 8300000, guid: 5352c7bdf44b11141ba87d35e6e5a45a, type: 3}
   - {fileID: 8300000, guid: 6fb1fbb6fb59d3847840212344ba692b, type: 3}
-  - {fileID: 8300000, guid: ed3b3ffb88e6cab49b56327201c290bf, type: 3}
-  - {fileID: 8300000, guid: 926ec57f6fd7a044382844da16fc22a2, type: 3}
+  - {fileID: 8300000, guid: 8f04b3ff514c3254898fc3754113a032, type: 3}
+  - {fileID: 8300000, guid: ada807241eefef54681c5e9f2e838300, type: 3}
   - {fileID: 8300000, guid: 91a5e612c16fffc4a890c03753f68e2f, type: 3}
   - {fileID: 8300000, guid: a603c13a69d27294dbcb6655ad04d8c0, type: 3}
---- !u!114 &7506919955571285604
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6367790376593157254}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ObservedComponentsFoldoutOpen: 1
-  Group: 0
-  prefixField: -1
-  Synchronization: 3
-  OwnershipTransfer: 0
-  observableSearch: 2
-  ObservedComponents:
-  - {fileID: -2643244888164847570}
-  - {fileID: 493379594293009965}
-  sceneViewId: 0
-  InstantiationId: 0
-  isRuntimeInstantiated: 0
---- !u!114 &-2643244888164847570
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6367790376593157254}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 627855c7f81362d41938ffe0b1475957, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_SynchronizePosition: 1
-  m_SynchronizeRotation: 1
-  m_SynchronizeScale: 0
-  m_UseLocal: 1
---- !u!114 &493379594293009965
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6367790376593157254}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 64179f3720bbfe947b7724caa67b7c1d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_SynchronizeVelocity: 1
-  m_SynchronizeAngularVelocity: 0
-  m_TeleportEnabled: 0
-  m_TeleportIfDistanceGreaterThan: 3
 --- !u!1 &6392318740803315517
 GameObject:
   m_ObjectHideFlags: 0
@@ -33633,8 +33443,6 @@ GameObject:
   - component: {fileID: 4631564280736595857}
   - component: {fileID: 6896107034210656269}
   - component: {fileID: 1115115590196282481}
-  - component: {fileID: 1788292664322177097}
-  - component: {fileID: 3905085558624537947}
   m_Layer: 7
   m_Name: Rifle
   m_TagString: Untagged
@@ -33714,69 +33522,7 @@ MonoBehaviour:
   - {fileID: 6148920792605415406, guid: 1cc815d5cf0127c438d79733361a546f, type: 3}
   _bloodEffect: {fileID: 6742844538414016715, guid: 0765930e04532e148bb2ab54ce1acd97, type: 3}
   _impactEffect: {fileID: 1855723973631607767, guid: 1cd00a7265e3b2948b92fd96bcc06b8c, type: 3}
-  _defaultTargetingChance: 60
---- !u!114 &1788292664322177097
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6463719510623209998}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ObservedComponentsFoldoutOpen: 1
-  Group: 0
-  prefixField: -1
-  Synchronization: 3
-  OwnershipTransfer: 0
-  observableSearch: 2
-  ObservedComponents:
-  - {fileID: 3905085558624537947}
-  sceneViewId: 0
-  InstantiationId: 0
-  isRuntimeInstantiated: 0
---- !u!114 &3905085558624537947
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6463719510623209998}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9b8c4a61274f60b4ea5fb4299cfdbf14, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowLayerWeightsInspector: 1
-  ShowParameterInspector: 1
-  m_SynchronizeParameters:
-  - Type: 4
-    SynchronizeType: 1
-    Name: Move
-  - Type: 9
-    SynchronizeType: 1
-    Name: Shot
-  - Type: 9
-    SynchronizeType: 1
-    Name: Reload
-  - Type: 9
-    SynchronizeType: 1
-    Name: Get
-  - Type: 9
-    SynchronizeType: 1
-    Name: Dead
-  - Type: 9
-    SynchronizeType: 1
-    Name: Reset
-  - Type: 4
-    SynchronizeType: 1
-    Name: Run
-  m_SynchronizeLayers:
-  - SynchronizeType: 0
-    LayerIndex: 0
+  _defaultTargetingChance: 30
 --- !u!1 &6496843425215447986
 GameObject:
   m_ObjectHideFlags: 0
@@ -40341,8 +40087,6 @@ GameObject:
   - component: {fileID: 5976282736679630644}
   - component: {fileID: 3367263100519777775}
   - component: {fileID: 6434018852969744644}
-  - component: {fileID: 9028498862574314102}
-  - component: {fileID: 569212995180509407}
   m_Layer: 7
   m_Name: Pistol
   m_TagString: Untagged
@@ -40420,69 +40164,7 @@ MonoBehaviour:
   - {fileID: 6148920792605415406, guid: 1cc815d5cf0127c438d79733361a546f, type: 3}
   _bloodEffect: {fileID: 6742844538414016715, guid: 0765930e04532e148bb2ab54ce1acd97, type: 3}
   _impactEffect: {fileID: 1855723973631607767, guid: 1cd00a7265e3b2948b92fd96bcc06b8c, type: 3}
-  _defaultTargetingChance: 60
---- !u!114 &9028498862574314102
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7520848657502128108}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ObservedComponentsFoldoutOpen: 1
-  Group: 0
-  prefixField: -1
-  Synchronization: 3
-  OwnershipTransfer: 0
-  observableSearch: 2
-  ObservedComponents:
-  - {fileID: 569212995180509407}
-  sceneViewId: 0
-  InstantiationId: 0
-  isRuntimeInstantiated: 0
---- !u!114 &569212995180509407
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7520848657502128108}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9b8c4a61274f60b4ea5fb4299cfdbf14, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowLayerWeightsInspector: 1
-  ShowParameterInspector: 1
-  m_SynchronizeParameters:
-  - Type: 4
-    SynchronizeType: 1
-    Name: Move
-  - Type: 9
-    SynchronizeType: 1
-    Name: Shot
-  - Type: 9
-    SynchronizeType: 1
-    Name: Reload
-  - Type: 9
-    SynchronizeType: 1
-    Name: Get
-  - Type: 9
-    SynchronizeType: 1
-    Name: Dead
-  - Type: 9
-    SynchronizeType: 1
-    Name: Reset
-  - Type: 4
-    SynchronizeType: 1
-    Name: Run
-  m_SynchronizeLayers:
-  - SynchronizeType: 0
-    LayerIndex: 0
+  _defaultTargetingChance: 40
 --- !u!1 &7522642925470725903
 GameObject:
   m_ObjectHideFlags: 0

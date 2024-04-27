@@ -1,4 +1,3 @@
-using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -7,33 +6,6 @@ using static Define;
 
 public class Util : MonoBehaviour
 {
-    public static void SetLayer(GameObject go, LayerType type) {
-        if( go == null)
-            return;
-
-        go.layer = (int)type;
-
-        foreach(Transform child in go.transform) {
-            if (child.gameObject.layer == (int)LayerType.Head ||
-               child.gameObject.layer == (int)LayerType.Body)
-                continue;
-
-            SetLayer(child.gameObject, type);
-        }
-    }
-
-    public static UnitBase FindPlayerByActorNumber(int actorNumber) {
-        Debug.Log($"총 유닛 수는 {PhotonNetwork.PlayerList}명");
-        foreach (PlayerController player in FindObjectsByType(typeof(PlayerController), FindObjectsSortMode.None)) {
-            if (player.PV.OwnerActorNr == actorNumber) {
-                {
-                    Debug.Log($"{actorNumber}의 플레이어는 {player.name}");
-                    return player;
-                }
-            }
-        }
-        return null; 
-    }
 
     public static GameObject FindChild(GameObject go, string name, bool recursion) 
     {

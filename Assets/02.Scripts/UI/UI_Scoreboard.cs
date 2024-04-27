@@ -9,11 +9,9 @@ public class UI_Scoreboard : UI_Base
     [SerializeField] private TextMeshProUGUI _playerNumber;
     [SerializeField] private UI_Scoreboard_Child _scoreBoardChild;
 
-    protected override void Init() {
-        base.Init();
-
-        _player.ScoreboardEvent -= ((trigger) => transform.GetChild(0).gameObject.SetActive(trigger));
-        _player.ScoreboardEvent += ((trigger) => transform.GetChild(0).gameObject.SetActive(trigger));
+    private void Start() {
+        _player.ScoreboardEvent -= ((trigger) => transform.GetChild(0).gameObject.SetActive(trigger) );
+        _player.ScoreboardEvent += ((trigger) => transform.GetChild(0).gameObject.SetActive(trigger) );
         Managers.GameManager.EnemyNumberAction += SetEnemyNumber;
         transform.GetChild(0).gameObject.SetActive(false);
     }

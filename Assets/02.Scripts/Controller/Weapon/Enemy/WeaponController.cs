@@ -15,7 +15,6 @@ namespace Enemy {
 
         protected override void Start() {
             base.Start();
-
             switch (Enemy.Level) {
                 case (int)EnemyLevel.Low:
                     _currentTargetingChance = _defaultTargetingChance * 0.7f;
@@ -40,29 +39,24 @@ namespace Enemy {
             Debug.DrawRay(_firePoint.position, angle * float.MaxValue, Color.green, 1f);
             isHit = Physics.Raycast(_firePoint.position, angle, out hit, float.MaxValue, _layerMask);
             
+            float ran = Random.Range(0, 100f);
 
             float dir = Mathf.Abs((Enemy.transform.position - Enemy.TargetUnit.transform.position).magnitude);
 
-            float ran = Random.Range(0, 100f);
-
             float chance = _currentTargetingChance;
 
-            if(dir <= 5f) {
+            if(dir <= 10f && dir > 5f) {
                 chance = _currentTargetingChance * .9f;
-            } else if (dir > 5f &&  dir < 10f) {
+            } if (dir > 10f &&  dir < 20f) {
                 chance = _currentTargetingChance * .7f;
-            } else if(dir >= 10f) {
+            } else if(dir >= 20f) {
                 chance = _currentTargetingChance * .5f;
             }
 
+            Debug.Log($"적의 공격 적중 확률{chance}, {ran}보다 클 시 적중");
 
-            if(ran <= chance) {
-                Debug.Log($"적의 공격 성공");
-            }
-            if (ran > chance) {
-                Debug.Log($"적의 공격 실패");
+            if (ran < chance)
                 return;
-            }
 
             DefaultShot(isHit, hit, Enemy);
         }
@@ -79,6 +73,11 @@ namespace Enemy {
 
             var ran = Random.Range(0, 5);
             CreateEffect(_muzzleEffect[ran], _firePos.position, _unit.UnitRotate);
+
+            if (CurrentBullet <= 0) {
+                _unit.Reload();
+                return;
+            }
         }
 
         private IEnumerator CoRotate() {

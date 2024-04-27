@@ -15,7 +15,6 @@ public class UI_Scoreboard_Child : MonoBehaviour
     public UnitBase UnitBase { get; private set; }
     
     public void Init(string name, UnitBase unit, Color color) {
-
         _nameText.text = name;
         _rankText.text = $"#{0:D3}";
         _killText.text = $"{0:D2}";

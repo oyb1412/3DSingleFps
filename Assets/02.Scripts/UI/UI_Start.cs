@@ -14,9 +14,6 @@ public class UI_Start : UI_Base
     [SerializeField] private GameObject _settingView;
 
     protected override void Init() {
-        base.Init();
-        _defaultColor = _singleBtn.targetGraphic.color;
-        _defaultScale = _singleBtn.transform.localScale;
     }
 
     private enum BtnType {
@@ -25,6 +22,10 @@ public class UI_Start : UI_Base
         QuitBG
     }
 
+    private void Start() {
+        _defaultColor = _singleBtn.targetGraphic.color;
+        _defaultScale = _singleBtn.transform.localScale;
+    }
 
     public override void OnEnterButton(BaseEventData eventData) {
         base.OnEnterButton(eventData);

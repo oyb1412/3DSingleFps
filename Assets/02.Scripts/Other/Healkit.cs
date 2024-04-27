@@ -6,7 +6,7 @@ public class Healkit : MonoBehaviour
 {
     private const float ITEM_ROTATE_SPEED = 0.2f;
     private const int HEALKIT_VALUE = 15;
-    private const float DESTORY_TIME = 8f;
+    private const float DESTORY_TIME = 5f;
 
     private void Start() {
         GameObject.Destroy(gameObject, DESTORY_TIME);
@@ -19,9 +19,6 @@ public class Healkit : MonoBehaviour
             return;
 
         c.GetComponent<UnitBase>().SetHp(HEALKIT_VALUE);
-        if(c.TryGetComponent<PlayerController>(out var player)) {
-            ShareSfxController.instance.SetShareSfx(Define.ShareSfx.Medikit);
-        }
         Managers.Resources.Destroy(gameObject);
     }
 }

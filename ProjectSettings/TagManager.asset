@@ -26,11 +26,11 @@ TagManager:
   - Wall
   - Item
   - Enemy
-  - OtherModel
+  - 
   - Head
   - Body
   - Unit
-  - OtherHand
+  - 
   - 
   - 
   - 

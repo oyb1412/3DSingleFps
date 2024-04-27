@@ -19,11 +19,7 @@ public class UI_Gameover : UI_Base
 
     [SerializeField] private Transform _scoreBoard;
 
-
-
-    protected override void Init() {
-        base.Init();
-
+    private void Start() {
         Managers.GameManager.GameoverAction += Gameover;
         _defaultColor = _continueBtn.targetGraphic.color;
         _defaultScale = _continueBtn.transform.localScale;

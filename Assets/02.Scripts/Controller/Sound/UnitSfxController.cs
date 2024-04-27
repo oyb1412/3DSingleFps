@@ -34,7 +34,7 @@ public class UnitSfxController : MonoBehaviour
             sfxPlayers[i].volume = DefaultSfxVolume;  //기본 볼륨 설정
             sfxPlayers[i].spatialBlend = 1.0f;
             sfxPlayers[i].rolloffMode = AudioRolloffMode.Logarithmic;
-            sfxPlayers[i].minDistance = 3f;
+            sfxPlayers[i].minDistance = 1f;
             sfxPlayers[i].maxDistance = 15f;
         }
     }
