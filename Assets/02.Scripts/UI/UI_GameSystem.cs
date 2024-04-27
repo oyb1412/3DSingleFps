@@ -15,10 +15,10 @@ public class UI_GameSystem : UI_Base
 
     private bool[] _count = new bool[3];
 
-    protected override void Awake() {
+    private void Awake() {
 
-        GameManager.Instance.WaitStateEvent -= SetWaitUI;
-        GameManager.Instance.WaitStateEvent += SetWaitUI;
+        Managers.GameManager.WaitStateEvent -= SetWaitUI;
+        Managers.GameManager.WaitStateEvent += SetWaitUI;
     }
 
     protected override void Init() {
@@ -42,8 +42,8 @@ public class UI_GameSystem : UI_Base
     
 
     private void Update() {
-        int min = (int)GameManager.Instance.GameTime / 60;
-        int sec = (int)GameManager.Instance.GameTime % 60;
+        int min = (int)Managers.GameManager.GameTime / 60;
+        int sec = (int)Managers.GameManager.GameTime % 60;
 
         _timeText.text = $"{min:D2}:{sec:D2}";
     }
@@ -80,20 +80,20 @@ public class UI_GameSystem : UI_Base
     private IEnumerator CoWaitUI() {
         _waitTimeText.gameObject.SetActive(true);
         while (true) {
-            if (_count[2] == false && GameManager.Instance.WaitTime < 3) {
+            if (_count[2] == false && Managers.GameManager.WaitTime < 3) {
                 _count[2] = true;
                 ShareSfxController.instance.SetShareSfx(Define.ShareSfx.Three);
             }
-            if (_count[1] == false && GameManager.Instance.WaitTime < 2) {
+            if (_count[1] == false && Managers.GameManager.WaitTime < 2) {
                 _count[1] = true;
                 ShareSfxController.instance.SetShareSfx(Define.ShareSfx.Two);
             }
-            if (_count[0] == false && GameManager.Instance.WaitTime < 1) {
+            if (_count[0] == false && Managers.GameManager.WaitTime < 1) {
                 _count[0] = true;
                 ShareSfxController.instance.SetShareSfx(Define.ShareSfx.One);
             }
-            _waitTimeText.text = (Mathf.CeilToInt(GameManager.Instance.WaitTime)).ToString();
-            if(GameManager.Instance.InGame()) {
+            _waitTimeText.text = (Mathf.CeilToInt(Managers.GameManager.WaitTime)).ToString();
+            if(Managers.GameManager.InGame()) {
                 _waitTimeText.gameObject.SetActive(false);
                 StartCoroutine(CoStartUI());
                 break;

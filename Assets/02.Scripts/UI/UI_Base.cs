@@ -12,11 +12,6 @@ public class UI_Base : MonoBehaviour {
     protected Vector3 _defaultScale;
     protected string _name;
 
-
-    protected virtual void Awake() {
-        
-    }
-
     private void Start() {
         Init();
     }

@@ -5,15 +5,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using static Define;
 
-public class GameManager : MonoBehaviour
+public class GameManager
 {
-    public static GameManager Instance;
     private readonly string[] ENEMY_NAME = new string[] { "James", "Aaron", "Peyton", "London", "Daniel", "Aiden", "Jackson","Lucas", "Samuel","Luke"};
     public Action WaitStateEvent;
     public Action FightStateEvent;
     public Action GameoverAction;
     public Action<int> EnemyNumberAction;
-    private PhotonView _pv;
     //public float GameTime { get; private set; } = 60f;
     public float GameTime { get; private set; } = 300f;
     public float RespawnTime { get; private set; } = 3f;
@@ -27,7 +25,7 @@ public class GameManager : MonoBehaviour
     public float WaitTime { get; private set; }
 
     private float _doNextStateTime = 3f;
-    [SerializeField]private Transform _scoreBoardTransform;
+    private Transform _scoreBoardTransform;
     public Transform KillFeedParent { get; private set; }
 
     private List<UnitBase> _units = new List<UnitBase>();
@@ -36,27 +34,10 @@ public class GameManager : MonoBehaviour
     private List<UI_Scoreboard_Child> _boardChild = new List<UI_Scoreboard_Child>();
 
     public List<UI_Scoreboard_Child> BoardChild => _boardChild;
-    private void Awake() {
-        if(Instance == null) {
-            _pv = GetComponent<PhotonView>();
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-       
-
-    }
-
-    private void Start() {
-    }
 
     public void Init()
     {
-
-        GameTime = 600f;
+        GameTime = 60f;
         RespawnTime = 3f;
         EnemyNumber = 0;
         EnemyLevel = 1;
@@ -112,7 +93,11 @@ public class GameManager : MonoBehaviour
         }
 
         if (networkPlayer != null) {
-            
+            UI_Scoreboard_Child child = PhotonNetwork.Instantiate("Prefabs/UI/ScoreboardChild", Vector2.zero, Quaternion.identity).GetComponent<UI_Scoreboard_Child>();
+            child.transform.parent = _scoreBoardTransform;
+            child.Init(networkPlayer.name, networkPlayer, Color.green);
+            _units.Add(networkPlayer);
+            _boardChild.Add(child);
         } else {
             PlayerController player = GameObject.Find("Player").GetComponent<PlayerController>();
             UI_Scoreboard_Child child = Managers.Resources.Instantiate("UI/ScoreboardChild", _scoreBoardTransform).GetComponent<UI_Scoreboard_Child>();
@@ -120,9 +105,13 @@ public class GameManager : MonoBehaviour
             _units.Add(player);
             _boardChild.Add(child);
         }
-
-        Init();
     }
+
+    [PunRPC]
+    public void SavePlayersInfo() {
+
+    }
+    
 
     public void Clear() {
         WaitStateEvent = null;

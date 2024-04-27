@@ -77,7 +77,7 @@ public class UI_PlayerHurt : UI_Base
         float alpha = 0f;
         image.gameObject.SetActive(true);
         while (alpha < 1f) {
-            alpha += Time.deltaTime / GameManager.Instance.RespawnTime;
+            alpha += Time.deltaTime / Managers.GameManager.RespawnTime;
             image.color = new Color(0f, 0f, 0f, alpha);
             yield return null;
         }

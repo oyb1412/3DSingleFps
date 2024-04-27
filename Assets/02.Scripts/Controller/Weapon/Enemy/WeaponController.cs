@@ -78,7 +78,7 @@ namespace Enemy {
             base.Shot();
 
             var ran = Random.Range(0, 5);
-            CreateEffect($"muzzelFlash{ran}", _firePos.position, _unit.UnitRotate);
+            CreateEffect(_muzzleEffect[ran], _firePos.position, _unit.UnitRotate);
         }
 
         private IEnumerator CoRotate() {

@@ -1,4 +1,3 @@
-using Fusion;
 using Photon.Pun;
 using System;
 using System.Collections;
@@ -36,8 +35,7 @@ public class PlayerController : UnitBase, ITakeDamage
     [SerializeField] private float _rotateSpeed = 250f;
     [SerializeField] private float _jumpValue = 1.5f;
     [SerializeField] private float _boundTime = 0.1f;
-    public CharacterController CC { get; private set; }
-
+    private CharacterController _cc;
 
     #endregion
 
@@ -74,39 +72,13 @@ public class PlayerController : UnitBase, ITakeDamage
     #endregion
 
     #region Init
-
-    [PunRPC]
-    public void PlayerInit(string name, int actorNumber) {
-        Debug.Log($"{actorNumber}유저 init 시도");
-
-        if (PV.OwnerActorNr != actorNumber)
-            return;
-
-        Debug.Log($"{actorNumber}유저 init 성공");
-
-        this.name = name;
-
-        var uiScoreBoard = UI_Scoreboard.Instance.gameObject;
-        Transform _scoreBoardTransform = Util.FindChild(uiScoreBoard, "Scoreboard", true).transform;
-
-        UI_Scoreboard_Child child = Managers.Resources.Instantiate("UI/ScoreboardChild", _scoreBoardTransform).GetComponent<UI_Scoreboard_Child>();
-
-        child.Init(name, this, Color.green);
-        GameManager.Instance.UnitsList.Add(this);
-        GameManager.Instance.BoardChild.Add(child);
-
-        _scoreBoardTransform.parent.gameObject.SetActive(false);
-    }
-
-
     protected override void Awake() {
         base.Awake();
-        CC = GetComponent<CharacterController>();
-
         if (!PV.IsMine)
             return;
 
         PV.OwnerActorNr = PhotonNetwork.LocalPlayer.ActorNumber;
+        _cc = GetComponent<CharacterController>();
     }
 
     private void Start() {
@@ -138,7 +110,7 @@ public class PlayerController : UnitBase, ITakeDamage
     public void Shot() {
 
 
-        if (!GameManager.Instance.InGame())
+        if (!Managers.GameManager.InGame())
             return;
 
         if (_currentWeapon.TryShot(this)) {
@@ -147,7 +119,7 @@ public class PlayerController : UnitBase, ITakeDamage
     }
 
     private void Jump() {
-        if (!GameManager.Instance.InGame())
+        if (!Managers.GameManager.InGame())
             return;
 
         if (!IsGround()) {
@@ -173,8 +145,8 @@ public class PlayerController : UnitBase, ITakeDamage
 
 
         base.ChangeWeapon(type);
-        CrossValueEvent?.Invoke(CurrentWeapon.CrossValue);
-        ChangeEvent?.Invoke(CurrentWeapon);
+        CrossValueEvent.Invoke(CurrentWeapon.CrossValue);
+        ChangeEvent.Invoke(CurrentWeapon);
     }
     #endregion
 
@@ -184,22 +156,22 @@ public class PlayerController : UnitBase, ITakeDamage
             return;
 
         if (Input.GetKeyDown(KeyCode.Escape)) {
-            if(GameManager.Instance.State == GameState.StartFight ||
-                GameManager.Instance.State == GameState.Menu)
-                MenuEvent?.Invoke();
+            if(Managers.GameManager.State == GameState.StartFight ||
+                Managers.GameManager.State == GameState.Menu)
+                MenuEvent.Invoke();
 
-            if(GameManager.Instance.State == GameState.Setting)
-                SettingEvent?.Invoke();
+            if(Managers.GameManager.State == GameState.Setting)
+                SettingEvent.Invoke();
         }
 
-        if (!GameManager.Instance.InGame())
+        if (!Managers.GameManager.InGame())
             return;
 
         if (Input.GetKey(KeyCode.Tab)) {
-            ScoreboardEvent?.Invoke(true);
+            ScoreboardEvent.Invoke(true);
         }
         if (Input.GetKeyUp(KeyCode.Tab)) {
-            ScoreboardEvent?.Invoke(false);
+            ScoreboardEvent.Invoke(false);
         }
 
         if(Input.GetKey(KeyCode.LeftShift) &&
@@ -282,13 +254,13 @@ public class PlayerController : UnitBase, ITakeDamage
         if(Input.GetMouseButton(1)) {
             if(!IsAiming) {
                 IsAiming = true;
-                AimEvent?.Invoke(true);
+                AimEvent.Invoke(true);
             }
         }
 
         if(IsAiming && Input.GetMouseButtonUp(1)) {
             IsAiming = false;
-            AimEvent?.Invoke(false);
+            AimEvent.Invoke(false);
         }
 
         if (_state == UnitState.Shot) {
@@ -343,14 +315,14 @@ public class PlayerController : UnitBase, ITakeDamage
         Vector3 move = transform.right * _moveX + transform.forward * _moveZ;
         move.y = 0f;
         float speed = _isRun ? _moveSpeed + _runSpeed : _moveSpeed;
-        CC.Move(move.normalized * speed * Time.deltaTime);
+        _cc.Move(move.normalized * speed * Time.deltaTime);
 
         if (Input.GetKeyDown(KeyCode.Space)) {
             Jump();
         }
 
         _velocity.y += _gravity * Time.deltaTime;
-        CC.Move(_velocity * Time.deltaTime);
+        _cc.Move(_velocity * Time.deltaTime);
     }
 
     private void OnRotateUpdate() {
@@ -415,13 +387,13 @@ public class PlayerController : UnitBase, ITakeDamage
         ShareSfxController.instance.SetShareSfx(ShareSfx.Hurt);
     }
 
-    public override void SetHp(int damage) {
+    public override int SetHp(int damage) {
+    
+
         base.SetHp(damage);
         HpEvent?.Invoke(_currentHp, _maxHp, damage);
-
-        if(/*PV.IsMine && */damage > 0)
-            ShareSfxController.instance.SetShareSfx(ShareSfx.Medikit);
-    }
+        return _currentHp;
+    }   
 
     protected override void IsDeadEvent(Transform attackerTrans, bool headShot) {
         if (!PV.IsMine)
@@ -429,24 +401,14 @@ public class PlayerController : UnitBase, ITakeDamage
 
         _moveX = 0f;
         _moveZ = 0f;
-
-        PV.RPC("RPC_PlayerDeadEvent", RpcTarget.AllBuffered, PV.OwnerActorNr);
-
         base.IsDeadEvent(attackerTrans, headShot);
         CurrentWeapon.ChangeAimAC(false);
+        _cc.enabled = false;
         DirType dir = Util.DirectionCalculation(attackerTrans, transform);
-        KillAndDeadEvent?.Invoke(dir, attackerTrans.name, false, headShot);
+        KillAndDeadEvent?.Invoke(dir, attackerTrans.parent.name, false, headShot);
         DeadEvent?.Invoke();
         _mainCamera.gameObject.SetActive(false);
         _subCamera.gameObject.SetActive(true);
-    }
-
-    [PunRPC]
-    public void RPC_PlayerDeadEvent(int actorNumber) {
-        if (PV.OwnerActorNr != actorNumber)
-            return;
-
-        CC.enabled = false;
     }
 
 
@@ -461,7 +423,7 @@ public class PlayerController : UnitBase, ITakeDamage
 
         var col = Physics.Raycast(_firePoint.position, _firePoint.forward, out var hit, 2f,  layer);
         if (!col) {
-            CollideItemEvent?.Invoke(false);
+            CollideItemEvent.Invoke(false);
             CollideItem = null;
             return;
         }
@@ -469,7 +431,7 @@ public class PlayerController : UnitBase, ITakeDamage
         CollideItem = hit.collider.GetComponent<IItem>();
 
         if(CollideItem != null) {
-            CollideItemEvent?.Invoke(true);
+            CollideItemEvent.Invoke(true);
         }
     }
 
@@ -479,35 +441,29 @@ public class PlayerController : UnitBase, ITakeDamage
     }
 
     public override void Init() {
-        
+        if (!PV.IsMine)
+            return;
+
         base.Init();
 
         _isFalling = false;
         _isJumping = false;
         IsAiming = false;
-        AimEvent?.Invoke(false);
+        AimEvent.Invoke(false);
         CurrentWeapon.ChangeAimAC(false);
         _vx = _vy = _moveX = _moveZ = 0f;
         _velocity = Vector3.zero;
         UnitRotate = Quaternion.identity;
         _mainCamera.gameObject.SetActive(true);
         _subCamera.gameObject.SetActive(false);
-        RespawnEvent?.Invoke();
+        _cc.enabled = true;
+        RespawnEvent.Invoke();
         ChangeState(UnitState.Idle);
-        Invoke("SetRespawn", 1f);
+        Invoke("InvincibilityEnd", INVINCIBILITY_TIME);
     }
 
-    private void SetRespawn() {
-        PV.RPC("RPC_Respawn", RpcTarget.AllBuffered, PV.OwnerActorNr);
-    }
-
-    [PunRPC]
-    public virtual void RPC_Respawn(int myNumber) {
-        if (PV.OwnerActorNr != myNumber)
-            return;
-
-        CC.enabled = true;
-
+    private void InvincibilityEnd() {
+  
         _bodyCollider.enabled = true;
         _headCollider.enabled = true;
     }
@@ -552,8 +508,8 @@ public class PlayerController : UnitBase, ITakeDamage
                 CurrentWeapon.CurrentAnime.SetBool("Move", false);
                 CurrentWeapon.CurrentAnime.SetBool("Run", false);
 
-                SetWeaponTriggerAnimation($"Shot", PV.OwnerActorNr);
-                SetModelTriggerAnimation($"Shot{BaseWeapon.Type.ToString()}", PV.OwnerActorNr);
+                Model.Animator.SetTrigger($"Shot{BaseWeapon.Type.ToString()}");
+                CurrentWeapon.CurrentAnime.SetTrigger("Shot");
 
                 break;
             case UnitState.Reload:
@@ -565,10 +521,8 @@ public class PlayerController : UnitBase, ITakeDamage
                 Model.Animator.SetBool("Move", false);
                 BaseWeapon.Animator.SetBool("Move", false);
                 BaseWeapon.Animator.SetBool("Run", false);
-
-                SetWeaponTriggerAnimation("Reload", PV.OwnerActorNr);
-                SetModelTriggerAnimation("Reload", PV.OwnerActorNr);
-
+                Model.Animator.SetTrigger("Reload");
+                BaseWeapon.Animator.SetTrigger("Reload");
                 break;
             case UnitState.Dead:
                 if (_state == UnitState.Dead)
@@ -579,9 +533,8 @@ public class PlayerController : UnitBase, ITakeDamage
                 Model.Animator.SetBool("Move", false);
                 BaseWeapon.Animator.SetBool("Move", false);
                 BaseWeapon.Animator.SetBool("Run", false);
-
-                SetWeaponTriggerAnimation("Dead", PV.OwnerActorNr);
-                SetModelTriggerAnimation("Dead", PV.OwnerActorNr);
+                Model.Animator.SetTrigger("Dead");
+                BaseWeapon.Animator.SetTrigger("Dead");
                 break;
             case UnitState.Get:
                 if (_state == UnitState.Get)
@@ -592,9 +545,8 @@ public class PlayerController : UnitBase, ITakeDamage
                 Model.Animator.SetBool("Move", false);
                 BaseWeapon.Animator.SetBool("Move", false);
                 BaseWeapon.Animator.SetBool("Run", false);
-
-                SetWeaponTriggerAnimation("Get", PV.OwnerActorNr);
-                SetModelTriggerAnimation("Get", PV.OwnerActorNr);
+                Model.Animator.SetTrigger("Get");
+                BaseWeapon.Animator.SetTrigger("Get");
                 break;
         }
         _state = state;

@@ -26,6 +26,10 @@ namespace Base {
         protected UnitBase _unit;
         protected ParticleSystem _ejectEffect;
 
+        [SerializeField] protected GameObject[] _muzzleEffect;
+        [SerializeField] protected GameObject _bloodEffect;
+        [SerializeField] protected GameObject _impactEffect;
+
         private UnitSfxController _sfx;
 
         protected Animator _animator;
@@ -39,12 +43,16 @@ namespace Base {
             PV = GetComponent<PhotonView>();
             if (!PV.IsMine) {
                 Util.SetLayer(gameObject, LayerType.OtherHand);
+                return;
             }
 
             _animator = GetComponent<Animator>();
         }
 
         protected virtual void Start() {
+
+            
+
             _unit = GetComponentInParent<UnitBase>();
             PV.OwnerActorNr = _unit.PV.OwnerActorNr;
             _layerMask = (1 << (int)LayerType.Head) | (1 << (int)LayerType.Body) | (1 << (int)LayerType.Obstacle) | (1 << (int)LayerType.Ground) | (1 << (int)LayerType.Wall);
@@ -58,7 +66,7 @@ namespace Base {
             if (!PV.IsMine)
                 return;
 
-            if (!GameManager.Instance.InGame())
+            if (!Managers.GameManager.InGame())
                 return;
 
             if ( _isShot ) {
@@ -109,60 +117,41 @@ namespace Base {
             if (!isHit)
                 return;
 
-            UnitBase targetUnit = hit.collider.GetComponentInParent<UnitBase>();
 
             int layer = hit.collider.gameObject.layer;
             if (layer == (int)LayerType.Head &&
-                targetUnit.gameObject != unit.gameObject) {
-
-                if(targetUnit.TryGetComponent<PlayerController>(out var targetPlayer)) {
-                    PV.RPC("RPC_TakeDamage", RpcTarget.AllBuffered, Damage * 2, PV.OwnerActorNr, targetPlayer.PV.OwnerActorNr, true);
-                }
-                else {
-                    hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(Damage * 2, unit.TargetPos, targetUnit.transform, true);
-                }
-
-                if (unit.TryGetComponent<PlayerController>(out var player)) {
-                    player.HeadshotEvent?.Invoke();
-                }
-
-                GameObject blood = CreateEffect("Blood", hit.point);
+                hit.collider.GetComponentInParent<UnitBase>().gameObject != unit.gameObject) {
+                PV.RPC("RPC_TakeDamage", RpcTarget.AllBuffered, Damage * 3, PV.OwnerActorNr, hit.collider.GetComponentInParent<UnitBase>().PV.OwnerActorNr, true);
+                //hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(Damage * 3, unit.TargetPos, hit.collider.GetComponentInParent<UnitBase>().transform, true);
+                GameObject blood = CreateEffect(_bloodEffect, hit.point);
                 blood.transform.LookAt(_firePoint.position);
-                NetworkManager.Instance.PhotonDestroy(blood, 1f);
-
+                if(unit.TryGetComponent<PlayerController>(out var player)) {
+                    player.HeadshotEvent.Invoke();
+                }
+                Destroy(blood, 1f);
             } else if (layer == (int)LayerType.Body &&
-                targetUnit.gameObject != unit.gameObject) {
-
-                if (targetUnit.TryGetComponent<PlayerController>(out var targetPlayer)) {
-                    PV.RPC("RPC_TakeDamage", RpcTarget.AllBuffered, Damage, PV.OwnerActorNr, targetPlayer.PV.OwnerActorNr, false);
-                } else {
-                    hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(Damage, unit.TargetPos, targetUnit.transform, false);
-                }
-
-                if (unit.TryGetComponent<PlayerController>(out var player)) {
-                    player.BodyshotEvent?.Invoke();
-                }
-
-                GameObject blood = CreateEffect("Blood", hit.point);
+                hit.collider.GetComponentInParent<UnitBase>().gameObject != unit.gameObject) {
+                hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(Damage, unit.TargetPos, hit.collider.GetComponentInParent<UnitBase>().transform, false);
+                GameObject blood = CreateEffect(_bloodEffect, hit.point);
                 blood.transform.LookAt(_firePoint.position);
-                NetworkManager.Instance.PhotonDestroy(blood, 1f);
+                if (unit.TryGetComponent<PlayerController>(out var player)) {
+                    player.BodyshotEvent.Invoke();
+                }
+                Destroy(blood, 1f);
             } else if (layer == (int)LayerType.Obstacle ||
                  layer == (int)LayerType.Wall) {
-                GameObject impact = CreateEffect("Impact", hit.point);
+                GameObject impact = CreateEffect(_impactEffect, hit.point);
                 impact.transform.LookAt(_firePoint.position);
-                NetworkManager.Instance.PhotonDestroy(impact, 1f);
+                Destroy(impact, 1f);
             } else if (layer == (int)LayerType.Ground) {
-                GameObject impact = CreateEffect("Impact", hit.point);
+                GameObject impact = CreateEffect(_impactEffect, hit.point);
                 impact.transform.eulerAngles = new Vector3(-90f, 0f, 0f);
-                NetworkManager.Instance.PhotonDestroy(impact, 1f);
+                Destroy(impact, 1f);
             }
         }
 
         [PunRPC]
         public void RPC_TakeDamage(int damage, int attackerHandle, int myHandle, bool headShot) {
-            if (PV.OwnerActorNr != attackerHandle)
-                return;
-
             UnitBase attacker = Util.FindPlayerByActorNumber(attackerHandle);
             UnitBase me = Util.FindPlayerByActorNumber(myHandle);
             Debug.Log($"공격자 번호 {attacker.PV.OwnerActorNr}, 피격자 번호 {me.PV.OwnerActorNr}");
@@ -184,11 +173,13 @@ namespace Base {
 
 
 
-        protected GameObject CreateEffect(string name, Vector3 pos, Quaternion rot = default ) {
+        protected GameObject CreateEffect(GameObject go, Vector3 pos, Quaternion rot = default ) {
             if (!PV.IsMine)
                 return null;
 
-            GameObject effect = PhotonNetwork.Instantiate($"Prefabs/Effect/{name}" , pos, rot);
+            GameObject effect = Managers.Resources.Instantiate(go, null);
+            effect.transform.position = pos;
+            effect.transform.rotation = rot;
             return effect;
         }
 

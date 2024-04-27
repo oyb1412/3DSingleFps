@@ -32,7 +32,7 @@ namespace Player {
 
             DefaultShot(transform.forward);
             for (int i = 0; i < 5; i++)
-                Player?.ShotEvent?.Invoke();
+                Player.ShotEvent.Invoke();
         }
     }
 }

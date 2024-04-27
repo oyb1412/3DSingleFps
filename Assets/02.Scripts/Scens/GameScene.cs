@@ -19,7 +19,7 @@ public class GameScene : BaseScene
 
         Managers.Scene.SetScene();
         Managers.Instance.IngameInit();
-        GameManager.Instance.SetPlayer();
+        Managers.GameManager.SetPlayer();
 
         BgmController.instance.SetBgm(Define.Bgm.Ingame, true);
     }

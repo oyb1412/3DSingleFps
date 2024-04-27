@@ -24,7 +24,7 @@ public class UI_Gameover : UI_Base
     protected override void Init() {
         base.Init();
 
-        GameManager.Instance.GameoverAction += Gameover;
+        Managers.GameManager.GameoverAction += Gameover;
         _defaultColor = _continueBtn.targetGraphic.color;
         _defaultScale = _continueBtn.transform.localScale;
     }
@@ -59,13 +59,13 @@ public class UI_Gameover : UI_Base
         _crosshairView.SetActive(false);
         _gameoverView.SetActive(true);
 
-        GameManager.Instance.UnitSortToRank();
-        _winnerText.text = $"Winner is {GameManager.Instance.UnitsList[0].name.ToString()}";
+        Managers.GameManager.UnitSortToRank();
+        _winnerText.text = $"Winner is {Managers.GameManager.UnitsList[0].name.ToString()}";
 
-        foreach (var t in GameManager.Instance.BoardChild) {
+        foreach (var t in Managers.GameManager.BoardChild) {
             t.transform.parent = _scoreBoard;
         }
 
-        GameManager.Instance.BoardSortToRank();
+        Managers.GameManager.BoardSortToRank();
     }
 }

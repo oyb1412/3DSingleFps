@@ -6,7 +6,6 @@ using UnityEngine.SceneManagement;
 
 public class GameScene_Network : BaseScene
 {
-    private bool _start;
     public override void Clear() {
     }
 
@@ -15,44 +14,22 @@ public class GameScene_Network : BaseScene
 
         PhotonNetwork.SerializationRate = 30;
 
-        NetworkManager.Instance.Test(null);
+        NetworkManager.Instance.Test(CreatePlayer);
     }
 
     private void CreatePlayer() {
-        StartCoroutine(Co_CreatePlayer());
-        
-    }
 
-    private void Update() {
-        if (_start)
-            return;
-
-        if (PhotonNetwork.PlayerList.Length > 1) {
-            _start = true;
-            CreatePlayer();
+        for (int i = 0; i < 1; i++) {
+            PlayerController player = PhotonNetwork.Instantiate("Prefabs/Unit/Player", Vector3.zero, Quaternion.identity).GetComponent<PlayerController>();
+            GameObject ui = Managers.Resources.Instantiate("UI/@UI",null);
+            Managers.GameManager.SetPlayer(player);
+            foreach (Transform t in ui.transform) {
+                t.GetComponent<UI_Base>().SetPlayer(player);
+            }
         }
-    }
-
-    private IEnumerator Co_CreatePlayer() {
-        PlayerController player = PhotonNetwork.Instantiate("Prefabs/Unit/Player", Vector3.zero, Quaternion.identity).GetComponent<PlayerController>();
-
-        yield return new WaitUntil(() => player != null);
-
-        GameObject ui = Managers.Resources.Instantiate("UI/@UI", null);
-
-        foreach (Transform t in ui.transform) {
-            t.GetComponent<UI_Base>().SetPlayer(player);
-        }
-
-
-        yield return new WaitUntil(() => ui != null);
-
-        GameManager.Instance.SetPlayer(player);
-
-        player.PV.RPC("PlayerInit", RpcTarget.AllBuffered, "Player", player.PV.OwnerActorNr);
-
 
         Managers.Instance.IngameInit();
+
     }
 
 }

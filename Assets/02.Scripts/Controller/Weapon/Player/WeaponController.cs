@@ -62,7 +62,7 @@ namespace Player {
             if (!PV.IsMine)
                 return;
 
-            Player.BulletEvent?.Invoke(CurrentBullet, MaxBullet, RemainBullet);
+            Player.BulletEvent.Invoke(CurrentBullet, MaxBullet, RemainBullet);
         }
 
         protected abstract override void Enable();
@@ -86,11 +86,11 @@ namespace Player {
             float horizontal = Player.IsAiming ? HorizontalBoundValue * .5f : HorizontalBoundValue;
 
             Player.StartCoroutine(Player.COBound(verticla, horizontal));
-            Player.BulletEvent?.Invoke(CurrentBullet, MaxBullet, RemainBullet);
+            Player.BulletEvent.Invoke(CurrentBullet, MaxBullet, RemainBullet);
 
             var ran = Random.Range(0, 5);
             Transform trans = Player.IsAiming ? _aimFirePos : _firePos;
-            CreateEffect($"muzzelFlash{ran}", trans.position, _unit.UnitRotate);
+            CreateEffect(_muzzleEffect[ran], trans.position, _unit.UnitRotate);
         }
 
     }
