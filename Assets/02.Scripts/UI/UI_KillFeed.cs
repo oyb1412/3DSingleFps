@@ -14,7 +14,8 @@ public class UI_KillFeed : MonoBehaviour
     [SerializeField] private float _showTime;
 
     private CanvasGroup _canvasGroup;
-    public void Init(Define.WeaponType type, string killerName, string victimName) {
+    public void Init(Define.WeaponType type, string killerName, string victimName, Transform parent) {
+        transform.parent = parent;
         _weaponImage.sprite = _weaponsprites[(int)type];
         _killerText.text = killerName;
         _victimText.text = victimName;

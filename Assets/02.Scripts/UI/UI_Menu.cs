@@ -21,7 +21,11 @@ public class UI_Menu : UI_Base
         SettingBG,
         ExitBG,
     }
-    private void Start() {
+
+
+    protected override void Init() {
+        base.Init();
+
         _player.MenuEvent += ActiveMenuView;
         _defaultColor = _resumeBtn.targetGraphic.color;
         _defaultScale = _resumeBtn.transform.localScale;

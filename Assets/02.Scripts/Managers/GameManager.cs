@@ -1,3 +1,4 @@
+using Photon.Pun;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,7 +12,8 @@ public class GameManager
     public Action FightStateEvent;
     public Action GameoverAction;
     public Action<int> EnemyNumberAction;
-    public float GameTime { get; private set; } = 60f;
+    //public float GameTime { get; private set; } = 60f;
+    public float GameTime { get; private set; } = 300f;
     public float RespawnTime { get; private set; } = 3f;
     public int EnemyNumber { get; private set; }
     public int EnemyLevel { get; private set; } = 1;
@@ -37,30 +39,34 @@ public class GameManager
     {
         GameTime = 60f;
         RespawnTime = 3f;
-        EnemyNumber = 4;
+        EnemyNumber = 0;
         EnemyLevel = 1;
         Volume = 50f;
         _doNextStateTime = 3f;
 
-        EnemyNumber = PlayerPrefs.GetInt("EnemyNumber");
-        EnemyLevel = PlayerPrefs.GetInt("EnemyLevel");
-        GameTime *= PlayerPrefs.GetInt("TimeLimit");
-        RespawnTime = PlayerPrefs.GetInt("RespawnTime");
-        KillLimit = PlayerPrefs.GetInt("KillLimit");
+        int test = PlayerPrefs.GetInt("EnemyNumber");
 
-        EnemyNumberAction.Invoke(EnemyNumber);
+        if(test != 0) {
+            EnemyNumber = PlayerPrefs.GetInt("EnemyNumber");
+            EnemyLevel = PlayerPrefs.GetInt("EnemyLevel");
+            GameTime *= PlayerPrefs.GetInt("TimeLimit");
+            RespawnTime = PlayerPrefs.GetInt("RespawnTime");
+            KillLimit = PlayerPrefs.GetInt("KillLimit");
+        }
+
+
+        EnemyNumberAction?.Invoke(EnemyNumber);
 
         PlayerPrefs.DeleteAll();
 
         KillFeedParent = GameObject.Find("KIllFeeds").transform;
-        var uiScoreBoard = GameObject.Find("UI_Scoreboard");
-        _scoreBoardTransform = Util.FindChild(uiScoreBoard, "Scoreboard", true).transform;
+        if (_scoreBoardTransform == null) {
+            var uiScoreBoard = GameObject.Find("UI_Scoreboard");
+            _scoreBoardTransform = Util.FindChild(uiScoreBoard, "Scoreboard", true).transform;
+        }
         _scoreBoardTransform.parent.gameObject.SetActive(true);
-        PlayerController player = GameObject.Find("Player").GetComponent<PlayerController>();
-        UI_Scoreboard_Child child = Managers.Resources.Instantiate("UI/ScoreboardChild", _scoreBoardTransform).GetComponent<UI_Scoreboard_Child>();
-        child.Init(player.name, player, Color.green);
-        _units.Add(player);
-        _boardChild.Add(child);
+        
+
 
         for (int i = 0; i< EnemyNumber; i++) {
             EnemyController go = Managers.Resources.Instantiate("Unit/Enemy", null).GetComponent<EnemyController>();
@@ -79,6 +85,33 @@ public class GameManager
         VolumeEvent -= SetVolume;
         VolumeEvent += SetVolume;
     }
+
+    public void SetPlayer(PlayerController networkPlayer = null) {
+        if (_scoreBoardTransform == null) {
+            var uiScoreBoard = GameObject.Find("UI_Scoreboard");
+            _scoreBoardTransform = Util.FindChild(uiScoreBoard, "Scoreboard", true).transform;
+        }
+
+        if (networkPlayer != null) {
+            UI_Scoreboard_Child child = PhotonNetwork.Instantiate("Prefabs/UI/ScoreboardChild", Vector2.zero, Quaternion.identity).GetComponent<UI_Scoreboard_Child>();
+            child.transform.parent = _scoreBoardTransform;
+            child.Init(networkPlayer.name, networkPlayer, Color.green);
+            _units.Add(networkPlayer);
+            _boardChild.Add(child);
+        } else {
+            PlayerController player = GameObject.Find("Player").GetComponent<PlayerController>();
+            UI_Scoreboard_Child child = Managers.Resources.Instantiate("UI/ScoreboardChild", _scoreBoardTransform).GetComponent<UI_Scoreboard_Child>();
+            child.Init(player.name, player, Color.green);
+            _units.Add(player);
+            _boardChild.Add(child);
+        }
+    }
+
+    [PunRPC]
+    public void SavePlayersInfo() {
+
+    }
+    
 
     public void Clear() {
         WaitStateEvent = null;

@@ -19,9 +19,11 @@ public class Define
         Wall,
         Item,
         Enemy,
+        OtherModel,
         Head = 15,
         Body,
         Unit,
+        OtherHand,
     }
 
     public enum OutlineColorType {
@@ -121,6 +123,8 @@ public class Define
         Gameover,
         KillSound,
         Button,
+        Hurt,
+        Medikit,
         Count,
     }
 

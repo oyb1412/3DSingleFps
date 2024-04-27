@@ -19,7 +19,7 @@ public class ShareSfxController : MonoBehaviour
     }
 
     public void ChangeVolume(float volume) {
-        _audioSource.volume = volume;
+        _audioSource.volume = volume * .5f;
     }
 
     protected void ShareSfxInit() {
@@ -28,7 +28,7 @@ public class ShareSfxController : MonoBehaviour
         _audioSource.clip = _audioClips[(int)Define.ShareSfx.Dominate];
         _audioSource.loop = false;
         _audioSource.playOnAwake = false;
-        _audioSource.volume = .5f;
+        _audioSource.volume = .5f * .5f;
         _audioSource.spatialBlend = 0.0f;
     }
     public void SetShareSfx(Define.ShareSfx type) {

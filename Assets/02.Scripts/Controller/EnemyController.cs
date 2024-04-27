@@ -170,7 +170,8 @@ public class EnemyController : UnitBase, ITakeDamage {
 
     protected override void IsHitEvent(int damage, Transform attackerTrans, Transform myTrans) {
         base.IsHitEvent(damage, attackerTrans, myTrans);
-        if(TargetUnit == null) {
+
+        if (TargetUnit == null) {
             TargetUnit = attackerTrans.GetComponentInParent<UnitBase>();
             transform.LookAt(TargetUnit.TargetPos);
             IsShotState = true;

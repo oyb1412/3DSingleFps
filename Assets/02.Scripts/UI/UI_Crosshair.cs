@@ -49,6 +49,18 @@ public class UI_Crosshair : UI_Base
 
         _player.BodyshotEvent += (() => StartCoroutine(CoBodyShotImageActive(_bodyShotImage)));
         _player.HeadshotEvent += (() => StartCoroutine(CoHeadShotImageActive(_headShotImage)));
+
+        _defalutLeft = _crossLeft[0].transform.position.x;
+        _defalutRight = _crossRight[0].transform.position.x;
+        _defalutUp = _crossUp[0].transform.position.y;
+        _defalutDown = _crossDown[0].transform.position.y;
+
+        _limitLeft = _defalutLeft - _limitValue;
+        _limitRight = _defalutRight + _limitValue;
+        _limitUp = _defalutUp + _limitValue;
+        _limitDown = _defalutDown - _limitValue;
+
+        _crosshairView.SetActive(true);
     }
 
     public void ChangeCrosshair(int value) {
@@ -63,20 +75,6 @@ public class UI_Crosshair : UI_Base
 
     private void SetCrossHair(bool trigger) {
         _crosshairs[(int)_currentCrosshair].SetActive(!trigger);
-    }
-
-    private void Start() {
-        _defalutLeft = _crossLeft[0].transform.position.x;
-        _defalutRight = _crossRight[0].transform.position.x;
-        _defalutUp = _crossUp[0].transform.position.y;
-        _defalutDown = _crossDown[0].transform.position.y;
-
-        _limitLeft = _defalutLeft - _limitValue;
-        _limitRight = _defalutRight + _limitValue;
-        _limitUp = _defalutUp + _limitValue;
-        _limitDown = _defalutDown - _limitValue;
-
-        _crosshairView.SetActive(true);
     }
 
     private void SetCross(float value) {

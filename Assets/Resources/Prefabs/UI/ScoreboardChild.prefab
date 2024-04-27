@@ -321,6 +321,7 @@ GameObject:
   - component: {fileID: 2984186394031410944}
   - component: {fileID: 2488074917049133375}
   - component: {fileID: 1635901088227969225}
+  - component: {fileID: 8450745262173428377}
   m_Layer: 5
   m_Name: ScoreboardChild
   m_TagString: Untagged
@@ -402,6 +403,28 @@ MonoBehaviour:
   _killText: {fileID: 776291958209701792}
   _deathText: {fileID: 5033227487065973870}
   _bgImage: {fileID: 7847069121874128299}
+--- !u!114 &8450745262173428377
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2157126279058817880}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 0
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1 &3156211483512120156
 GameObject:
   m_ObjectHideFlags: 0
@@ -889,7 +912,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: 3
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: e5ff70185b25d474fa100d719864e1e4, type: 2}
+  m_fontAsset: {fileID: 0}
   m_sharedMaterial: {fileID: -5670308365971799336, guid: e5ff70185b25d474fa100d719864e1e4, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}

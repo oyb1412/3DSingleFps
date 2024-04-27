@@ -11,13 +11,16 @@ public class UI_Base : MonoBehaviour {
     protected UnityEngine.Color _defaultColor;
     protected Vector3 _defaultScale;
     protected string _name;
-    private  void Awake() {
+
+    private void Start() {
         Init();
     }
 
-    protected virtual void Init() {
-        _player = GameObject.Find("Player").GetComponent<PlayerController>();
+    public void SetPlayer(PlayerController playerController) {
+        _player = playerController;
     }
+
+    protected virtual void Init() { }
 
     protected void ExitGame() {
         Time.timeScale = 1f;
