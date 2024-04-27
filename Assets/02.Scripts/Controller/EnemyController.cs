@@ -2,12 +2,12 @@ using DG.Tweening;
 using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
-using Photon.Pun;
 using UnityEngine.AI;
 using static Define;
 
 public class EnemyController : UnitBase, ITakeDamage {
     private NavMeshAgent _agent;
+
     [SerializeField] private float _searchRange;
     public int Level { get; private set; } = (int)EnemyLevel.Middle;
     public string Name { get; private set; }
@@ -18,45 +18,25 @@ public class EnemyController : UnitBase, ITakeDamage {
     [SerializeField] float _viewRange;
 
     public Enemy.WeaponController EnemyWeapon { get { return _currentWeapon as Enemy.WeaponController; } }
-
-    [PunRPC]
-    public void EnemyInit(string name, int actorNumber, int level) {
-        if (PV.OwnerActorNr != actorNumber)
-            return;
-
+    public void Create(Vector3 pos, string name, int level) {
+        transform.position = pos;
+        gameObject.name = name;
+        Name = name;
         Level = level;
-        this.name = $"{name} {actorNumber}";
-
-        var uiScoreBoard = UI_Scoreboard.Instance.gameObject;
-        Transform _scoreBoardTransform = Util.FindChild(uiScoreBoard, "Scoreboard", true).transform;
-
-        UI_Scoreboard_Child child = Managers.Resources.Instantiate("UI/ScoreboardChild", _scoreBoardTransform).GetComponent<UI_Scoreboard_Child>();
-
-        child.transform.SetParent(_scoreBoardTransform);
-        child.Init(name, this, Color.gray);
-        GameManager.Instance.UnitsList.Add(this);
-        GameManager.Instance.BoardChild.Add(child);
-
-        _scoreBoardTransform.parent.gameObject.SetActive(false);
     }
-
     protected override void Awake() {
         base.Awake();
         _collider = GetComponent<Collider>();
         _agent = GetComponent<NavMeshAgent>();
         _agent.speed = _moveSpeed;
         _agent.enabled = false;
-
-        PV.OwnerActorNr = PV.ViewID;
     }
 
     private void Start() {
         Invoke("StartMove", GameManager.Instance.WaitTime);
     }
-
     private void StartMove() {
         _agent.enabled = true;
-        PV.TransferOwnership(PhotonNetwork.MasterClient.ActorNumber);
         StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
     }
 
@@ -67,6 +47,8 @@ public class EnemyController : UnitBase, ITakeDamage {
         if (State == UnitState.Dead)
             return;
 
+        if (!_agent.enabled)
+            return;
 
         UnitRotate = transform.rotation;
 
@@ -106,14 +88,18 @@ public class EnemyController : UnitBase, ITakeDamage {
                 }
             }
         }
+
+        //if (IsShotState && TargetUnit && !TargetUnit.IsDead() && _state != UnitState.Reload) {
+        //    if (_currentWeapon.TryShot(this)) {
+        //        _agent.SetDestination(transform.position);
+        //        ChangeState(UnitState.Shot);
+        //    }
+        //}
     }
 
     private UnitBase SearchUnit() {
-
         var units = GameManager.Instance.UnitsList;
-        Debug.Log($"ÃÑ À¯´Ö ¼ö{units.Count}");
         foreach(var unit in units) {
-            if (unit == null || unit.IsDead()) continue;
             Vector3 dir = (unit.transform.position - transform.position).normalized;
             float product = Vector3.Dot(transform.forward, dir);
             float angle = Mathf.Cos(_viewRange * 0.5f * Mathf.Deg2Rad);
@@ -139,79 +125,77 @@ public class EnemyController : UnitBase, ITakeDamage {
     }
 
     public IEnumerator CoMove(Vector3 pos) {
-        if (_agent.enabled == false)
-            _agent.enabled = true;
+        _agent.SetDestination(pos);
+        BaseWeapon.Animator.ResetTrigger("Shot");
+        _state = UnitState.Move;
+        IsShotState = false;
+        ChangeState(UnitState.Move);
+        while (true) {
+            float dir = (new Vector3(pos.x, 0f, pos.z)
+                - new Vector3(transform.position.x, 0f, transform.position.z)).magnitude;
 
-            _agent.SetDestination(pos);
-            BaseWeapon.Animator.ResetTrigger("Shot");
-            _state = UnitState.Move;
-            IsShotState = false;
-            ChangeState(UnitState.Move);
-            while (true) {
-                float dir = (new Vector3(pos.x, 0f, pos.z)
-                    - new Vector3(transform.position.x, 0f, transform.position.z)).magnitude;
-
-                if (TargetUnit) {
-                    _agent.SetDestination(transform.position);
-                    transform.LookAt(TargetUnit.TargetPos);
-                    IsShotState = true;
-                    StopAllCoroutines();
-                    break;
-                }
-
-                if (IsDead()) {
-                    _agent.SetDestination(transform.position);
-                    ChangeState(UnitState.Dead);
-                    StopAllCoroutines();
-                    break;
-                }
-
-                if (CollideItem != null && !_isTraceItem) {
-                    if (!_isTraceItem) {
-                        _isTraceItem = true;
-                        StartCoroutine(CoMove(CollideItem.MyTransform.position));
-                        break;
-                    }
-                }
-
-                if (dir < 0.2f) {
-                    if (_isTraceItem && CollideItem != null) {
-                        CollideItem.Pickup(this);
-                        _isTraceItem = false;
-                    }
-                    StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
-                    break;
-                }
-                yield return null;
+            if (TargetUnit) {
+                _agent.SetDestination(transform.position);
+                transform.LookAt(TargetUnit.TargetPos);
+                IsShotState = true;
+                StopAllCoroutines();
+                break;
             }
-        
+
+            if(IsDead()) {
+                _agent.SetDestination(transform.position);
+                ChangeState(UnitState.Dead);
+                StopAllCoroutines();
+                break;
+            }
+
+            if(CollideItem != null && !_isTraceItem) {
+                if (!_isTraceItem) {
+                    _isTraceItem = true;
+                    StartCoroutine(CoMove(CollideItem.MyTransform.position));
+                    break;
+                }
+            }
+            if (dir < 0.2f) {
+                if(_isTraceItem && CollideItem != null) {
+                    CollideItem.Pickup(this);
+                    _isTraceItem = false;
+                }
+                StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
+                break;
+            }
+            yield return null;
+        }
     }
 
     protected override void IsHitEvent(int damage, Transform attackerTrans, Transform myTrans) {
+        base.IsHitEvent(damage, attackerTrans, myTrans);
+
         if (TargetUnit == null) {
-            TargetUnit = attackerTrans.GetComponent<UnitBase>();
+            TargetUnit = attackerTrans.GetComponentInParent<UnitBase>();
             transform.LookAt(TargetUnit.TargetPos);
             IsShotState = true;
         }
     }
 
     protected override void IsDeadEvent(Transform attackerTrans, bool headShot) {
-        if (attackerTrans.TryGetComponent<PlayerController>(out var player)) {
+        if (attackerTrans.parent.TryGetComponent<PlayerController>(out var player)) {
             ShareSfxController.instance.SetShareSfx(ShareSfx.KillSound);
             DirType dir = Util.DirectionCalculation(attackerTrans, transform);
             player.KillAndDeadEvent?.Invoke(dir, name, true, headShot);
         }
-        transform.LookAt(attackerTrans);
         base.IsDeadEvent(attackerTrans, headShot);
+         transform.LookAt(attackerTrans);
         TargetUnit = null;
-        
+        _bodyCollider.enabled = false;
+        _headCollider.enabled = false;
         _collider.enabled = false;
     }
 
-    
     public override void Init() {
         base.Init();
-
+        _bodyCollider.enabled = true;
+        _headCollider.enabled = true;
         _collider.enabled = true;
 
         StopAllCoroutines();
@@ -279,23 +263,5 @@ public class EnemyController : UnitBase, ITakeDamage {
         _state = state;
     }
 
-    protected void SetWeaponTriggerAnimation(string type) {
-        PV.RPC("RPC_WeaponSetTrigger", RpcTarget.AllBuffered, type);
-    }
-
-    protected void SetModelTriggerAnimation(string type) {
-        PV.RPC("RPC_ModelSetTrigger", RpcTarget.AllBuffered, type);
-    }
-
-    [PunRPC]
-    public void RPC_WeaponSetTrigger(string type) {
-        
-        BaseWeapon.Animator.SetTrigger(type);
-    }
-
-    [PunRPC]
-    public void RPC_ModelSetTrigger(string type) {
-        
-        Model.Animator.SetTrigger(type);
-    }
+    
 }

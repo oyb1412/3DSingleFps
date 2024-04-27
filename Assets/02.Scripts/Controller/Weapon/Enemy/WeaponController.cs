@@ -55,8 +55,14 @@ namespace Enemy {
                 chance = _currentTargetingChance * .5f;
             }
 
-            if (ran > chance)
+
+            if(ran <= chance) {
+                Debug.Log($"적의 공격 성공");
+            }
+            if (ran > chance) {
+                Debug.Log($"적의 공격 실패");
                 return;
+            }
 
             DefaultShot(isHit, hit, Enemy);
         }

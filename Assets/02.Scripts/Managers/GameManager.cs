@@ -51,31 +51,14 @@ public class GameManager : MonoBehaviour
     }
 
     private void Start() {
-
-    }
-
-    public void SetEnemy() {
-        if (EnemyNumber <= 0) {
-            Debug.Log("EnemyNumber가 0 이하입니다");
-            return;
-        }
-
-        for (int i = 0; i < EnemyNumber; i++) {
-            if (PhotonNetwork.IsMasterClient) {
-                Vector3 ranPos = Managers.RespawnManager.GetRespawnPosition();
-
-                EnemyController go = PhotonNetwork.Instantiate("Prefabs/Unit/Enemy", ranPos, Quaternion.identity).GetComponent<EnemyController>();
-                go.PV.RPC("EnemyInit", RpcTarget.AllBuffered, "Enemy", go.PV.OwnerActorNr, EnemyLevel);
-            }
-
-        }
     }
 
     public void Init()
     {
+
         GameTime = 600f;
         RespawnTime = 3f;
-        EnemyNumber = 2;
+        EnemyNumber = 0;
         EnemyLevel = 1;
         Volume = 50f;
         _doNextStateTime = 3f;
@@ -90,6 +73,7 @@ public class GameManager : MonoBehaviour
             KillLimit = PlayerPrefs.GetInt("KillLimit");
         }
 
+
         EnemyNumberAction?.Invoke(EnemyNumber);
 
         PlayerPrefs.DeleteAll();
@@ -100,16 +84,18 @@ public class GameManager : MonoBehaviour
             _scoreBoardTransform = Util.FindChild(uiScoreBoard, "Scoreboard", true).transform;
         }
         _scoreBoardTransform.parent.gameObject.SetActive(true);
+        
 
-        //for (int i = 0; i< EnemyNumber; i++) {
-        //    EnemyController go = Managers.Resources.Instantiate("Unit/Enemy", null).GetComponent<EnemyController>();
-        //    Vector3 ranPos = Managers.RespawnManager.GetRespawnPosition();
-        //    go.Create(ranPos, ENEMY_NAME[i], EnemyLevel);
-        //    UI_Scoreboard_Child child2 = Managers.Resources.Instantiate("UI/ScoreboardChild", _scoreBoardTransform).GetComponent<UI_Scoreboard_Child>();
-        //    child2.Init(go.name, go, Color.gray);
-        //    _boardChild.Add(child2);
-        //    _units.Add(go);
-        //}
+
+        for (int i = 0; i< EnemyNumber; i++) {
+            EnemyController go = Managers.Resources.Instantiate("Unit/Enemy", null).GetComponent<EnemyController>();
+            Vector3 ranPos = Managers.RespawnManager.GetRespawnPosition();
+            go.Create(ranPos, ENEMY_NAME[i], EnemyLevel);
+            UI_Scoreboard_Child child2 = Managers.Resources.Instantiate("UI/ScoreboardChild", _scoreBoardTransform).GetComponent<UI_Scoreboard_Child>();
+            child2.Init(go.name, go, Color.gray);
+            _boardChild.Add(child2);
+            _units.Add(go);
+        }
 
         _scoreBoardTransform.parent.gameObject.SetActive(false);
         Cursor.lockState = CursorLockMode.Locked;
@@ -134,6 +120,7 @@ public class GameManager : MonoBehaviour
             _units.Add(player);
             _boardChild.Add(child);
         }
+
         Init();
     }
 
@@ -209,7 +196,7 @@ public class GameManager : MonoBehaviour
                 break;
             case GameState.Menu:
             case GameState.Setting:
-                //Time.timeScale = 0f;
+                Time.timeScale = 0f;
                 break;
         }
         State = state;

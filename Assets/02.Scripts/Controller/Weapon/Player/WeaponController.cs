@@ -52,7 +52,6 @@ namespace Player {
 
             _aimFirePos = Util.FindChild(gameObject, "AimFirePos", false).transform;
         }
-
         protected override void Awake() {
             base.Awake();
         }
@@ -77,7 +76,6 @@ namespace Player {
             bool isHit = Physics.Raycast(pos, angle, out var hit, float.MaxValue, _layerMask);
             DefaultShot(isHit, hit, Player);
         }
-
         public override void Shot() {
             if (!PV.IsMine)
                 return;

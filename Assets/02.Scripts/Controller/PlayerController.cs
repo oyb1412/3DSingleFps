@@ -10,14 +10,10 @@ using static Define;
 public class PlayerController : UnitBase, ITakeDamage
 {
     #region const
-    private readonly Color[] PLAYER_COLOR = new Color[] { Color.red, Color.red, Color.blue, Color.white,
-    Color.cyan, Color.magenta, Color.yellow};
     private const float LIMIT_ROTATE_UP = -40f;
     private const float LIMIT_ROTATE_DOWN = 20f;
     private const float CONTINUE_KILL_TIME = 3f;
     private const float INVINCIBILITY_TIME = 1f;
-    public const int DOUBLE_KILL = 2;
-    public const int TRIPLE_KILL = 3;
     #endregion
 
     #region private variable
@@ -57,7 +53,8 @@ public class PlayerController : UnitBase, ITakeDamage
     public Action RespawnEvent;
     public Action BodyshotEvent;
     public Action HeadshotEvent;
-    public Action<int> MutilKillEvent;
+    public Action DoubleKillEvent;
+    public Action TripleKillEvent;
     public Action<bool> ScoreboardEvent;
     public Action MenuEvent;
     public Action SettingEvent;
@@ -80,18 +77,21 @@ public class PlayerController : UnitBase, ITakeDamage
 
     [PunRPC]
     public void PlayerInit(string name, int actorNumber) {
+        Debug.Log($"{actorNumber}유저 init 시도");
+
         if (PV.OwnerActorNr != actorNumber)
             return;
 
+        Debug.Log($"{actorNumber}유저 init 성공");
 
-        this.name = $"{name} {actorNumber}";
+        this.name = name;
 
         var uiScoreBoard = UI_Scoreboard.Instance.gameObject;
         Transform _scoreBoardTransform = Util.FindChild(uiScoreBoard, "Scoreboard", true).transform;
 
         UI_Scoreboard_Child child = Managers.Resources.Instantiate("UI/ScoreboardChild", _scoreBoardTransform).GetComponent<UI_Scoreboard_Child>();
 
-        child.Init(name, this, PLAYER_COLOR[actorNumber]);
+        child.Init(name, this, Color.green);
         GameManager.Instance.UnitsList.Add(this);
         GameManager.Instance.BoardChild.Add(child);
 
@@ -170,6 +170,7 @@ public class PlayerController : UnitBase, ITakeDamage
     public override void ChangeWeapon(WeaponType type) {
         if (!PV.IsMine)
             return;
+
 
         base.ChangeWeapon(type);
         CrossValueEvent?.Invoke(CurrentWeapon.CrossValue);
@@ -405,6 +406,10 @@ public class PlayerController : UnitBase, ITakeDamage
 
     #region OtherEvent
     protected override void IsHitEvent(int damage, Transform attackerTrans, Transform myTrans) {
+ 
+
+        base.IsHitEvent(damage, attackerTrans, myTrans);
+        Debug.Log($"{PV.OwnerActorNr}플레이어가 공격받음. 남은 체력 {_currentHp}");
         HpEvent?.Invoke(_currentHp, _maxHp, damage);
         HurtEvent?.Invoke(attackerTrans, myTrans);
         ShareSfxController.instance.SetShareSfx(ShareSfx.Hurt);
@@ -502,6 +507,9 @@ public class PlayerController : UnitBase, ITakeDamage
             return;
 
         CC.enabled = true;
+
+        _bodyCollider.enabled = true;
+        _headCollider.enabled = true;
     }
 
     public override void ChangeState(UnitState state) {

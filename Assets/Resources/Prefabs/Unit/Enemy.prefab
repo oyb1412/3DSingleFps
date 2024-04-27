@@ -964,7 +964,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &5211238053254826175
 Transform:
   m_ObjectHideFlags: 0
@@ -27926,7 +27926,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _isShot: 0
-  _defaultTargetingChance: 70
+  _defaultTargetingChance: 60
   _shotAngle: 2
 --- !u!114 &3704366138055608425
 MonoBehaviour:
@@ -27970,19 +27970,19 @@ MonoBehaviour:
     SynchronizeType: 1
     Name: Move
   - Type: 9
-    SynchronizeType: 0
+    SynchronizeType: 1
     Name: Shot
   - Type: 9
-    SynchronizeType: 0
+    SynchronizeType: 1
     Name: Reload
   - Type: 9
-    SynchronizeType: 0
+    SynchronizeType: 1
     Name: Get
   - Type: 9
-    SynchronizeType: 0
+    SynchronizeType: 1
     Name: Dead
   - Type: 9
-    SynchronizeType: 0
+    SynchronizeType: 1
     Name: Reset
   - Type: 4
     SynchronizeType: 1
@@ -28304,25 +28304,25 @@ MonoBehaviour:
   ShowParameterInspector: 1
   m_SynchronizeParameters:
   - Type: 9
-    SynchronizeType: 0
+    SynchronizeType: 1
     Name: Reload
   - Type: 9
-    SynchronizeType: 0
+    SynchronizeType: 1
     Name: ShotPistol
   - Type: 9
-    SynchronizeType: 0
+    SynchronizeType: 1
     Name: Dead
   - Type: 9
-    SynchronizeType: 0
+    SynchronizeType: 1
     Name: ShotRifle
   - Type: 9
-    SynchronizeType: 0
+    SynchronizeType: 1
     Name: ShotShotgun
   - Type: 9
-    SynchronizeType: 0
+    SynchronizeType: 1
     Name: Respawn
   - Type: 9
-    SynchronizeType: 0
+    SynchronizeType: 1
     Name: Get
   - Type: 4
     SynchronizeType: 1
@@ -28491,6 +28491,7 @@ GameObject:
   - component: {fileID: 7407345046802638548}
   - component: {fileID: 7506919955571285604}
   - component: {fileID: -2643244888164847570}
+  - component: {fileID: 493379594293009965}
   m_Layer: 17
   m_Name: Enemy
   m_TagString: Unit
@@ -28607,7 +28608,7 @@ Rigidbody:
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 0
-  m_IsKinematic: 1
+  m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 126
   m_CollisionDetection: 0
@@ -28664,6 +28665,7 @@ MonoBehaviour:
   observableSearch: 2
   ObservedComponents:
   - {fileID: -2643244888164847570}
+  - {fileID: 493379594293009965}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
@@ -28683,6 +28685,22 @@ MonoBehaviour:
   m_SynchronizeRotation: 1
   m_SynchronizeScale: 0
   m_UseLocal: 1
+--- !u!114 &493379594293009965
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6367790376593157254}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64179f3720bbfe947b7724caa67b7c1d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SynchronizeVelocity: 1
+  m_SynchronizeAngularVelocity: 0
+  m_TeleportEnabled: 0
+  m_TeleportIfDistanceGreaterThan: 3
 --- !u!1 &6392318740803315517
 GameObject:
   m_ObjectHideFlags: 0
@@ -33723,19 +33741,19 @@ MonoBehaviour:
     SynchronizeType: 1
     Name: Move
   - Type: 9
-    SynchronizeType: 0
+    SynchronizeType: 1
     Name: Shot
   - Type: 9
-    SynchronizeType: 0
+    SynchronizeType: 1
     Name: Reload
   - Type: 9
-    SynchronizeType: 0
+    SynchronizeType: 1
     Name: Get
   - Type: 9
-    SynchronizeType: 0
+    SynchronizeType: 1
     Name: Dead
   - Type: 9
-    SynchronizeType: 0
+    SynchronizeType: 1
     Name: Reset
   - Type: 4
     SynchronizeType: 1
@@ -40378,7 +40396,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _isShot: 0
-  _defaultTargetingChance: 80
+  _defaultTargetingChance: 60
 --- !u!114 &9028498862574314102
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -40421,19 +40439,19 @@ MonoBehaviour:
     SynchronizeType: 1
     Name: Move
   - Type: 9
-    SynchronizeType: 0
+    SynchronizeType: 1
     Name: Shot
   - Type: 9
-    SynchronizeType: 0
+    SynchronizeType: 1
     Name: Reload
   - Type: 9
-    SynchronizeType: 0
+    SynchronizeType: 1
     Name: Get
   - Type: 9
-    SynchronizeType: 0
+    SynchronizeType: 1
     Name: Dead
   - Type: 9
-    SynchronizeType: 0
+    SynchronizeType: 1
     Name: Reset
   - Type: 4
     SynchronizeType: 1

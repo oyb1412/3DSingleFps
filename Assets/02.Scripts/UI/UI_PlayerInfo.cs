@@ -63,8 +63,21 @@ public class UI_PlayerInfo : UI_Base
                 text = $"killed by that {name} ({dir.ToString()})";
             }
         }
+        
+        StartCoroutine(CoKillInfomation(text));
+    }
 
-        StartCoroutine(Co_TextGradualInvisible(_killInfomationText, text, .3f ,1f, 1f, 1f));
+    private IEnumerator CoKillInfomation(string text) {
+        float alpha = 1f;
+        _killInfomationText.gameObject.SetActive(true);
+        _killInfomationText.text = text;
+        while (alpha > 0f)
+        {
+            _killInfomationText.color = new Color(1f, 1f, 1f, alpha);
+            alpha -= Time.deltaTime * .3f;
+            yield return null;
+        }
+        _killInfomationText.gameObject.SetActive(false);
     }
 
     private void ChangeWeaponEvent(Player.WeaponController weapon) {
@@ -82,7 +95,8 @@ public class UI_PlayerInfo : UI_Base
     private void HpEvent(int currentHp, int maxHp, int damage = 0) {
         _currentHpText.text = currentHp.ToString();
         _currentHpBarImage.fillAmount = (float)currentHp / maxHp;
-        StartCoroutine(CoHealTextMove(damage));
+        int damageText = Mathf.Min(damage, maxHp - currentHp);
+        StartCoroutine(CoHealTextMove(damageText));
     }
 
     private IEnumerator CoHealTextMove(int damage) {
@@ -90,12 +104,6 @@ public class UI_PlayerInfo : UI_Base
         _healText.gameObject.SetActive(true);
         _healText.transform.position = _healTextDefaultPos;
         _healText.text = $"+{damage:D2} HP";
-
-        if (damage > 0)
-            _healText.color = Color.green;
-        else
-            _healText.color = Color.red;
-
         while (time > 0f) {
             time -= Time.deltaTime * 2f;
             _healText.transform.position += (Vector3.up * (1 - time));
