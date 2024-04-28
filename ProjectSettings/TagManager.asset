@@ -11,6 +11,9 @@ TagManager:
   - LevelPart
   - Dummie
   - Unit
+  - SoundUnit
+  - Obstacle
+  - Wall
   layers:
   - Default
   - TransparentFX

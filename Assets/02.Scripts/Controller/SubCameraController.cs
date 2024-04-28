@@ -1,37 +1,24 @@
-using Photon.Pun;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using static Define;
 
 public class SubCameraController : MonoBehaviour
 {
-    [SerializeField]private Vector3 _defaultPos;
-    [SerializeField]private float _cameraSpeed;
+    private Vector3 _defaultPos;
     [SerializeField] private Transform _playerTrans;
-    public PhotonView PV { get; private set; }
 
-    private void Start() {
+    private void Awake() {
+        _defaultPos = SUBCAMERA_DEFAULT_POSITION; 
     }
-
     private void OnEnable() {
-        if (!PV.IsMine)
-            return;
-
         transform.position = _defaultPos + _playerTrans.position;
     }
 
     void Update()
     {
-        if (!PV.IsMine)
-            return;
-
         if (!Managers.GameManager.InGame())
             return;
-        transform.position += Vector3.up * _cameraSpeed * Time.deltaTime;
+
+        transform.position += Vector3.up * SUBCAMERA_MOVESPEED * Time.deltaTime;
     }
 
-    public void SetCameraView(int number) {
-        PV = GetComponent<PhotonView>();
-        PV.OwnerActorNr = number;
-    }
 }

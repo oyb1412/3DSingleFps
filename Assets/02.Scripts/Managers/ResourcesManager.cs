@@ -58,7 +58,6 @@ public class ResourcesManager
     {
         if (go == null)
         {
-            Debug.Log($"Failed Search GameObject : {go.name}");
             return;
         }
 

@@ -1,12 +1,10 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using static Define;
 
 public class UI_PlayerHurt : UI_Base
 {
-    private readonly float[] HURTIMAGE_ROTATE = new float[] { 90f, 180f, 270f, 0f };
     [SerializeField] private GameObject HitDirections;
     [SerializeField] private GameObject DeathEffect;
     [SerializeField] private Image HurtEffect;

@@ -1,7 +1,6 @@
-using Photon.Realtime;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using static Define;
 
 public class GameScene : BaseScene
 {
@@ -11,15 +10,30 @@ public class GameScene : BaseScene
 
     protected override void Start() {
         base.Start();
-        PlayerController player = GameObject.Find("Player").GetComponent<PlayerController>();
-        GameObject ui = Managers.Resources.Instantiate("UI/@UI", null);
+
+        StartCoroutine(Co_GameStart());
+       
+    }
+
+    private IEnumerator Co_GameStart() {
+        PlayerController player = GameObject.Find(NAME_PLAYER).GetComponent<PlayerController>();
+        
+        yield return new WaitUntil(() => player != null);
+
+        GameObject ui = Managers.Resources.Instantiate(UI_PATH, null);
+
+        int count = 0;
+
         foreach (Transform t in ui.transform) {
             t.GetComponent<UI_Base>().SetPlayer(player);
+            count++;
         }
 
+        yield return new WaitUntil(() => count >= ui.transform.childCount);
+
+        Managers.GameManager.SetPlayer();
         Managers.Scene.SetScene();
         Managers.Instance.IngameInit();
-        Managers.GameManager.SetPlayer();
 
         BgmController.instance.SetBgm(Define.Bgm.Ingame, true);
     }

@@ -1,31 +1,24 @@
 using UnityEngine;
+using static Define;
 
 namespace Player {
     public class RifleController : WeaponController {
+        private Base.RifleController _rifle = new Base.RifleController();
         protected override void Awake() {
             base.Awake();
-
-            WeaponIcon = (Sprite)Managers.Resources.Load<Sprite>("Texture/RifleIcon");
-            CreateObject = (GameObject)Managers.Resources.Load<GameObject>("Prefabs/Item/Rifle");
-            Name = "Rifle";
+            _rifle.SetRifle(ref _damage, ref _weaponType, ref _name, ref _shotDelay, ref _weaponIcon, ref _createObject);
+            CameraView = RIFLE_CAMERAVIEW;
         }
 
         protected override void Start() {
             base.Start();
-
-            VerticalBoundValue = 1.5f;
-            HorizontalBoundValue = .5f;
-            _shotDelay = 0.1f;
-            CrossValue = 100f;
-            Damage = 27;
-            Type = Define.WeaponType.Rifle;
+            VerticalBoundValue = RIFLE_VECTICALBOUND_VALUE;
+            HorizontalBoundValue = RIFLE_HORIZONTALBOUND_VALUE;
+            CrossValue = RIFLE_CROSSHAIR_VALUE;
         }
 
         protected override void Enable() {
-
-            CurrentBullet = 30;
-            RemainBullet = 30;
-            MaxBullet = 180;
+            _rifle.SetEnable(ref _currentBullet, ref _remainBullet, ref _maxBullet);
         }
         public override void Shot() {
             base.Shot();

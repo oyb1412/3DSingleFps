@@ -1,14 +1,13 @@
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using static Define;
 
 public class UI_Fade : MonoBehaviour {
     public static UI_Fade Instance;
-    private const float FADE_TIME = 1f;
     private Image _fadeImage;
 
     private void Awake() {
-
         if(Instance == null) {
             Instance = this;
             DontDestroyOnLoad(gameObject);
@@ -21,9 +20,6 @@ public class UI_Fade : MonoBehaviour {
 
     }
 
-    /// <summary>
-    /// trigger판정에 맞춰 페이드 실행
-    /// </summary>
     public Tween SetFade(bool trigger) {
         if (trigger) {
             return _fadeImage.DOFade(1f, FADE_TIME);

@@ -6,9 +6,8 @@ namespace Enemy {
     public abstract class WeaponController : Base.WeaponController {
 
         public EnemyController Enemy { get { return _unit as EnemyController; } }
-        [SerializeField] private float _defaultTargetingChance;
         private float _currentTargetingChance;
-        public float RandomBulletPos { get; private set; }
+
         protected override void Awake() {
             base.Awake();
         }
@@ -18,13 +17,13 @@ namespace Enemy {
 
             switch (Enemy.Level) {
                 case (int)EnemyLevel.Low:
-                    _currentTargetingChance = _defaultTargetingChance * 0.7f;
+                    _currentTargetingChance = ENEMY_LOW_ATTACK_CHANCE;
                     break;
                 case (int)EnemyLevel.Middle:
-                    _currentTargetingChance = _defaultTargetingChance;
+                    _currentTargetingChance = ENEMY_DEFAULT_ATTACK_CHANCE;
                     break;
                 case (int)EnemyLevel.High:
-                    _currentTargetingChance = _defaultTargetingChance * 1.3f;
+                    _currentTargetingChance = ENEMY_HIGH_ATTACK_CHANCE;
                     break;
             }
         }
@@ -37,9 +36,10 @@ namespace Enemy {
             bool isHit;
             RaycastHit hit;
 
-            Debug.DrawRay(_firePoint.position, angle * float.MaxValue, Color.green, 1f);
             isHit = Physics.Raycast(_firePoint.position, angle, out hit, float.MaxValue, _layerMask);
-            
+
+            //BulletController bullet = Managers.Resources.Instantiate(_bullet, null).GetComponent<BulletController>(); 
+            //bullet.Init(transform.position, angle, Enemy.gameObject);
 
             float dir = Mathf.Abs((Enemy.transform.position - Enemy.TargetUnit.transform.position).magnitude);
 
@@ -47,22 +47,16 @@ namespace Enemy {
 
             float chance = _currentTargetingChance;
 
-            if(dir <= 5f) {
-                chance = _currentTargetingChance * .9f;
-            } else if (dir > 5f &&  dir < 10f) {
-                chance = _currentTargetingChance * .7f;
-            } else if(dir >= 10f) {
-                chance = _currentTargetingChance * .5f;
+            if(dir <= ENEMY_ATTACK_CHANCE_MINUS_RANGE) {
+                chance = _currentTargetingChance - ENEMY_ATTACK_CHANCE_MINUS;
+            } else if (dir > ENEMY_ATTACK_CHANCE_MINUS_RANGE &&  dir < ENEMY_ATTACK_CHANCE_MINUS_RANGE * 2) {
+                chance = _currentTargetingChance - ENEMY_ATTACK_CHANCE_MINUS * 2f;
+            } else if(dir >= ENEMY_ATTACK_CHANCE_MINUS_RANGE * 2) {
+                chance = _currentTargetingChance - ENEMY_ATTACK_CHANCE_MINUS * 3f;
             }
-
-
-            if(ran <= chance) {
-                Debug.Log($"적의 공격 성공");
-            }
-            if (ran > chance) {
-                Debug.Log($"적의 공격 실패");
+           
+            if (ran > chance)
                 return;
-            }
 
             DefaultShot(isHit, hit, Enemy);
         }
@@ -71,14 +65,14 @@ namespace Enemy {
             if (!TryShot(Enemy))
                 return;
 
-            if (_animator.GetCurrentAnimatorStateInfo(0).IsName("Dead"))
+            if (Animator.GetCurrentAnimatorStateInfo(0).IsName(ANIMATOR_PARAMETER_DEAD))
                 return;
 
             StartCoroutine(CoRotate());
             base.Shot();
 
-            var ran = Random.Range(0, 5);
-            CreateEffect(_muzzleEffect[ran], _firePos.position, _unit.UnitRotate);
+            var ran = Random.Range(0, _muzzleEffect.Length);
+            CreateEffect(_muzzleEffect[ran], _firePos.position, _unit.transform.rotation);
         }
 
         private IEnumerator CoRotate() {
@@ -87,8 +81,8 @@ namespace Enemy {
                 if(Enemy.TargetUnit == null) {
                     break;
                 }
-                Quaternion targetQ = Quaternion.LookRotation(Enemy.TargetUnit.TargetPos.position - Enemy.transform.position);
-                Enemy.transform.rotation = Quaternion.Slerp(Enemy.transform.rotation, targetQ, 20f * Time.deltaTime);
+                Quaternion targetQ = Quaternion.LookRotation(Enemy.TargetUnit.transform.position - Enemy.transform.position);
+                Enemy.transform.rotation = Quaternion.Slerp(Enemy.transform.rotation, targetQ, ENEMY_ROTATE_SPEED * Time.deltaTime);
                 yield return null;
             }
         }

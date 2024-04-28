@@ -1,10 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using static Define;
+
 
 public class Item_RifleController : ItemController {
     public override void Pickup(UnitBase unit) {
-        unit.ChangeWeapon(Define.WeaponType.Rifle);
+        unit.ChangeWeapon(WeaponType.Rifle);
         base.Pickup(unit);
     }
 }

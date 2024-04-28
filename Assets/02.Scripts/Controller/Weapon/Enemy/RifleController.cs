@@ -1,22 +1,16 @@
 using UnityEngine;
+using static Define;
 
 namespace Enemy {
     public class RifleController : WeaponController {
+        private Base.RifleController _rifle = new Base.RifleController();
         protected override void Awake() {
             base.Awake();
-            Damage = 20;
-            Name = "Rifle";
-            _shotDelay = 0.1f;
-            Type = Define.WeaponType.Rifle;
-
-            WeaponIcon = (Sprite)Managers.Resources.Load<Sprite>("Texture/RifleIcon");
-            CreateObject = (GameObject)Managers.Resources.Load<GameObject>("Prefabs/Item/Rifle");
+            _rifle.SetRifle(ref _damage, ref _weaponType, ref _name, ref _shotDelay, ref _weaponIcon, ref _createObject);
         }
 
         protected override void Enable() {
-            CurrentBullet = 30;
-            RemainBullet = 30;
-            MaxBullet = 180;
+            _rifle.SetEnable(ref _currentBullet, ref _remainBullet, ref _maxBullet);
         }
         public override void Shot() {
             base.Shot();

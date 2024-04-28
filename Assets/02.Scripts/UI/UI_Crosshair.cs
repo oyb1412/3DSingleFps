@@ -22,9 +22,6 @@ public class UI_Crosshair : UI_Base
     private float _limitUp;
     private float _limitDown;
 
-    private float _limitValue = 100f;
-
-    private float _crossTime = 0.1f;
     private float _crossValue;
 
     [SerializeField] private Image _bodyShotImage;
@@ -55,10 +52,10 @@ public class UI_Crosshair : UI_Base
         _defalutUp = _crossUp[0].transform.position.y;
         _defalutDown = _crossDown[0].transform.position.y;
 
-        _limitLeft = _defalutLeft - _limitValue;
-        _limitRight = _defalutRight + _limitValue;
-        _limitUp = _defalutUp + _limitValue;
-        _limitDown = _defalutDown - _limitValue;
+        _limitLeft = _defalutLeft - CROSSHAIR_LIMIT_VALUE;
+        _limitRight = _defalutRight + CROSSHAIR_LIMIT_VALUE;
+        _limitUp = _defalutUp + CROSSHAIR_LIMIT_VALUE;
+        _limitDown = _defalutDown - CROSSHAIR_LIMIT_VALUE;
 
         _crosshairView.SetActive(true);
     }
@@ -131,7 +128,7 @@ public class UI_Crosshair : UI_Base
 
         int index = (int)_currentCrosshair;
 
-        while (overTime < _crossTime) {
+        while (overTime < CROSSHAIR_TIME) {
             overTime += Time.deltaTime;
             if (_crossLeft[index].transform.position.x > _limitLeft)
                 _crossLeft[index].transform.position = Vector3.Lerp(_crossLeft[index].transform.position, _crossLeft[index].transform.position + Vector3.left, Time.deltaTime * _crossValue);

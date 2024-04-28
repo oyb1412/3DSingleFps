@@ -1,24 +1,29 @@
-using Photon.Pun;
-using UnityEditor;
 using UnityEngine;
 using static Define;
 
 namespace Base {
-    public abstract class WeaponController : MonoBehaviourPunCallbacks, IWeapon {
-        public WeaponType Type { get; protected set; }
-        public int Damage { get; protected set; }
-        public GameObject CreateObject { get; protected set; }
-        public int CurrentBullet { get; protected set; }
-        public int RemainBullet { get; protected set; }
-        public int MaxBullet { get; protected set; }
-        public string Name { get; protected set; }
-        public Sprite WeaponIcon { get; protected set; }
-        public float Delay { get { return _delay; }set { _delay = value; } }
+    public abstract class WeaponController : MonoBehaviour, IWeapon {
+        public WeaponType Type => _weaponType;
+        public int Damage => _damage;
+        public GameObject CreateObject => _createObject;
+        public int CurrentBullet => _currentBullet;
+        public int RemainBullet => _remainBullet;
+        public int MaxBullet => _maxBullet;
+        public string Name => _name;
+        public Sprite WeaponIcon => _weaponIcon;
+        public float Delay { get; set; }
 
-        protected float _delay;
+        protected int _currentBullet;
+        protected int _remainBullet;
+        protected int _maxBullet;
         protected float _shotDelay;
+        protected int _damage;
+        protected WeaponType _weaponType;
+        protected string _name;
+        protected Sprite _weaponIcon;
+        protected GameObject _createObject;
 
-        [SerializeField]protected bool _isShot = true;
+        protected bool _isShot = true;
 
         protected Transform _firePos;
         protected int _layerMask;
@@ -26,54 +31,50 @@ namespace Base {
         protected UnitBase _unit;
         protected ParticleSystem _ejectEffect;
 
-        [SerializeField] protected GameObject[] _muzzleEffect;
-        [SerializeField] protected GameObject _bloodEffect;
-        [SerializeField] protected GameObject _impactEffect;
+        protected GameObject[] _muzzleEffect;
+        protected GameObject _bloodEffect;
+        protected GameObject _impactEffect;
 
         private UnitSfxController _sfx;
-
-        protected Animator _animator;
-        public Animator Animator => _animator;
+        protected GameObject _bullet;
+        public Animator Animator { get; private set; }
         protected abstract void Enable();
-        public PhotonView PV { get; private set; }
 
         public GameObject myObject { get { return gameObject; } }
 
         protected virtual void Awake() {
-            PV = GetComponent<PhotonView>();
-            if (!PV.IsMine) {
-                Util.SetLayer(gameObject, LayerType.OtherHand);
-                return;
-            }
+            Animator = GetComponent<Animator>();
 
-            _animator = GetComponent<Animator>();
+            _bullet = (GameObject)Managers.Resources.Load<GameObject>(BULLET_OBJECT_PATH);
+            _impactEffect = (GameObject)Managers.Resources.Load<GameObject>(IMPACT_EFFECT_PATH);
+            _bloodEffect = (GameObject)Managers.Resources.Load<GameObject>(BLOOD_EFFECT_PATH);
+            _muzzleEffect = new GameObject[5];
+
+            for(int i = 0; i< _muzzleEffect.Length; i++) {
+                _muzzleEffect[i] = (GameObject)Managers.Resources.Load<GameObject>(MUZZEL_EFFECT_PATH[i]);
+            }
         }
 
         protected virtual void Start() {
-
-            
-
             _unit = GetComponentInParent<UnitBase>();
-            PV.OwnerActorNr = _unit.PV.OwnerActorNr;
             _layerMask = (1 << (int)LayerType.Head) | (1 << (int)LayerType.Body) | (1 << (int)LayerType.Obstacle) | (1 << (int)LayerType.Ground) | (1 << (int)LayerType.Wall);
-            _firePos = Util.FindChild(gameObject, "FirePos", true).transform;
-            _ejectEffect = Util.FindChild(_firePos.gameObject, "Eject", false).GetComponent<ParticleSystem>();
+            _firePos = Util.FindChild(gameObject, NAME_FIREPOS, true).transform;
+            _ejectEffect = Util.FindChild(_firePos.gameObject, NAME_EJECT, false).GetComponent<ParticleSystem>();
             _sfx = _unit.GetComponent<UnitSfxController>();
-
         }
 
         private void Update() {
-            if (!PV.IsMine)
-                return;
-
             if (!Managers.GameManager.InGame())
                 return;
 
+            if (_unit.IsDead())
+                return;
+
             if ( _isShot ) {
-                _delay += Time.deltaTime;
-                if(_delay >= _shotDelay) {
+                Delay += Time.deltaTime;
+                if(Delay >= _shotDelay) {
                     _isShot = false;
-                    _delay = 0;
+                    Delay = 0;
                 }
             }
         }
@@ -89,20 +90,17 @@ namespace Base {
         }
 
         public virtual void Reload() {
-            if (!PV.IsMine)
-                return;
-
             if (MaxBullet < RemainBullet) {
-                CurrentBullet = MaxBullet;
-                MaxBullet = 0;
+                _currentBullet = MaxBullet;
+                _maxBullet = 0;
             }
             else if (CurrentBullet < RemainBullet) {
-                MaxBullet -= (RemainBullet - CurrentBullet);
-                CurrentBullet = RemainBullet;
+                _maxBullet -= (RemainBullet - CurrentBullet);
+                _currentBullet = RemainBullet;
             }
             else if (MaxBullet >= RemainBullet) {
-                CurrentBullet = RemainBullet;
-                MaxBullet -= RemainBullet;
+                _currentBullet = RemainBullet;
+                _maxBullet -= RemainBullet;
             }
 
             _unit.ChangeState(UnitState.Idle);
@@ -110,73 +108,62 @@ namespace Base {
 
         protected virtual void DefaultShot(Vector3 angle) { }
 
-        protected void DefaultShot(bool isHit, RaycastHit hit, UnitBase unit) {
-            if (!PV.IsMine)
-                return;
+        private void HitAttack(RaycastHit hit, UnitBase unit, bool headShot) {
+             int damage = headShot ? Damage * HEADSHOT_VALUE : Damage;
+             hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(damage, unit.transform, hit.collider.GetComponentInParent<UnitBase>().transform, true);
+             GameObject blood = CreateEffect(_bloodEffect, hit.point);
+             blood.transform.LookAt(_firePoint.position);
+             if (unit.TryGetComponent<PlayerController>(out var player)) {
 
+                if (headShot)
+                    player.HeadshotEvent.Invoke();
+                else
+                    player.BodyshotEvent.Invoke();
+
+            }
+            Managers.Instance.DestoryCoroutine(blood, EFFECT_DESTORY_TIME);
+        }
+
+        private void HitObstacle(RaycastHit hit, Vector3 rot) {
+            GameObject impact = CreateEffect(_impactEffect, hit.point);
+            impact.transform.eulerAngles = rot;
+            impact.transform.LookAt(_firePoint.position);
+            Managers.Instance.DestoryCoroutine(impact, EFFECT_DESTORY_TIME);
+        }
+
+        protected void DefaultShot(bool isHit, RaycastHit hit, UnitBase unit) {
+           
             if (!isHit)
                 return;
-
 
             int layer = hit.collider.gameObject.layer;
             if (layer == (int)LayerType.Head &&
                 hit.collider.GetComponentInParent<UnitBase>().gameObject != unit.gameObject) {
-                PV.RPC("RPC_TakeDamage", RpcTarget.AllBuffered, Damage * 3, PV.OwnerActorNr, hit.collider.GetComponentInParent<UnitBase>().PV.OwnerActorNr, true);
-                //hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(Damage * 3, unit.TargetPos, hit.collider.GetComponentInParent<UnitBase>().transform, true);
-                GameObject blood = CreateEffect(_bloodEffect, hit.point);
-                blood.transform.LookAt(_firePoint.position);
-                if(unit.TryGetComponent<PlayerController>(out var player)) {
-                    player.HeadshotEvent.Invoke();
-                }
-                Destroy(blood, 1f);
+                HitAttack(hit, unit, true);
+                
             } else if (layer == (int)LayerType.Body &&
                 hit.collider.GetComponentInParent<UnitBase>().gameObject != unit.gameObject) {
-                hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(Damage, unit.TargetPos, hit.collider.GetComponentInParent<UnitBase>().transform, false);
-                GameObject blood = CreateEffect(_bloodEffect, hit.point);
-                blood.transform.LookAt(_firePoint.position);
-                if (unit.TryGetComponent<PlayerController>(out var player)) {
-                    player.BodyshotEvent.Invoke();
-                }
-                Destroy(blood, 1f);
+                HitAttack(hit, unit, false);
+
             } else if (layer == (int)LayerType.Obstacle ||
                  layer == (int)LayerType.Wall) {
-                GameObject impact = CreateEffect(_impactEffect, hit.point);
-                impact.transform.LookAt(_firePoint.position);
-                Destroy(impact, 1f);
+                HitObstacle(hit, -_firePoint.eulerAngles);
             } else if (layer == (int)LayerType.Ground) {
-                GameObject impact = CreateEffect(_impactEffect, hit.point);
-                impact.transform.eulerAngles = new Vector3(-90f, 0f, 0f);
-                Destroy(impact, 1f);
+                HitObstacle(hit, new Vector3(GROUND_EULERANGLES, 0f, 0f));
             }
         }
 
-        [PunRPC]
-        public void RPC_TakeDamage(int damage, int attackerHandle, int myHandle, bool headShot) {
-            UnitBase attacker = Util.FindPlayerByActorNumber(attackerHandle);
-            UnitBase me = Util.FindPlayerByActorNumber(myHandle);
-            Debug.Log($"공격자 번호 {attacker.PV.OwnerActorNr}, 피격자 번호 {me.PV.OwnerActorNr}");
-            me.TakeDamage(damage, attacker.transform, me.transform, headShot);
-        }
-
         public virtual void Shot() {
-            if (!PV.IsMine)
-                return;
-
             if (CurrentBullet <= 0) {
                 _unit.Reload();
                 return;
             }
             _isShot = true;
-            CurrentBullet--;
+            _currentBullet--;
             _ejectEffect.Play();
         }
 
-
-
         protected GameObject CreateEffect(GameObject go, Vector3 pos, Quaternion rot = default ) {
-            if (!PV.IsMine)
-                return null;
-
             GameObject effect = Managers.Resources.Instantiate(go, null);
             effect.transform.position = pos;
             effect.transform.rotation = rot;
@@ -184,10 +171,7 @@ namespace Base {
         }
 
         public bool TryReload(UnitBase unit) {
-            if (!PV.IsMine)
-                return false;
-
-            if (_animator.GetCurrentAnimatorStateInfo(0).IsName("Reload"))
+            if (Animator.GetCurrentAnimatorStateInfo(0).IsName(ANIMATOR_PARAMETER_RELOAD))
                 return false;
 
             if (MaxBullet <= 0)
@@ -200,17 +184,14 @@ namespace Base {
         }
 
         public virtual bool TryShot(UnitBase unit) {
-            if (!PV.IsMine)
-                return false;
-
-            if (unit.State == Define.UnitState.Reload ||
-                unit.State == Define.UnitState.Get ||
+           
+            if (unit.State == UnitState.Reload ||
+                unit.State == UnitState.Get ||
                 unit.State == UnitState.Dead)
                 return false;
 
-            if (_animator.GetCurrentAnimatorStateInfo(0).IsName("Dead"))
+            if (Animator.GetCurrentAnimatorStateInfo(0).IsName(ANIMATOR_PARAMETER_DEAD))
                 return false;
-
 
             if (_isShot)
                 return false;
@@ -224,17 +205,11 @@ namespace Base {
         }
 
         public void SetWalkSfx() {
-            if (!PV.IsMine)
-                return;
-
             int ran = Random.Range((int)UnitSfx.Run1, (int)UnitSfx.Run7);
             _sfx.PlaySfx((UnitSfx)ran);
         }
 
         public void SetSfx(int index) {
-            if (!PV.IsMine)
-                return;
-
             _sfx.PlaySfx((UnitSfx)index);
         }
     }

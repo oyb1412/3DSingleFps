@@ -1,10 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using static Define;
 
 public class Item_ShotgunController : ItemController {
     public override void Pickup(UnitBase unit) {
-        unit.ChangeWeapon(Define.WeaponType.Shotgun);
+        unit.ChangeWeapon(WeaponType.Shotgun);
         base.Pickup(unit);
     }
 }

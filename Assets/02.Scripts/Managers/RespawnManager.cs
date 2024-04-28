@@ -1,7 +1,6 @@
-using Fusion;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static Define;
 
 public class RespawnManager 
 {
@@ -10,7 +9,7 @@ public class RespawnManager
     private Transform _respawnPoint;
     private List<Transform> _respawnList;
     public void Init() {
-        _respawnPoint = GameObject.Find("@SpawnPoints").transform;
+        _respawnPoint = GameObject.Find(NAME_SPAWNPOINT).transform;
         _respawnList = new List<Transform>(_respawnPoint.childCount);
 
         foreach (Transform t in _respawnPoint) {

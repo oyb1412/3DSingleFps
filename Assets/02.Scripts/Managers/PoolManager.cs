@@ -23,6 +23,8 @@ public class PoolManager
             }
         }
 
+        
+
         private Poolable Create()
         {
             GameObject go = Object.Instantiate(Original);
@@ -83,6 +85,11 @@ public class PoolManager
         }
         
         _pools[name].Release(poolable);
+    }
+
+    public void Clear() {
+        _root = null;
+        _pools.Clear();
     }
 
     public Poolable Activation(GameObject original)

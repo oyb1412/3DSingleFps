@@ -1,7 +1,7 @@
 using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using static Define;
 
 public class UI_GameSystem : UI_Base
 {
@@ -11,7 +11,6 @@ public class UI_GameSystem : UI_Base
     [SerializeField] private TextMeshProUGUI _gameStateText;
     [SerializeField] private TextMeshProUGUI _waitTimeText;
     [SerializeField] private TextMeshProUGUI _continueKillText;
-
 
     private bool[] _count = new bool[3];
 
@@ -59,7 +58,7 @@ public class UI_GameSystem : UI_Base
 
     private IEnumerator CoDoubleKill() {
         float alpha = 1f;
-        _continueKillText.text = "DOUBLE KILL!!";
+        _continueKillText.text = LOGO_DOUBLEKILL;
         while (alpha > 0) {
             alpha -= Time.deltaTime;
             _continueKillText.color = new Color(1f, 0.7f, 0f, alpha);
@@ -69,7 +68,7 @@ public class UI_GameSystem : UI_Base
 
     private IEnumerator CoTripleKill() {
         float alpha = 1f;
-        _continueKillText.text = "TRIPLE KILL!!!";
+        _continueKillText.text = LOGO_TRIPLEKILL;
         while (alpha > 0) {
             alpha -= Time.deltaTime;
             _continueKillText.color = new Color(1f, 0f, 0f, alpha);
@@ -82,15 +81,15 @@ public class UI_GameSystem : UI_Base
         while (true) {
             if (_count[2] == false && Managers.GameManager.WaitTime < 3) {
                 _count[2] = true;
-                ShareSfxController.instance.SetShareSfx(Define.ShareSfx.Three);
+                PersonalSfxController.instance.SetShareSfx(Define.ShareSfx.Three);
             }
             if (_count[1] == false && Managers.GameManager.WaitTime < 2) {
                 _count[1] = true;
-                ShareSfxController.instance.SetShareSfx(Define.ShareSfx.Two);
+                PersonalSfxController.instance.SetShareSfx(Define.ShareSfx.Two);
             }
             if (_count[0] == false && Managers.GameManager.WaitTime < 1) {
                 _count[0] = true;
-                ShareSfxController.instance.SetShareSfx(Define.ShareSfx.One);
+                PersonalSfxController.instance.SetShareSfx(Define.ShareSfx.One);
             }
             _waitTimeText.text = (Mathf.CeilToInt(Managers.GameManager.WaitTime)).ToString();
             if(Managers.GameManager.InGame()) {
@@ -103,9 +102,9 @@ public class UI_GameSystem : UI_Base
     }
         
     private IEnumerator CoStartUI() {
-        ShareSfxController.instance.SetShareSfx(Define.ShareSfx.Fight);
+        PersonalSfxController.instance.SetShareSfx(Define.ShareSfx.Fight);
         _gameStateText.gameObject.SetActive(true);
-        _gameStateText.text = "START!";
+        _gameStateText.text = LOGO_START;
         float alpha = 1f;
         while(true) {
             alpha -= Time.deltaTime;

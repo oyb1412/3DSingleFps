@@ -1,8 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using static Define;
 
 public class UI_Start : UI_Base
 {
@@ -32,9 +31,8 @@ public class UI_Start : UI_Base
         PointerEventData data = eventData as PointerEventData;
         _name = data.pointerCurrentRaycast.gameObject.name;
 
-        Color color = new Color(.6f, .8f, 1f, 1f);
-        Vector3 scale = new Vector3(.95f, .95f, .95f);
-
+        Color color = UI_START_COLOR;
+        Vector3 scale = UI_ENTER_SIZE;
         SetColorAndScale(_singleBtn, _name, BtnType.SingleBG.ToString(), color, scale);
         SetColorAndScale(_multiBtn, _name, BtnType.MultiBG.ToString(), color, scale);
         SetColorAndScale(_quitBtn, _name, BtnType.QuitBG.ToString(), color, scale);

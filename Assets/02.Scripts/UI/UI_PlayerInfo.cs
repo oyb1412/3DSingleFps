@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -47,20 +46,20 @@ public class UI_PlayerInfo : UI_Base
     }
 
     private void KillInfomationEvent(DirType dir, string name, bool kill, bool headShot) {
-        string text = string.Empty;
+        string text;
         if(kill) {
             if(headShot) {
-                text = $"Killer the {name} ({dir.ToString()}, HeadShot)";
+                text = string.Format(MENT_KILL, name, dir.ToString(), LOGO_HEADSHOT);
             }
             else {
-                text = $"Killer the {name} ({dir.ToString()})";
+                text = string.Format(MENT_KILL, name, dir.ToString(), string.Empty);
             }
         }
         else {
             if (headShot) {
-                text = $"killed by that {name} ({dir.ToString()}, HeadShot)";
+                text = string.Format(MENT_DEAD, name, dir.ToString(), LOGO_HEADSHOT);
             } else {
-                text = $"killed by that {name} ({dir.ToString()})";
+                text = string.Format(MENT_DEAD, name, dir.ToString(), string.Empty);
             }
         }
         
@@ -103,7 +102,15 @@ public class UI_PlayerInfo : UI_Base
         float time = 1f;
         _healText.gameObject.SetActive(true);
         _healText.transform.position = _healTextDefaultPos;
-        _healText.text = $"+{damage:D2} HP";
+
+        if (damage >= 0) {
+            _healText.text = $"+{damage:D2} HP";
+            _healText.color = Color.green;
+        } else {
+            _healText.text = $"-{damage:D2} HP";
+            _healText.color = Color.red;
+        }
+
         while (time > 0f) {
             time -= Time.deltaTime * 2f;
             _healText.transform.position += (Vector3.up * (1 - time));

@@ -1,31 +1,25 @@
 using UnityEngine;
+using static Define;
 
 namespace Player {
     public class PistolController : WeaponController {
+        private Base.PistolController _pistol = new Base.PistolController();
         protected override void Awake() {
             base.Awake();
-
-            WeaponIcon = (Sprite)Managers.Resources.Load<Sprite>("Texture/PistolIcon");
-            CreateObject = (GameObject)Managers.Resources.Load<GameObject>("Prefabs/Item/Pistol");
-            Name = "Pistol";
+            _pistol.SetPistol(ref _damage, ref _weaponType, ref _name, ref _shotDelay, ref _weaponIcon, ref _createObject);
+            CameraView = PISTOL_CAMERAVIEW;
         }
 
         protected override void Start() {
             base.Start();
 
-            VerticalBoundValue = 1.8f;
-            HorizontalBoundValue = 0.5f;
-            _shotDelay = 0.4f;
-            CrossValue = 100f;
-            Type = Define.WeaponType.Pistol;
-            Damage = 34;
+            VerticalBoundValue = PISTOL_VECTICALBOUND_VALUE;
+            HorizontalBoundValue = PISTOL_HORIZONTALBOUND_VALUE;
+            CrossValue = PISTOL_CROSSHAIR_VALUE;
         }
 
         protected override void Enable() {
-
-            CurrentBullet = 12;
-            RemainBullet = 12;
-            MaxBullet = 60;
+            _pistol.SetEnable(ref _currentBullet, ref _remainBullet, ref _maxBullet);
         }
         public override void Shot() {
             base.Shot();

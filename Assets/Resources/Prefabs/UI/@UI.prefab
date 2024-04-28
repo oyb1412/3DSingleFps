@@ -4012,7 +4012,7 @@ GameObject:
   - component: {fileID: 6028149323631746744}
   - component: {fileID: 7689591449076200729}
   m_Layer: 5
-  m_Name: KIllFeeds
+  m_Name: KillFeeds
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7949,7 +7949,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Player1
+  m_text: Player
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -15447,7 +15447,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1070600766108297206, guid: 539048961a364ba46a7b8733aaf42054, type: 3}
       propertyPath: m_FillAmount
-      value: 0.49748743
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 1862160849083581938, guid: 539048961a364ba46a7b8733aaf42054, type: 3}
       propertyPath: m_Layer
@@ -15463,15 +15463,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3042300094135210724, guid: 539048961a364ba46a7b8733aaf42054, type: 3}
       propertyPath: m_Value
-      value: 50
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 3042300094135210724, guid: 539048961a364ba46a7b8733aaf42054, type: 3}
       propertyPath: m_MaxValue
-      value: 100
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3042300094135210724, guid: 539048961a364ba46a7b8733aaf42054, type: 3}
       propertyPath: m_MinValue
-      value: 0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3042300094135210724, guid: 539048961a364ba46a7b8733aaf42054, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.size
@@ -15507,7 +15507,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3937179061895637011, guid: 539048961a364ba46a7b8733aaf42054, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0.49748743
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 3937179061895637011, guid: 539048961a364ba46a7b8733aaf42054, type: 3}
       propertyPath: m_AnchorMax.y
@@ -15515,7 +15515,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3937179061895637011, guid: 539048961a364ba46a7b8733aaf42054, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0.49748743
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 3958994749923534707, guid: 539048961a364ba46a7b8733aaf42054, type: 3}
       propertyPath: m_Layer

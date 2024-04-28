@@ -9,9 +9,6 @@ public class EnemyItemChecker : MonoBehaviour
 
     private void Start() {
         _enemy = GetComponentInParent<EnemyController>();
-        //if (Managers.Scene.CurrentScene == SceneType.Port) {
-        //    gameObject.SetActive(false);
-        //}
     }
 
     private void OnTriggerEnter(Collider c) {
@@ -21,10 +18,10 @@ public class EnemyItemChecker : MonoBehaviour
         if (_enemy.CollideItem != null)
             return;
 
-        if (!c.CompareTag("Item"))
+        if (!c.CompareTag(TAG_ITEM))
             return;
 
-        if (c.GetComponent<IItem>().IsMine)
+        if (!_enemy.IsDefaultWeapon())
             return;
 
        _enemy.CollideItem = c.GetComponent<IItem>();

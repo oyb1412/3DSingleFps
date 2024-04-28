@@ -1,22 +1,12 @@
-using Photon.Pun;
 using System;
 using System.Collections;
-using System.Runtime.InteropServices;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using static Define;
 
 public class PlayerController : UnitBase, ITakeDamage
 {
-    #region const
-    private const float LIMIT_ROTATE_UP = -40f;
-    private const float LIMIT_ROTATE_DOWN = 20f;
-    private const float CONTINUE_KILL_TIME = 3f;
-    private const float INVINCIBILITY_TIME = 1f;
-    #endregion
 
     #region private variable
-    private float _gravity = -9.81f;
     private int _jumpLayer;
     private float _vx;
     private float _vy;
@@ -26,15 +16,16 @@ public class PlayerController : UnitBase, ITakeDamage
     private float _tripleKillCheck;
     private Vector3 _velocity;
     private float _jumpTimer;
-    [SerializeField] private bool _isRun;
-    [SerializeField] private float _runSpeed;
-    [SerializeField] private bool _isJumping;
-    [SerializeField] private bool _isFalling;
+    private bool _isRun;
+    private float _runSpeed = PLAYER_DEFAULT_RUN_SPEED;
+    private bool _isJumping;
+    private bool _isFalling;
     [SerializeField] private Camera _subCamera;
     [SerializeField] private Camera _mainCamera;
-    [SerializeField] private float _rotateSpeed = 250f;
-    [SerializeField] private float _jumpValue = 1.5f;
-    [SerializeField] private float _boundTime = 0.1f;
+    [SerializeField] private Camera _handCamera;
+    private float _rotateSpeed = PLAYER_DEFAULT_ROTATE_SPEED;
+    private float _jumpValue = PLAYER_DEFAULT_JUMP_VALUE;
+    private float _boundTime = PLAYER_DEFAULT_BOUND_TIME;
     private CharacterController _cc;
 
     #endregion
@@ -67,33 +58,20 @@ public class PlayerController : UnitBase, ITakeDamage
     public bool IsKill { get; set; }
     public bool IsDoubleKill { get; set; }
     public bool IstripleKill { get; set; }
-    public float Sensitiv { get; set; } = 50f;
+    public float Sensitivy { get; set; } = .5f;
     public Player.WeaponController CurrentWeapon => _currentWeapon as Player.WeaponController;
     #endregion
 
     #region Init
     protected override void Awake() {
         base.Awake();
-        if (!PV.IsMine)
-            return;
-
-        PV.OwnerActorNr = PhotonNetwork.LocalPlayer.ActorNumber;
+        
         _cc = GetComponent<CharacterController>();
     }
 
     private void Start() {
-        _mainCamera.GetComponent<MainCameraController>().SetCameraView(PV.OwnerActorNr);
-        _subCamera.GetComponent<SubCameraController>().SetCameraView(PV.OwnerActorNr);
-
         CrossValueEvent?.Invoke(CurrentWeapon.CrossValue);
         _jumpLayer = (1 << (int)LayerType.Obstacle) | (1 << (int)LayerType.Ground);
-
-        if (!PV.IsMine)
-            return;
-
-        _mainCamera.gameObject.SetActive(true);
-
-
     }
 
     #endregion
@@ -108,8 +86,6 @@ public class PlayerController : UnitBase, ITakeDamage
 
     #region Behaviour
     public void Shot() {
-
-
         if (!Managers.GameManager.InGame())
             return;
 
@@ -133,17 +109,14 @@ public class PlayerController : UnitBase, ITakeDamage
         JumpSfx();
         _isJumping = true;
         _isFalling = false;
-        _velocity.y = Mathf.Sqrt(_jumpValue * -2f * _gravity);
+        _velocity.y = Mathf.Sqrt(_jumpValue * -2f * PLAYER_GRAVITY);
     }
 
     #endregion
 
     #region Change
     public override void ChangeWeapon(WeaponType type) {
-        if (!PV.IsMine)
-            return;
-
-
+        
         base.ChangeWeapon(type);
         CrossValueEvent.Invoke(CurrentWeapon.CrossValue);
         ChangeEvent.Invoke(CurrentWeapon);
@@ -152,9 +125,6 @@ public class PlayerController : UnitBase, ITakeDamage
 
     #region Update
     private void Update() {
-        if (!PV.IsMine)
-            return;
-
         if (Input.GetKeyDown(KeyCode.Escape)) {
             if(Managers.GameManager.State == GameState.StartFight ||
                 Managers.GameManager.State == GameState.Menu)
@@ -193,7 +163,7 @@ public class PlayerController : UnitBase, ITakeDamage
 
         if (IsKill) {
             _doubleKillCheck += Time.deltaTime;
-            if(_doubleKillCheck > CONTINUE_KILL_TIME) {
+            if(_doubleKillCheck > PLAYER_CONTINUE_KILL_TIME) {
                 IsKill = false;
                 _doubleKillCheck = 0f;
             }
@@ -202,7 +172,7 @@ public class PlayerController : UnitBase, ITakeDamage
         if (IsDoubleKill)
         {
             _tripleKillCheck += Time.deltaTime;
-            if (_tripleKillCheck > CONTINUE_KILL_TIME) {
+            if (_tripleKillCheck > PLAYER_CONTINUE_KILL_TIME) {
                 IsDoubleKill = false;
                 _tripleKillCheck = 0f;
             }
@@ -294,9 +264,7 @@ public class PlayerController : UnitBase, ITakeDamage
     }
 
     private void PlayerPhycisc() {
-        if (!PV.IsMine)
-            return;
-
+        
         _moveX = Input.GetAxisRaw("Horizontal");
         _moveZ = Input.GetAxisRaw("Vertical");
 
@@ -321,7 +289,7 @@ public class PlayerController : UnitBase, ITakeDamage
             Jump();
         }
 
-        _velocity.y += _gravity * Time.deltaTime;
+        _velocity.y += PLAYER_GRAVITY * Time.deltaTime;
         _cc.Move(_velocity * Time.deltaTime);
     }
 
@@ -330,13 +298,12 @@ public class PlayerController : UnitBase, ITakeDamage
         float MouseY = Input.GetAxis("Mouse Y");
         Vector3 dir = new Vector3(MouseY, MouseX, 0);
 
-        _vx += dir.x * Sensitiv * 5f * Time.deltaTime;
-        _vy += dir.y * Sensitiv * 5f * Time.deltaTime;
-        _vx = Mathf.Clamp(_vx, LIMIT_ROTATE_UP, LIMIT_ROTATE_DOWN);
+        _vx += dir.x * Sensitivy * _rotateSpeed * Time.deltaTime;
+        _vy += dir.y * Sensitivy * _rotateSpeed * Time.deltaTime;
+        _vx = Mathf.Clamp(_vx, PLAYER_LIMIT_ROTATE_UP, PLAYER_LIMIT_ROTATE_DOWN);
 
         Vector3 lastDir = new Vector3(-_vx, _vy, 0);
         transform.eulerAngles = lastDir;
-        UnitRotate = transform.rotation;
     }
     #endregion
 
@@ -345,7 +312,7 @@ public class PlayerController : UnitBase, ITakeDamage
 
 
         float exitTime = 0;
-        float horizontalRecoil = UnityEngine.Random.Range(-0.2f, 0.2f); 
+        float horizontalRecoil = UnityEngine.Random.Range(-PLAYER_SHOT_RANDOMBOUND_VALUE, PLAYER_SHOT_RANDOMBOUND_VALUE); 
 
         while (true) {
             exitTime += Time.deltaTime;
@@ -362,7 +329,7 @@ public class PlayerController : UnitBase, ITakeDamage
 
     private IEnumerator CORebound() {
         float exitTime = 0;
-        float horizontalRecoil = UnityEngine.Random.Range(-0.2f, 0.2f); 
+        float horizontalRecoil = UnityEngine.Random.Range(-PLAYER_SHOT_RANDOMBOUND_VALUE, PLAYER_SHOT_RANDOMBOUND_VALUE); 
 
         while (true) {
             exitTime += Time.deltaTime;
@@ -378,50 +345,39 @@ public class PlayerController : UnitBase, ITakeDamage
 
     #region OtherEvent
     protected override void IsHitEvent(int damage, Transform attackerTrans, Transform myTrans) {
- 
-
-        base.IsHitEvent(damage, attackerTrans, myTrans);
-        Debug.Log($"{PV.OwnerActorNr}플레이어가 공격받음. 남은 체력 {_currentHp}");
         HpEvent?.Invoke(_currentHp, _maxHp, damage);
         HurtEvent?.Invoke(attackerTrans, myTrans);
-        ShareSfxController.instance.SetShareSfx(ShareSfx.Hurt);
+        PersonalSfxController.instance.SetShareSfx(ShareSfx.Hurt);
     }
 
     public override int SetHp(int damage) {
-    
-
         base.SetHp(damage);
         HpEvent?.Invoke(_currentHp, _maxHp, damage);
         return _currentHp;
     }   
 
     protected override void IsDeadEvent(Transform attackerTrans, bool headShot) {
-        if (!PV.IsMine)
-            return;
-
         _moveX = 0f;
         _moveZ = 0f;
         base.IsDeadEvent(attackerTrans, headShot);
         CurrentWeapon.ChangeAimAC(false);
         _cc.enabled = false;
         DirType dir = Util.DirectionCalculation(attackerTrans, transform);
-        KillAndDeadEvent?.Invoke(dir, attackerTrans.parent.name, false, headShot);
+        KillAndDeadEvent?.Invoke(dir, attackerTrans.name, false, headShot);
         DeadEvent?.Invoke();
         _mainCamera.gameObject.SetActive(false);
+        _handCamera.gameObject.SetActive(false);
         _subCamera.gameObject.SetActive(true);
     }
 
 
     private void CheckForward() {
-   
-
         if (_state == UnitState.Dead)
             return;
 
         int layer = (1 << (int)LayerType.Item);
-        Debug.DrawRay(_firePoint.position, _firePoint.forward * 3f, Color.green);
 
-        var col = Physics.Raycast(_firePoint.position, _firePoint.forward, out var hit, 2f,  layer);
+        var col = Physics.Raycast(_firePoint.position, _firePoint.forward, out var hit, PLAYER_FORWARDCHECK_LENTHS,  layer);
         if (!col) {
             CollideItemEvent.Invoke(false);
             CollideItem = null;
@@ -436,14 +392,11 @@ public class PlayerController : UnitBase, ITakeDamage
     }
 
     private bool IsGround() {
-        Debug.DrawRay(transform.position + Vector3.up, -Vector3.up * 1.3f, Color.red);
-        return Physics.Raycast(transform.position + Vector3.up, -Vector3.up, 1.3f, _jumpLayer);
+        return Physics.Raycast(transform.position + Vector3.up, -Vector3.up, PLAYER_GROUNDCHECK_LENTHS, _jumpLayer);
     }
 
     public override void Init() {
-        if (!PV.IsMine)
-            return;
-
+       
         base.Init();
 
         _isFalling = false;
@@ -453,63 +406,59 @@ public class PlayerController : UnitBase, ITakeDamage
         CurrentWeapon.ChangeAimAC(false);
         _vx = _vy = _moveX = _moveZ = 0f;
         _velocity = Vector3.zero;
-        UnitRotate = Quaternion.identity;
         _mainCamera.gameObject.SetActive(true);
         _subCamera.gameObject.SetActive(false);
+        _handCamera.gameObject.SetActive(true);
         _cc.enabled = true;
         RespawnEvent.Invoke();
         ChangeState(UnitState.Idle);
-        Invoke("InvincibilityEnd", INVINCIBILITY_TIME);
+        Invoke("InvincibilityEnd", PLAYER_INVINCIBILITY_TIME);
     }
 
     private void InvincibilityEnd() {
-  
         _bodyCollider.enabled = true;
         _headCollider.enabled = true;
     }
 
     public override void ChangeState(UnitState state) {
-        if (!PV.IsMine)
-            return;
-
         switch (state) {
             case UnitState.Idle:
                 if (_state == UnitState.Dead || _state == UnitState.Shot)
                     return;
 
                 _isRun = false;
-                Model.Animator.SetBool("Move", false);
-                CurrentWeapon.CurrentAnime.SetBool("Move", false);
-                CurrentWeapon.CurrentAnime.SetBool("Run", false);
+                Model.Animator.SetBool(UnitState.Move.ToString(), false);
+                CurrentWeapon.CurrentAnime.SetBool(UnitState.Move.ToString(), false);
+                CurrentWeapon.CurrentAnime.SetBool(UnitState.Run.ToString(), false);
                 break;
             case UnitState.Move:
                 if (_state == UnitState.Dead || _state == UnitState.Reload || _state == UnitState.Shot)
                     return;
 
                 _isRun = false;
-                Model.Animator.SetBool("Move", true);
-                CurrentWeapon.CurrentAnime.SetBool("Run", false);
-                CurrentWeapon.CurrentAnime.SetBool("Move", true);
+                Model.Animator.SetBool(UnitState.Move.ToString(), true);
+                CurrentWeapon.CurrentAnime.SetBool(UnitState.Run.ToString(), false);
+                CurrentWeapon.CurrentAnime.SetBool(UnitState.Move.ToString(), true);
                 break;
 
             case UnitState.Run:
                 if (_state == UnitState.Dead || _state == UnitState.Reload || _state == UnitState.Shot)
                     return;
 
-                CurrentWeapon.CurrentAnime.SetBool("Move", false);
-                CurrentWeapon.CurrentAnime.SetBool("Run", true);
+                CurrentWeapon.CurrentAnime.SetBool(UnitState.Move.ToString(), false);
+                CurrentWeapon.CurrentAnime.SetBool(state.ToString(), true);
                 break;
             case UnitState.Shot:
                 if (_state == UnitState.Reload || _state == UnitState.Dead)
                     return;
 
                 _isRun = false;
-                Model.Animator.SetBool("Move", false);
-                CurrentWeapon.CurrentAnime.SetBool("Move", false);
-                CurrentWeapon.CurrentAnime.SetBool("Run", false);
+                Model.Animator.SetBool(UnitState.Move.ToString(), false);
+                CurrentWeapon.CurrentAnime.SetBool(UnitState.Move.ToString(), false);
+                CurrentWeapon.CurrentAnime.SetBool(UnitState.Run.ToString(), false);
 
-                Model.Animator.SetTrigger($"Shot{BaseWeapon.Type.ToString()}");
-                CurrentWeapon.CurrentAnime.SetTrigger("Shot");
+                Model.Animator.SetTrigger($"{state.ToString()}{BaseWeapon.Type.ToString()}");
+                CurrentWeapon.CurrentAnime.SetTrigger(state.ToString());
 
                 break;
             case UnitState.Reload:
@@ -518,11 +467,11 @@ public class PlayerController : UnitBase, ITakeDamage
 
                 _isRun = false;
                 CurrentWeapon.ChangeAimAC(false);
-                Model.Animator.SetBool("Move", false);
-                BaseWeapon.Animator.SetBool("Move", false);
-                BaseWeapon.Animator.SetBool("Run", false);
-                Model.Animator.SetTrigger("Reload");
-                BaseWeapon.Animator.SetTrigger("Reload");
+                Model.Animator.SetBool(UnitState.Move.ToString(), false);
+                BaseWeapon.Animator.SetBool(UnitState.Move.ToString(), false);
+                BaseWeapon.Animator.SetBool(UnitState.Run.ToString(), false);
+                Model.Animator.SetTrigger(state.ToString());
+                BaseWeapon.Animator.SetTrigger(state.ToString());
                 break;
             case UnitState.Dead:
                 if (_state == UnitState.Dead)
@@ -530,11 +479,11 @@ public class PlayerController : UnitBase, ITakeDamage
 
                 _isRun = false;
                 CurrentWeapon.ChangeAimAC(false);
-                Model.Animator.SetBool("Move", false);
-                BaseWeapon.Animator.SetBool("Move", false);
-                BaseWeapon.Animator.SetBool("Run", false);
-                Model.Animator.SetTrigger("Dead");
-                BaseWeapon.Animator.SetTrigger("Dead");
+                Model.Animator.SetBool(UnitState.Move.ToString(), false);
+                BaseWeapon.Animator.SetBool(UnitState.Move.ToString(), false);
+                BaseWeapon.Animator.SetBool(UnitState.Run.ToString(), false);
+                Model.Animator.SetTrigger(state.ToString());
+                BaseWeapon.Animator.SetTrigger(state.ToString());
                 break;
             case UnitState.Get:
                 if (_state == UnitState.Get)
@@ -542,11 +491,11 @@ public class PlayerController : UnitBase, ITakeDamage
 
                 _isRun = false;
                 CurrentWeapon.ChangeAimAC(false);
-                Model.Animator.SetBool("Move", false);
-                BaseWeapon.Animator.SetBool("Move", false);
-                BaseWeapon.Animator.SetBool("Run", false);
-                Model.Animator.SetTrigger("Get");
-                BaseWeapon.Animator.SetTrigger("Get");
+                Model.Animator.SetBool(UnitState.Move.ToString(), false);
+                BaseWeapon.Animator.SetBool(UnitState.Move.ToString(), false);
+                BaseWeapon.Animator.SetBool(UnitState.Run.ToString(), false);
+                Model.Animator.SetTrigger(state.ToString());
+                BaseWeapon.Animator.SetTrigger(state.ToString());
                 break;
         }
         _state = state;

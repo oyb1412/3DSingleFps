@@ -1,5 +1,5 @@
-using Photon.Pun;
 using UnityEngine;
+using static Define;
 
 namespace Player {
     public abstract class WeaponController : Base.WeaponController {
@@ -7,8 +7,8 @@ namespace Player {
         public float VerticalBoundValue { get; protected set; }
         public float CrossValue { get; protected set; }
 
-        [SerializeField] public Vector3 _cameraPos;
-        [SerializeField] public float _cameraView;
+        public Vector3 CameraPos { get; private set; } = AIM_CAMERA_POSITION;
+        public float CameraView { get; protected set; }
         [SerializeField] private RuntimeAnimatorController _NormalAC;
         [SerializeField] private RuntimeAnimatorController _AimAC;
         protected Transform _aimFirePos;
@@ -19,38 +19,33 @@ namespace Player {
 
             get {
             if(Player.IsAiming) {
-                    if (_animator.runtimeAnimatorController != _AimAC)
-                        _animator.runtimeAnimatorController = _AimAC;
+                    if (Animator.runtimeAnimatorController != _AimAC)
+                        Animator.runtimeAnimatorController = _AimAC;
                 }
             else {
-                    if(_animator.runtimeAnimatorController != _NormalAC) {
-                        _animator.runtimeAnimatorController = _NormalAC;
-                        Player.ChangeState(Define.UnitState.Idle);
-                        _animator.SetTrigger("Reset");
+                    if(Animator.runtimeAnimatorController != _NormalAC) {
+                        Animator.runtimeAnimatorController = _NormalAC;
+                        Player.ChangeState(UnitState.Idle);
+                        Animator.SetTrigger(ANIMATOR_PARAMETER_RESET);
                     }
                     
                 }
-            return _animator;
+            return Animator;
             } 
         }
 
         public void ChangeAimAC(bool trigger) {
-            if (!PV.IsMine)
-                return;
-
+            
             if (trigger)
-                _animator.runtimeAnimatorController = _AimAC;
+                Animator.runtimeAnimatorController = _AimAC;
             else
-                _animator.runtimeAnimatorController = _NormalAC;
+                Animator.runtimeAnimatorController = _NormalAC;
         }
 
         protected override void Start() {
             base.Start();
 
-            if (!PV.IsMine)
-                return;
-
-            _aimFirePos = Util.FindChild(gameObject, "AimFirePos", false).transform;
+            _aimFirePos = Util.FindChild(gameObject, NAME_AIMFIREPOS, false).transform;
         }
         protected override void Awake() {
             base.Awake();
@@ -59,27 +54,20 @@ namespace Player {
         public override void Reload() {
             base.Reload();
 
-            if (!PV.IsMine)
-                return;
-
             Player.BulletEvent.Invoke(CurrentBullet, MaxBullet, RemainBullet);
         }
 
         protected abstract override void Enable();
 
         protected override void DefaultShot(Vector3 angle) {
-            if (!PV.IsMine)
-                return;
-
+           
             Vector3 pos = Player.IsAiming ? _firePoint.position + (_firePoint.forward * .5f) : _firePoint.position;
             Debug.DrawRay(pos, angle * float.MaxValue, Color.cyan, 1f);
             bool isHit = Physics.Raycast(pos, angle, out var hit, float.MaxValue, _layerMask);
             DefaultShot(isHit, hit, Player);
         }
         public override void Shot() {
-            if (!PV.IsMine)
-                return;
-
+            
             base.Shot();
 
             float verticla = Player.IsAiming ? VerticalBoundValue * .5f : VerticalBoundValue;
@@ -88,9 +76,9 @@ namespace Player {
             Player.StartCoroutine(Player.COBound(verticla, horizontal));
             Player.BulletEvent.Invoke(CurrentBullet, MaxBullet, RemainBullet);
 
-            var ran = Random.Range(0, 5);
+            var ran = Random.Range(0, _muzzleEffect.Length);
             Transform trans = Player.IsAiming ? _aimFirePos : _firePos;
-            CreateEffect(_muzzleEffect[ran], trans.position, _unit.UnitRotate);
+            CreateEffect(_muzzleEffect[ran], trans.position, _unit.transform.rotation);
         }
 
     }

@@ -1,9 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using static Define;
 
 public class UI_Gameover : UI_Base
 {
@@ -19,8 +18,6 @@ public class UI_Gameover : UI_Base
 
     [SerializeField] private Transform _scoreBoard;
 
-
-
     protected override void Init() {
         base.Init();
 
@@ -33,14 +30,13 @@ public class UI_Gameover : UI_Base
         base.OnEnterButton(eventData);
         PointerEventData data = eventData as PointerEventData;
         _name = data.pointerCurrentRaycast.gameObject.name;
-
-        SetColorAndScale(_continueBtn, _name, "RestartBG", Color.black, new Vector3(.95f, .95f, .95f));
+        SetColorAndScale(_continueBtn, _name, NAME_RESTARTBG, Color.black, UI_ENTER_SIZE);
     }
 
     public override void OnExitButton(BaseEventData eventData) {
         base.OnExitButton(eventData);
 
-        SetColorAndScale(_continueBtn, _name, "RestartBG", _defaultColor, _defaultScale);
+        SetColorAndScale(_continueBtn, _name, NAME_RESTARTBG, _defaultColor, _defaultScale);
 
         _name = string.Empty;
     }
@@ -48,7 +44,7 @@ public class UI_Gameover : UI_Base
     public override void OnPressUpButton() {
         base.OnPressUpButton();
 
-        SetColorAndScale(_continueBtn, _name, "RestartBG", _defaultColor, _defaultScale, RestartGame);
+        SetColorAndScale(_continueBtn, _name, NAME_RESTARTBG, _defaultColor, _defaultScale, RestartGame);
 
         _name = string.Empty;
     }

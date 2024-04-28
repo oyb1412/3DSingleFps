@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 4191558956253859837}
   - component: {fileID: 5340434915970006226}
   - component: {fileID: 1285020056294832250}
-  - component: {fileID: 7004416224614875574}
+  - component: {fileID: -5730637958006646587}
   m_Layer: 5
   m_Name: KillFeed
   m_TagString: Untagged
@@ -140,7 +140,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &7004416224614875574
+--- !u!114 &-5730637958006646587
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -149,19 +149,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 2309655602746931703}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Script: {fileID: 11500000, guid: 5c25a679888cafe4991738648a7d7488, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ObservedComponentsFoldoutOpen: 1
-  Group: 0
-  prefixField: -1
-  Synchronization: 3
-  OwnershipTransfer: 0
-  observableSearch: 2
-  ObservedComponents: []
-  sceneViewId: 0
-  InstantiationId: 0
-  isRuntimeInstantiated: 0
 --- !u!1 &4970944948595343789
 GameObject:
   m_ObjectHideFlags: 0

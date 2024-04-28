@@ -374,7 +374,7 @@ GameObject:
   - component: {fileID: 5397015119323562616}
   - component: {fileID: 776770185037070033}
   - component: {fileID: 6757217839408651856}
-  - component: {fileID: 5962995949031251280}
+  - component: {fileID: -7362947234484401745}
   m_Layer: 12
   m_Name: Pistol
   m_TagString: Item
@@ -436,7 +436,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.5, y: 0.5, z: 0.5}
   m_Center: {x: 0, y: 0, z: 0.1}
---- !u!114 &5962995949031251280
+--- !u!114 &-7362947234484401745
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -445,19 +445,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 6790260151487108745}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Script: {fileID: 11500000, guid: 5c25a679888cafe4991738648a7d7488, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ObservedComponentsFoldoutOpen: 1
-  Group: 0
-  prefixField: -1
-  Synchronization: 3
-  OwnershipTransfer: 0
-  observableSearch: 2
-  ObservedComponents: []
-  sceneViewId: 0
-  InstantiationId: 0
-  isRuntimeInstantiated: 0
 --- !u!1 &7831817092874880599
 GameObject:
   m_ObjectHideFlags: 0

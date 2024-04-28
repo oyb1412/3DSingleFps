@@ -75,13 +75,14 @@ public class UI_Setting : UI_Base
     }
 
     private void SetVolume(float value) {
-        Managers.GameManager.Volume = value;
         Managers.GameManager.VolumeEvent.Invoke(value);
     }
 
     private void SetSensitivity(float value) {
-        _player.Sensitiv = value;
-        _sensitivityText.text = ((int)value).ToString();
+        _player.Sensitivy = value;
+        Debug.Log(value);
+        
+        _sensitivityText.text = Mathf.RoundToInt(value * 100).ToString();
     }
 
     public override void OnEnterButton(BaseEventData eventData) {
@@ -90,8 +91,8 @@ public class UI_Setting : UI_Base
         PointerEventData data = eventData as PointerEventData;
         _name = data.pointerCurrentRaycast.gameObject.name;
 
-        Color color = new Color(0f, 0f, 0f, .5f);
-        Vector3 scale = new Vector3(.95f, .95f, .95f);
+        Color color = UI_ENTER_COLOR;
+        Vector3 scale = UI_ENTER_SIZE;
 
         SetColorAndScale(_confirmBtn, _name, BtnType.ConfirmBG.ToString(), color, scale);
         SetColorAndScale(_closeBtn, _name, BtnType.CloseBG.ToString(), color, scale);

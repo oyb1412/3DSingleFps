@@ -15,7 +15,6 @@ public class Managers : MonoBehaviour
     private GameManager _gameManager = new GameManager();
     private RespawnManager _respawnManager = new RespawnManager();
     private PoolManager _pool = new PoolManager();
-    private InputManager _input = new InputManager();
     private ResourcesManager _resources = new ResourcesManager();
     private SceneManagerEX _scene = new SceneManagerEX();
 
@@ -23,7 +22,6 @@ public class Managers : MonoBehaviour
     public static RespawnManager RespawnManager => _instance._respawnManager;
     public static PoolManager Pool => _instance._pool;
     public static SceneManagerEX Scene => _instance._scene;
-    public static InputManager Input => Instance._input;
     public static ResourcesManager Resources => Instance._resources;
     
     private void Awake()
@@ -43,14 +41,12 @@ public class Managers : MonoBehaviour
     public void Ingameclear() {
         RespawnManager.Clear();
         GameManager.Clear();
+        Pool.Clear();
     }
 
-    private void Start() {
-    }
 
     private void Update()
     {
-        Input.OnUpdate();
         GameManager.Update();
     }
 
@@ -58,10 +54,10 @@ public class Managers : MonoBehaviour
     {
         if (_instance == null)
         {
-            GameObject managers = GameObject.Find("@Managers");
+            GameObject managers = GameObject.Find(NAME_MANAGERS);
             if (managers == null)
             {
-                managers = new GameObject("@Managers");
+                managers = new GameObject(NAME_MANAGERS);
                 managers.AddComponent<Managers>();
             }
             
@@ -70,5 +66,14 @@ public class Managers : MonoBehaviour
             
             Pool.Init();
         }
+    }
+
+    public void DestoryCoroutine(GameObject go, float time) {
+        StartCoroutine(Co_Destory(go, time));
+    }
+
+    private IEnumerator Co_Destory(GameObject go,  float timte) {
+        yield return new WaitForSeconds(timte);
+        Resources.Destroy(go);
     }
 }

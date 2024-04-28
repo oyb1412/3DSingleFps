@@ -1,4 +1,3 @@
-using Photon.Pun;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,24 +6,22 @@ using static Define;
 
 public class GameManager
 {
-    private readonly string[] ENEMY_NAME = new string[] { "James", "Aaron", "Peyton", "London", "Daniel", "Aiden", "Jackson","Lucas", "Samuel","Luke"};
     public Action WaitStateEvent;
     public Action FightStateEvent;
     public Action GameoverAction;
     public Action<int> EnemyNumberAction;
-    //public float GameTime { get; private set; } = 60f;
-    public float GameTime { get; private set; } = 300f;
-    public float RespawnTime { get; private set; } = 3f;
+    public float GameTime { get; private set; }
+    public float RespawnTime { get; private set; }
     public int EnemyNumber { get; private set; }
-    public int EnemyLevel { get; private set; } = 1;
-    public int KillLimit { get; private set; } = 0;
+    public int EnemyLevel { get; private set; }
+    public int KillLimit { get; private set; }
     public GameState State { get; private set; } = GameState.None;
 
     public Action<float> VolumeEvent;
-    public float Volume { get; set; } = 50f;
     public float WaitTime { get; private set; }
 
-    private float _doNextStateTime = 3f;
+    private float _doNextStateTime;
+
     private Transform _scoreBoardTransform;
     public Transform KillFeedParent { get; private set; }
 
@@ -37,42 +34,40 @@ public class GameManager
 
     public void Init()
     {
-        GameTime = 60f;
-        RespawnTime = 3f;
+        GameTime = DEFAULT_GAMETIME;
+        RespawnTime = DEFAULT_RESPAWNTIME;
         EnemyNumber = 0;
-        EnemyLevel = 1;
-        Volume = 50f;
-        _doNextStateTime = 3f;
+        EnemyLevel = (int)Define.EnemyLevel.Middle;
+        _doNextStateTime = DEFAULT_GAMESTARTTIME;
 
-        int test = PlayerPrefs.GetInt("EnemyNumber");
+        int test = PlayerPrefs.GetInt(PLAYERPREFS_ENEMYNUMBER);
 
         if(test != 0) {
-            EnemyNumber = PlayerPrefs.GetInt("EnemyNumber");
-            EnemyLevel = PlayerPrefs.GetInt("EnemyLevel");
-            GameTime *= PlayerPrefs.GetInt("TimeLimit");
-            RespawnTime = PlayerPrefs.GetInt("RespawnTime");
-            KillLimit = PlayerPrefs.GetInt("KillLimit");
+            EnemyNumber = PlayerPrefs.GetInt(PLAYERPREFS_ENEMYNUMBER);
+            EnemyLevel = PlayerPrefs.GetInt(PLAYERPREFS_ENEMYLEVEL);
+            GameTime *= PlayerPrefs.GetInt(PLAYERPREFS_TIMELIMIT);
+            RespawnTime = PlayerPrefs.GetInt(PLAYERPREFS_RESPAWNTIME);
+            KillLimit = PlayerPrefs.GetInt(PLAYERPREFS_KILLLIMIT);
         }
-
 
         EnemyNumberAction?.Invoke(EnemyNumber);
 
         PlayerPrefs.DeleteAll();
 
-        KillFeedParent = GameObject.Find("KIllFeeds").transform;
+        KillFeedParent = GameObject.Find(NAME_KILLFEEDS).transform;
         if (_scoreBoardTransform == null) {
-            var uiScoreBoard = GameObject.Find("UI_Scoreboard");
-            _scoreBoardTransform = Util.FindChild(uiScoreBoard, "Scoreboard", true).transform;
+            var uiScoreBoard = GameObject.Find(NAME_UI_SCOREBOARD);
+            _scoreBoardTransform = Util.FindChild(uiScoreBoard, NAME_SCOREBOARD, true).transform;
         }
         _scoreBoardTransform.parent.gameObject.SetActive(true);
         
 
 
         for (int i = 0; i< EnemyNumber; i++) {
-            EnemyController go = Managers.Resources.Instantiate("Unit/Enemy", null).GetComponent<EnemyController>();
+            EnemyController go = Managers.Resources.Instantiate(ENEMY_PATH, null).GetComponent<EnemyController>();
             Vector3 ranPos = Managers.RespawnManager.GetRespawnPosition();
             go.Create(ranPos, ENEMY_NAME[i], EnemyLevel);
-            UI_Scoreboard_Child child2 = Managers.Resources.Instantiate("UI/ScoreboardChild", _scoreBoardTransform).GetComponent<UI_Scoreboard_Child>();
+            UI_Scoreboard_Child child2 = Managers.Resources.Instantiate(NAME_UI_SCOREBOARDCHILD, _scoreBoardTransform).GetComponent<UI_Scoreboard_Child>();
             child2.Init(go.name, go, Color.gray);
             _boardChild.Add(child2);
             _units.Add(go);
@@ -86,32 +81,19 @@ public class GameManager
         VolumeEvent += SetVolume;
     }
 
-    public void SetPlayer(PlayerController networkPlayer = null) {
+    public void SetPlayer() {
         if (_scoreBoardTransform == null) {
-            var uiScoreBoard = GameObject.Find("UI_Scoreboard");
-            _scoreBoardTransform = Util.FindChild(uiScoreBoard, "Scoreboard", true).transform;
+            var uiScoreBoard = GameObject.Find(NAME_UI_SCOREBOARD);
+            _scoreBoardTransform = Util.FindChild(uiScoreBoard, NAME_SCOREBOARD, true).transform;
         }
 
-        if (networkPlayer != null) {
-            UI_Scoreboard_Child child = PhotonNetwork.Instantiate("Prefabs/UI/ScoreboardChild", Vector2.zero, Quaternion.identity).GetComponent<UI_Scoreboard_Child>();
-            child.transform.parent = _scoreBoardTransform;
-            child.Init(networkPlayer.name, networkPlayer, Color.green);
-            _units.Add(networkPlayer);
-            _boardChild.Add(child);
-        } else {
-            PlayerController player = GameObject.Find("Player").GetComponent<PlayerController>();
-            UI_Scoreboard_Child child = Managers.Resources.Instantiate("UI/ScoreboardChild", _scoreBoardTransform).GetComponent<UI_Scoreboard_Child>();
-            child.Init(player.name, player, Color.green);
-            _units.Add(player);
-            _boardChild.Add(child);
-        }
+        PlayerController player = GameObject.Find(NAME_PLAYER).GetComponent<PlayerController>();
+         UI_Scoreboard_Child child = Managers.Resources.Instantiate(NAME_UI_SCOREBOARDCHILD, _scoreBoardTransform).GetComponent<UI_Scoreboard_Child>();
+         child.Init(player.name, player, Color.green);
+         _units.Add(player);
+         _boardChild.Add(child);
     }
 
-    [PunRPC]
-    public void SavePlayersInfo() {
-
-    }
-    
 
     public void Clear() {
         WaitStateEvent = null;
@@ -129,7 +111,7 @@ public class GameManager
             t.Ufx.ChangeVolume(realVolume);
         }
         BgmController.instance.ChangeVolume(realVolume);
-        ShareSfxController.instance.ChangeVolume(realVolume);
+        PersonalSfxController.instance.ChangeVolume(realVolume);
     }
 
     public void BoardSortToRank() {
@@ -181,7 +163,7 @@ public class GameManager
                 Time.timeScale = 0f;
                 Cursor.lockState = CursorLockMode.Confined;
                 BgmController.instance.SetBgm(Bgm.Ingame, false);
-                ShareSfxController.instance.SetShareSfx(ShareSfx.Gameover);
+                PersonalSfxController.instance.SetShareSfx(ShareSfx.Gameover);
                 break;
             case GameState.Menu:
             case GameState.Setting:

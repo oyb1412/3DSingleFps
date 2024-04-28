@@ -1,29 +1,26 @@
 using DG.Tweening;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using static Define;
 
 public class SceneManagerEX
 {
-    public Define.SceneType CurrentScene = Define.SceneType.Startup;
+    public SceneType CurrentScene = SceneType.Startup;
     public BaseScene CurrentSceneManager => GameObject.FindObjectOfType<BaseScene>();
 
     private UI_Fade _fade;
 
     public void Init() {
         if(_fade == null)
-            _fade = GameObject.Find("UI_Fade").GetComponent<UI_Fade>();
+            _fade = GameObject.Find(NAME_UI_FAED).GetComponent<UI_Fade>();
     }
 
-    public void LoadScene(Define.SceneType type) {
+    public void LoadScene(SceneType type) {
         var tween = _fade.SetFade(true);
-        if (type == Define.SceneType.Exit) {
+        if (type == SceneType.Exit) {
             tween.OnComplete(QuitGame);
         } else {
-            if(type == Define.SceneType.Startup) {
+            if(type == SceneType.Startup) {
                 tween.OnComplete(() => ClearLoadScene(type));
             } else {
                 tween.OnComplete(() => DoNextScene(type));
@@ -31,7 +28,7 @@ public class SceneManagerEX
         }
     }
 
-    private void ClearLoadScene(Define.SceneType type) {
+    private void ClearLoadScene(SceneType type) {
         Managers.Instance.Ingameclear();
         DoNextScene(type);
     }

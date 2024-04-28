@@ -1,23 +1,16 @@
-using Photon.Pun;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
-using UnityEngine.UI;
 using static Define;
-using static UnityEngine.GraphicsBuffer;
 
-public abstract class UnitBase : MonoBehaviourPunCallbacks
+public abstract class UnitBase : MonoBehaviour
 {
-    private const int OUTLINE_NUMBER = 6;
+    private GameObject _healKit;
+    private GameObject _killFeed;
     protected GameObject _weapons;
     protected Transform _firePoint;
-    public Transform TargetPos { get; private set; }
-
-    [SerializeField] protected int _currentHp = 100;
-    [SerializeField] protected int _maxHp = 100;
-    [SerializeField] protected float _moveSpeed = 5f;
+    protected int _currentHp = UNIT_DEFAULT_HP;
+    protected int _maxHp = UNIT_DEFAULT_HP;
+    [SerializeField] protected float _moveSpeed = UNIT_DEFAULT_MOVESPEED;
     [SerializeField] protected Collider _bodyCollider;
     [SerializeField] protected Collider _headCollider;
 
@@ -46,13 +39,9 @@ public abstract class UnitBase : MonoBehaviourPunCallbacks
     public int MyDead { get; private set; }
     public ModelController Model { get; private set; }
     public IItem CollideItem { get; set; }
-    public Quaternion UnitRotate { get; protected set; }
 
-    public PhotonView PV { get; private set; }
 
     protected virtual void Awake() {
-        PV = GetComponent<PhotonView>();
-
         _outlines = new Outline[OUTLINE_NUMBER];
         for(int i = 0; i < _outlines.Length; i++) {
             _outlines[i] = GetComponentsInChildren<Outline>()[i];
@@ -61,13 +50,15 @@ public abstract class UnitBase : MonoBehaviourPunCallbacks
         _ufx = GetComponent<UnitSfxController>();
         Model = GetComponentInChildren<ModelController>();
 
-        _weapons = Util.FindChild(gameObject, "Weapons", false);
-        _firePoint = Util.FindChild(gameObject, "FirePoint", true).transform;
-        TargetPos = Util.FindChild(gameObject, "TargetPos", false).transform;
+        _weapons = Util.FindChild(gameObject, NAME_WEAPONS, false);
+        _firePoint = Util.FindChild(gameObject, NAME_FIREPOINT, true).transform;
 
         _weaponList[(int)WeaponType.Pistol] = Util.FindChild(_weapons, WeaponType.Pistol.ToString(), false).GetComponent<IWeapon>();
         _weaponList[(int)WeaponType.Rifle] = Util.FindChild(_weapons, WeaponType.Rifle.ToString(), false).GetComponent<IWeapon>();
         _weaponList[(int)WeaponType.Shotgun] = Util.FindChild(_weapons, WeaponType.Shotgun.ToString(), false).GetComponent<IWeapon>();
+
+        _healKit = (GameObject)Managers.Resources.Load<GameObject>(ITME_HEALKIT_PATH);
+        _killFeed = (GameObject)Managers.Resources.Load<GameObject>(UI_KILLFEED_PATH);
 
         WeaponInit();
     }
@@ -91,16 +82,14 @@ public abstract class UnitBase : MonoBehaviourPunCallbacks
     }
 
     private void DropWeapon() {
-
         if (_currentWeapon != _weaponList[(int)WeaponType.Pistol]) {
             ItemController go = Managers.Resources.Instantiate(BaseWeapon.CreateObject, null).GetComponent<ItemController>();
-            go.Init(new Vector3(transform.position.x, transform.position.y + 1f, transform.position.z), true);
+            go.transform.position = transform.position + Vector3.up;
         }
     }
 
     public virtual void ChangeWeapon(WeaponType type) {
         DropWeapon();
-
         _weaponList[(int)type].myObject.SetActive(true);
         _currentWeapon = _weaponList[(int)type];
         _currentWeapon.Activation(_firePoint, this);
@@ -134,11 +123,7 @@ public abstract class UnitBase : MonoBehaviourPunCallbacks
         }
     }
 
-    protected virtual void IsHitEvent(int damage, Transform attackerTrans, Transform myTrans) {
-
-
-        SetHp(-damage);
-    }
+    protected abstract void IsHitEvent(int damage, Transform attackerTrans, Transform myTrans);
 
     private void SetOutline(bool trigger) {
         if(trigger) {
@@ -153,23 +138,11 @@ public abstract class UnitBase : MonoBehaviourPunCallbacks
         }
     }
 
-    [PunRPC]
-    public void RPC_FeedInit(int handle, int type, string attackName, string myName) {
-        if (PV.OwnerActorNr != handle)
-            return;
-
-        UI_KillFeed feed = PhotonNetwork.Instantiate("Prefabs/UI/KillFeed", Vector3.zero, Quaternion.identity).GetComponent<UI_KillFeed>();
-        feed.Init((WeaponType)type, attackName, myName, Managers.GameManager.KillFeedParent);
-        feed.transform.SetSiblingIndex(0);
-    }
-
     protected virtual void IsDeadEvent(Transform attackerTrans, bool headShot) {
-        if (!PV.IsMine)
-            return;
+        Invoke("Init", Managers.GameManager.RespawnTime);
 
         SetOutline(false);
         _ufx.PlaySfx(UnitSfx.Dead);
-        Invoke("Init", Managers.GameManager.RespawnTime);
         _bodyCollider.enabled = false;
         _headCollider.enabled = false;
         MyDead++;
@@ -181,9 +154,13 @@ public abstract class UnitBase : MonoBehaviourPunCallbacks
         Managers.GameManager.BoardSortToRank();
         Model.ResetAnimator();
         ChangeState(UnitState.Dead);
-        GameObject kit = PhotonNetwork.Instantiate("Prefabs/Item/Healkit", transform.position + Vector3.up, Quaternion.identity);
 
-        PV.RPC("RPC_FeedInit", RpcTarget.AllBuffered, PV.OwnerActorNr, (int)target.BaseWeapon.Type, attackerTrans.gameObject.name, gameObject.name);
+        GameObject kit = Managers.Resources.Instantiate(_healKit, null);
+        kit.transform.position = transform.position + Vector3.up;
+
+        UI_KillFeed feed = Managers.Resources.Instantiate(_killFeed, Managers.GameManager.KillFeedParent).GetComponent<UI_KillFeed>();
+        feed.Init(BaseWeapon.Type, attackerTrans.name, name, Managers.GameManager.KillFeedParent);
+        feed.transform.SetSiblingIndex(0);
 
         if (Managers.GameManager.KillLimit > 0) {
             if (target.MyKill >= Managers.GameManager.KillLimit) {
@@ -206,14 +183,14 @@ public abstract class UnitBase : MonoBehaviourPunCallbacks
                 player.IsDoubleKill = true;
 
                 player.DoubleKillEvent?.Invoke();
-                ShareSfxController.instance.SetShareSfx(ShareSfx.Dominate);
+                PersonalSfxController.instance.SetShareSfx(ShareSfx.Dominate);
                 return;
             }
             if(!player.IsKill &&  player.IsDoubleKill && !player.IstripleKill) {
 
                 player.IsDoubleKill = false;
                 player.IstripleKill = true;
-                ShareSfxController.instance.SetShareSfx(ShareSfx.Rampage);
+                PersonalSfxController.instance.SetShareSfx(ShareSfx.Rampage);
                 player.TripleKillEvent?.Invoke();
             }
         }
@@ -233,7 +210,6 @@ public abstract class UnitBase : MonoBehaviourPunCallbacks
         _currentHp = _maxHp;
         transform.position = Managers.RespawnManager.GetRespawnPosition();
         ChangeState(UnitState.Get);
-        UnitRotate = Quaternion.identity;
     }
 
     public bool IsDead() {

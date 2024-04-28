@@ -2,22 +2,17 @@ using UnityEngine;
 
 namespace Enemy {
     public class PistolController : WeaponController {
+        private Base.PistolController _pistol = new Base.PistolController();
         protected override void Awake() {
             base.Awake();
 
-            Damage = 25;
-            Type = Define.WeaponType.Pistol;
-            Name = "Pistol";
-            _shotDelay = 0.4f;
-            WeaponIcon = (Sprite)Managers.Resources.Load<Sprite>("Texture/PistolIcon");
-            CreateObject = (GameObject)Managers.Resources.Load<GameObject>("Prefabs/Item/Pistol");
+            _pistol.SetPistol(ref _damage, ref _weaponType, ref _name, ref _shotDelay, ref _weaponIcon, ref _createObject);
         }
 
         protected override void Enable() {
-            CurrentBullet = 12;
-            RemainBullet = 12;
-            MaxBullet = 60;
+            _pistol.SetEnable(ref _currentBullet, ref _remainBullet, ref _maxBullet);
         }
+
         public override void Shot() {
             base.Shot();
 

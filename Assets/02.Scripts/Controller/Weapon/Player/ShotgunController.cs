@@ -3,53 +3,41 @@ using static Define;
 
 namespace Player {
     public class ShotgunController : WeaponController {
-        private const float AIM_ANGLE = 1f;
-
-        [SerializeField] private float _bulletAngle;
-        [SerializeField] private int _bulletNumber;
+        private Base.ShotgunController _shotgun = new Base.ShotgunController();
+        private float _bulletAngle = SHOTGUN_ANGLE;
 
         protected override void Awake() {
             base.Awake();
-
-            WeaponIcon = (Sprite)Managers.Resources.Load<Sprite>("Texture/ShotgunIcon");
-            CreateObject = (GameObject)Managers.Resources.Load<GameObject>("Prefabs/Item/Shotgun");
-            Name = "Shotgun";
+            _shotgun.SetShotgun(ref _damage, ref _weaponType, ref _name, ref _shotDelay, ref _weaponIcon, ref _createObject);
+            CameraView = SHOTGUN_CAMERAVIEW;
         }
 
         protected override void Start() {
             base.Start();
 
             Player.AimEvent += SetBulletAngle;
-            VerticalBoundValue = 4.0f;
-            HorizontalBoundValue = 1f;
-            _shotDelay = .8f;
-            Type = WeaponType.Shotgun;
-
-            CrossValue = 350f;
-            Damage = 15;
+            VerticalBoundValue = SHOTGUN_VECTICALBOUND_VALUE;
+            HorizontalBoundValue = SHOTGUN_HORIZONTALBOUND_VALUE;
+            CrossValue = SHOTGUN_CROSSHAIR_VALUE;
         }
 
         public void SetBulletAngle(bool trigger) {
-
-            _bulletAngle = trigger ? AIM_ANGLE : _bulletAngle; 
+            _bulletAngle = trigger ? SHOTGUN_ANGLE : _bulletAngle; 
         }
 
         protected override void Enable() {
-     
-            CurrentBullet = 6;
-            RemainBullet = 6;
-            MaxBullet = 30;
+            _shotgun.SetEnable(ref _currentBullet, ref _remainBullet, ref _maxBullet);
         }
         public override void Shot() {
             base.Shot();
 
-            for (int i = 0; i < _bulletNumber; i++) {
+            for (int i = 0; i < SHOTGUN_PALLET_NUMBER; i++) {
                 Player.ShotEvent.Invoke();
 
-                var ran1 = Random.Range(-_bulletAngle, _bulletAngle);
-                var ran2 = Random.Range(-_bulletAngle, _bulletAngle);
+                var ranX = Random.Range(-_bulletAngle, _bulletAngle);
+                var ranY = Random.Range(-_bulletAngle, _bulletAngle);
 
-                Quaternion pelletRotation = Quaternion.Euler(ran1, ran2, 0);
+                Quaternion pelletRotation = Quaternion.Euler(ranX, ranY, 0);
                 Vector3 pelletDirection = pelletRotation * transform.forward;
 
                 DefaultShot(pelletDirection);

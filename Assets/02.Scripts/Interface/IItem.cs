@@ -7,5 +7,4 @@ public interface IItem {
 
     public Transform MyTransform { get;  }
 
-    bool IsMine { get; }
 }

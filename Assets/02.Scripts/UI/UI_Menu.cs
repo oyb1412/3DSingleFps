@@ -1,10 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using DG.Tweening;
-using Unity.VisualScripting;
 using UnityEngine.EventSystems;
+using static Define;
 
 public class UI_Menu : UI_Base
 {
@@ -22,7 +19,6 @@ public class UI_Menu : UI_Base
         ExitBG,
     }
 
-
     protected override void Init() {
         base.Init();
 
@@ -36,14 +32,13 @@ public class UI_Menu : UI_Base
         PointerEventData data = eventData as PointerEventData;
         _name = data.pointerCurrentRaycast.gameObject.name;
 
-        Color color = new Color(0f, 0f, 0f, .5f);
-        Vector3 scale = new Vector3(.95f, .95f, .95f);
+        Color color = UI_ENTER_COLOR;
+        Vector3 scale = UI_ENTER_SIZE;
 
         SetColorAndScale(_resumeBtn, _name, BtnType.ResumeBG.ToString(), color, scale);
         SetColorAndScale(_settingBtn, _name, BtnType.SettingBG.ToString(), color, scale);
         SetColorAndScale(_exitBtn, _name, BtnType.ExitBG.ToString(), color, scale);
     }
-
 
     public override void OnExitButton(BaseEventData eventData) {
         base.OnExitButton(eventData);
