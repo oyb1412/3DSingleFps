@@ -78,7 +78,9 @@ namespace Player {
 
             var ran = Random.Range(0, _muzzleEffect.Length);
             Transform trans = Player.IsAiming ? _aimFirePos : _firePos;
-            CreateEffect(_muzzleEffect[ran], trans.position, _unit.transform.rotation);
+            GameObject go = CreateEffect(_muzzleEffect[ran], trans.position, _unit.transform.rotation);
+            Managers.Instance.DestoryCoroutine(go, EFFECT_MUZZLE_DESTROY_TIME);
+
         }
 
     }

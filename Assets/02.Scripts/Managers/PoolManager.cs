@@ -88,6 +88,9 @@ public class PoolManager
     }
 
     public void Clear() {
+        foreach(Transform t in _root) {
+            Managers.Resources.Destroy(t.gameObject);
+        }
         _root = null;
         _pools.Clear();
     }

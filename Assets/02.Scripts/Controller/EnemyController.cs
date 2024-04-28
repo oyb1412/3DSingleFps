@@ -86,6 +86,7 @@ public class EnemyController : UnitBase, ITakeDamage {
     private UnitBase SearchUnit() {
         var units = Managers.GameManager.UnitsList;
         foreach(var unit in units) {
+                if (unit.IsDead()) continue;
             Vector3 dir = (unit.transform.position - transform.position).normalized;
             float product = Vector3.Dot(transform.forward, dir);
             float angle = Mathf.Cos(_viewRange * 0.5f * Mathf.Deg2Rad);

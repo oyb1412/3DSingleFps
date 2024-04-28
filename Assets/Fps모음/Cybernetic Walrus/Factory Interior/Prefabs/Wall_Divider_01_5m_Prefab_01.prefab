@@ -11,12 +11,12 @@ GameObject:
   - component: {fileID: 9010906697597226888}
   - component: {fileID: 2756138483528105976}
   - component: {fileID: 4886764288748770921}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Wall_Divider_01_5m_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 4294967295
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &9010906697597226888
 Transform:
@@ -93,13 +93,13 @@ GameObject:
   m_Component:
   - component: {fileID: 5289787432908734722}
   - component: {fileID: 1095225789702960755}
-  - component: {fileID: 5684564011583317738}
-  m_Layer: 0
+  - component: {fileID: 4016623187232985763}
+  m_Layer: 11
   m_Name: Wall_Divider_01_5m_Prefab_01
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 4294967295
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &5289787432908734722
 Transform:
@@ -141,8 +141,8 @@ LODGroup:
     renderers:
     - renderer: {fileID: 4886764288748770921}
   m_Enabled: 1
---- !u!64 &5684564011583317738
-MeshCollider:
+--- !u!65 &4016623187232985763
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -159,10 +159,9 @@ MeshCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: -4337867647418291275, guid: c153e9c11b4cb01439fbb10289757770, type: 3}
+  serializedVersion: 3
+  m_Size: {x: 5.2, y: 2.2, z: 1.06}
+  m_Center: {x: -2.46, y: 1.02, z: -0.5}
 --- !u!1 &6000592276603014393
 GameObject:
   m_ObjectHideFlags: 0
@@ -174,12 +173,12 @@ GameObject:
   - component: {fileID: 3275085026490205776}
   - component: {fileID: 1049789411468957252}
   - component: {fileID: 4111353227072410589}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Wall_Divider_01_5m_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 4294967295
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &3275085026490205776
 Transform:

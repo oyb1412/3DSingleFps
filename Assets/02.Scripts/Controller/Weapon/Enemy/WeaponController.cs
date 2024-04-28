@@ -72,7 +72,8 @@ namespace Enemy {
             base.Shot();
 
             var ran = Random.Range(0, _muzzleEffect.Length);
-            CreateEffect(_muzzleEffect[ran], _firePos.position, _unit.transform.rotation);
+            GameObject go = CreateEffect(_muzzleEffect[ran], _firePos.position, _unit.transform.rotation);
+            Managers.Instance.DestoryCoroutine(go, EFFECT_MUZZLE_DESTROY_TIME);
         }
 
         private IEnumerator CoRotate() {

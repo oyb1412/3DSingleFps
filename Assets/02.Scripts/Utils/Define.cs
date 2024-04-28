@@ -89,7 +89,7 @@ public class Define
 
     public static readonly float FADE_TIME = 1f;
 
-    public static readonly float DEFAULT_GAMETIME = 120f;
+    public static readonly float DEFAULT_GAMETIME = 60f;
     public static readonly float DEFAULT_RESPAWNTIME = 3f;
 
     public static readonly float DEFAULT_GAMESTARTTIME = 3f;
@@ -155,6 +155,8 @@ public class Define
     public static readonly float PLAYER_FORWARDCHECK_LENTHS = 2f;
     public static readonly float PLAYER_GROUNDCHECK_LENTHS = 1.3f;
     public static readonly float UNIT_DEFAULT_MOVESPEED = 5f;
+
+    public static readonly float EFFECT_MUZZLE_DESTROY_TIME = 0.05f;
 
     #endregion
 
