@@ -1,4 +1,6 @@
 using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
 using static Define;
 
 public abstract class ItemController : MonoBehaviour, IItem {
@@ -14,4 +16,6 @@ public abstract class ItemController : MonoBehaviour, IItem {
 
         transform.Rotate(0f, ITEM_ROTATE_SPEED, 0f);
     }
+
+ 
 }

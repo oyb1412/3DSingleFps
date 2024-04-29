@@ -72,8 +72,10 @@ public class Managers : MonoBehaviour
         StartCoroutine(Co_Destory(go, time));
     }
 
-    private IEnumerator Co_Destory(GameObject go,  float timte) {
-        yield return new WaitForSeconds(timte);
-        Resources.Destroy(go);
+    private IEnumerator Co_Destory(GameObject go, float timt) {
+        yield return new WaitForSeconds(timt);
+        if(go != null &&
+            go.activeInHierarchy)
+            Resources.Destroy(go);
     }
 }
