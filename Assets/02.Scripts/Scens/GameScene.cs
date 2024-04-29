@@ -35,6 +35,6 @@ public class GameScene : BaseScene
         Managers.Scene.SetScene();
         Managers.Instance.IngameInit();
 
-        BgmController.instance.SetBgm(Define.Bgm.Ingame, true);
+        BgmController.instance.SetBgm(Bgm.Ingame, true);
     }
 }

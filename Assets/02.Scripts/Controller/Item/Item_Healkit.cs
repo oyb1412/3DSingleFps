@@ -1,11 +1,11 @@
 using UnityEngine;
 using static Define;
-public class Healkit : ItemController
+public class Item_Healkit : ItemController
 {
-    
-    private void Start() {
+    private void OnEnable() {
         Managers.Instance.DestoryCoroutine(gameObject, HEALKIT_DESTORY_TIME);
     }
+
     private void Update() {
         transform.Rotate(0f, ITEM_ROTATE_SPEED, 0f);
     }

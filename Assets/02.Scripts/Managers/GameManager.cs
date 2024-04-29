@@ -6,10 +6,15 @@ using static Define;
 
 public class GameManager
 {
+    private float _doNextStateTime;
+    private Transform _scoreBoardTransform;
+    private List<UnitBase> _units = new List<UnitBase>();
     public Action WaitStateEvent;
     public Action FightStateEvent;
     public Action GameoverAction;
     public Action<int> EnemyNumberAction;
+    public Action<float> VolumeEvent;
+
     public float GameTime { get; private set; }
     public float RespawnTime { get; private set; }
     public int EnemyNumber { get; private set; }
@@ -17,19 +22,13 @@ public class GameManager
     public int KillLimit { get; private set; }
     public GameState State { get; private set; } = GameState.None;
 
-    public Action<float> VolumeEvent;
     public float WaitTime { get; private set; }
 
-    private float _doNextStateTime;
 
-    private Transform _scoreBoardTransform;
     public Transform KillFeedParent { get; private set; }
-
-    private List<UnitBase> _units = new List<UnitBase>();
     public List<UnitBase> UnitsList => _units;
 
     private List<UI_Scoreboard_Child> _boardChild = new List<UI_Scoreboard_Child>();
-
     public List<UI_Scoreboard_Child> BoardChild => _boardChild;
 
     public void Init()

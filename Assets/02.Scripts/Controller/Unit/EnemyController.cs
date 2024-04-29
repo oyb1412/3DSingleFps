@@ -2,21 +2,22 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 using static Define;
-
 public class EnemyController : UnitBase, ITakeDamage {
+
     private NavMeshAgent _agent;
-    public int Level { get; private set; } = (int)EnemyLevel.Middle;
-    [field:SerializeField]public UnitBase TargetUnit { get; set; }
     private Collider _collider;
-    [SerializeField]private bool _isTraceItem;
-    [field: SerializeField] public bool IsShotState { get; set; }
-    [SerializeField] float _viewRange;
+    private bool _isTraceItem;
+    private bool _isShotState;
+    private float _viewRange = ENEMY_DEFAULT_VIEWRANGE;
+    public int Level { get; private set; } = (int)EnemyLevel.Middle;
+    public UnitBase TargetUnit { get; set; }
 
     public void Create(Vector3 pos, string name, int level) {
         transform.position = pos;
         gameObject.name = name;
         Level = level;
     }
+
     protected override void Awake() {
         base.Awake();
         _collider = GetComponent<Collider>();
@@ -34,53 +35,53 @@ public class EnemyController : UnitBase, ITakeDamage {
         StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
     }
 
-    private void Update() {
+    private void Patrol() {
         if (!Managers.GameManager.InGame())
             return;
 
         if (State == UnitState.Dead)
             return;
 
-        //적 미발견 상태에서 적 발견 및 공격 가능
         if (!TargetUnit && SearchUnit()) {
             TargetUnit = SearchUnit();
-            IsShotState = true;
+            _isShotState = true;
         }
 
         if (TargetUnit && !TargetUnit.IsDead() && SearchUnit()) {
-            IsShotState = true;
+            _isShotState = true;
         }
 
-        //적 발견 상태에서 적 사망
         if (TargetUnit && TargetUnit.IsDead()) {
             TargetUnit = null;
-            IsShotState = false;
+            _isShotState = false;
             StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
             return;
         }
 
-        //적 발견 상태에서 적 시야 밖으로 나감
         if (TargetUnit && !SearchUnit()) {
             TargetUnit = null;
-            IsShotState = false;
+            _isShotState = false;
             StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
             return;
         }
 
-        //공격 상태
-        if (IsShotState) {
-            if(!TargetUnit || TargetUnit.IsDead()) {
-                IsShotState = false;
+        if (_isShotState) {
+            if (!TargetUnit || TargetUnit.IsDead()) {
+                _isShotState = false;
                 StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
                 return;
             }
-            if(_state != UnitState.Reload) {
+            if (_state != UnitState.Reload) {
                 if (_currentWeapon.TryShot(this)) {
                     _agent.SetDestination(transform.position);
                     ChangeState(UnitState.Shot);
                 }
             }
         }
+    }
+
+    private void Update() {
+        Patrol();
     }
 
     private UnitBase SearchUnit() {
@@ -112,10 +113,12 @@ public class EnemyController : UnitBase, ITakeDamage {
 
     public IEnumerator CoMove(Vector3 pos) {
         _agent.SetDestination(pos);
-        BaseWeapon.Animator.ResetTrigger(ANIMATOR_PARAMETER_SHOT);
         _state = UnitState.Move;
-        IsShotState = false;
+        _isShotState = false;
+        BaseWeapon.Animator.ResetTrigger(ANIMATOR_PARAMETER_SHOT);
+
         ChangeState(UnitState.Move);
+
         while (true) {
             float dir = (new Vector3(pos.x, 0f, pos.z)
                 - new Vector3(transform.position.x, 0f, transform.position.z)).magnitude;
@@ -123,7 +126,7 @@ public class EnemyController : UnitBase, ITakeDamage {
             if (TargetUnit) {
                 _agent.SetDestination(transform.position);
                 transform.LookAt(TargetUnit.transform);
-                IsShotState = true;
+                _isShotState = true;
                 StopAllCoroutines();
                 break;
             }
@@ -158,25 +161,24 @@ public class EnemyController : UnitBase, ITakeDamage {
         if (TargetUnit == null) {
             TargetUnit = attackerTrans.GetComponentInParent<UnitBase>();
             transform.LookAt(TargetUnit.transform);
-            IsShotState = true;
+            _isShotState = true;
         }
     }
 
     protected override void IsDeadEvent(Transform attackerTrans, bool headShot) {
-        base.IsDeadEvent(attackerTrans, headShot);
-
         if (attackerTrans.TryGetComponent<PlayerController>(out var player)) {
             PersonalSfxController.instance.SetShareSfx(ShareSfx.KillSound);
             DirType dir = Util.DirectionCalculation(attackerTrans, transform);
-            player.KillAndDeadEvent.Invoke(dir, name, true, headShot);
+            player.ShowKillAndDeadText(dir, name, true, headShot);
         }
-         transform.LookAt(attackerTrans);
+        transform.LookAt(attackerTrans);
         TargetUnit = null;
         _collider.enabled = false;
+        base.IsDeadEvent(attackerTrans, headShot);
     }
 
-    public override void Init() {
-        base.Init();
+    public override void Respawn() {
+        base.Respawn();
         _bodyCollider.enabled = true;
         _headCollider.enabled = true;
         _collider.enabled = true;
@@ -186,28 +188,39 @@ public class EnemyController : UnitBase, ITakeDamage {
         StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
     }
 
+    private void SetAnimationBool(string parameter, bool trigger) {
+        Model.Animator.SetBool(parameter, trigger);
+        BaseWeapon.Animator.SetBool(parameter, trigger);
+    }
+
+    private void SetAnimationTrigger(string parameter) {
+        Model.Animator.SetTrigger(parameter);
+        BaseWeapon.Animator.SetTrigger(parameter);
+    }
+
+    public void SetCollideItem(IItem item) {
+        CollideItem = item;
+    }
     public override void ChangeState(UnitState state) {
         switch (state) {
             case UnitState.Idle:
                 if (_state == UnitState.Dead || _state == UnitState.Shot)
                     return;
 
-                Model.Animator.SetBool(UnitState.Move.ToString(), false);
-                BaseWeapon.Animator.SetBool(UnitState.Move.ToString(), false);
+                SetAnimationBool(UnitState.Move.ToString(), false);
                 break;
             case UnitState.Move:
                 if (_state == UnitState.Dead || _state == UnitState.Reload || _state == UnitState.Shot)
                     return;
 
-                Model.Animator.SetBool(UnitState.Move.ToString(), true);
-                BaseWeapon.Animator.SetBool(UnitState.Move.ToString(), true);
+                SetAnimationBool(UnitState.Move.ToString(), true);
                 break;
             case UnitState.Shot:
                 if (_state == UnitState.Reload || _state == UnitState.Dead)
                     return;
 
-                Model.Animator.SetBool(UnitState.Move.ToString(), false);
-                BaseWeapon.Animator.SetBool(UnitState.Move.ToString(), false);
+                SetAnimationBool(UnitState.Move.ToString(), false);
+
                 Model.Animator.SetTrigger($"{state.ToString()}{BaseWeapon.Type.ToString()}");
                 BaseWeapon.Animator.SetTrigger(state.ToString());
                 break;
@@ -215,28 +228,25 @@ public class EnemyController : UnitBase, ITakeDamage {
                 if (_state == UnitState.Reload || _state == UnitState.Dead)
                     return;
 
-                Model.Animator.SetBool(UnitState.Move.ToString(), false);
-                BaseWeapon.Animator.SetBool(UnitState.Move.ToString(), false);
-                Model.Animator.SetTrigger(state.ToString());
-                BaseWeapon.Animator.SetTrigger(state.ToString());
+                SetAnimationBool(UnitState.Move.ToString(), false);
+
+                SetAnimationTrigger(state.ToString());
                 break;
             case UnitState.Dead:
                 if (_state == UnitState.Dead)
                     return;
 
-                Model.Animator.SetBool(UnitState.Move.ToString(), false);
-                BaseWeapon.Animator.SetBool(UnitState.Move.ToString(), false);
-                Model.Animator.SetTrigger(state.ToString());
-                BaseWeapon.Animator.SetTrigger(state.ToString());
+                SetAnimationBool(UnitState.Move.ToString(), false);
+
+                SetAnimationTrigger(state.ToString());
                 break;
             case UnitState.Get:
                 if (_state == UnitState.Get)
                     return;
 
-                Model.Animator.SetBool(UnitState.Move.ToString(), false);
-                BaseWeapon.Animator.SetBool(UnitState.Move.ToString(), false);
-                Model.Animator.SetTrigger(state.ToString());
-                BaseWeapon.Animator.SetTrigger(state.ToString());
+                SetAnimationBool(UnitState.Move.ToString(), false);
+
+                SetAnimationTrigger(state.ToString());
                 break;
         }
         _state = state;

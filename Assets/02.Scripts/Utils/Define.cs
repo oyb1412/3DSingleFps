@@ -14,11 +14,16 @@ public class Define
     public static readonly string MENT_KILL = "Killer the {0} ({1}, {2})";
     public static readonly string MENT_DEAD = "Killed by that {0} ({1}, {2})";
 
+    public static readonly string MENT_PLAYERS = "PLAYERS ({0})";
+
+    public static readonly string WINNERLOGO = "Winner is {0}";
+
     public static readonly string LOGO_DOUBLEKILL = "DOUBLE KILL!!";
     public static readonly string LOGO_TRIPLEKILL = "TRIPLE KILL!!!";
     public static readonly string LOGO_START = "START!";
 
     public static readonly string LOGO_HEADSHOT = "HeadShot";
+    public static readonly string LOGO_BODYSHOT = "BodyShot";
 
     public static readonly string TAG_UNIT = "Unit";
     public static readonly string TAG_OBSTACLE = "Obstacle";
@@ -82,6 +87,9 @@ public class Define
     #endregion
 
     #region float
+    public static readonly float WARDHOUSE_ALLOW_RESPAWN_RANGE = 10f;
+    public static readonly float PORT_ALLOW_RESPAWN_RANGE = 20f;
+
     public static readonly float[] HURTIMAGE_ROTATE = { 90f, 180f, 270f, 0f };
 
     public static readonly float CROSSHAIR_LIMIT_VALUE = 100f;
@@ -113,7 +121,7 @@ public class Define
     public static readonly float MAINCAMERA_FADETIME = 0.3f;
     public static readonly float SUBCAMERA_MOVESPEED = 1f;
 
-    public static readonly float ITEM_ROTATE_SPEED = 0.2f;
+    public static readonly float ITEM_ROTATE_SPEED = 0.5f;
     public static readonly float HEALKIT_DESTORY_TIME = 5f;
     public static readonly float DEFAULT_VOLUME = 0.5f;
     public static readonly float SOUND_2DMODE = 0f;
@@ -132,6 +140,7 @@ public class Define
     public static readonly float ENEMY_DEFAULT_ATTACK_CHANCE = 50f;
     public static readonly float ENEMY_HIGH_ATTACK_CHANCE = 75f;
     public static readonly float ENEMY_LOW_ATTACK_CHANCE = 40f;
+    public static readonly float ENEMY_DEFAULT_VIEWRANGE = 90f;
 
     public static readonly float ENEMY_ATTACK_CHANCE_MINUS_RANGE = 5f;
     public static readonly float ENEMY_MOVE_ALLOW_RANGE = 0.2f;

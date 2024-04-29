@@ -22,7 +22,7 @@ public class ResourcesManager
         return Resources.Load<T>(path);
     }
 
-    public GameObject Instantiate(string path, Transform parent)
+    public GameObject Instantiate(string path, Transform parent = null)
     {
         GameObject obj = Load<GameObject>($"Prefabs/{path}").GameObject();
 
@@ -32,22 +32,24 @@ public class ResourcesManager
             return null;
         }
 
-        if (obj.GetComponent<Poolable>() != null)
+        if (obj.GetComponent<Poolable>() != null) {
             return Managers.Pool.Activation(obj).gameObject;
-        
+        }
+
         GameObject go = Object.Instantiate(obj, parent);
         go.name = obj.name;
         return go;
     }
 
-    public GameObject Instantiate(GameObject obj, Transform parent) {
+    public GameObject Instantiate(GameObject obj, Transform parent = null) {
 
         if (obj == null) {
             return null;
         }
 
-        if (obj.GetComponent<Poolable>() != null)
+        if (obj.GetComponent<Poolable>() != null) {
             return Managers.Pool.Activation(obj).gameObject;
+        }
 
         GameObject go = Object.Instantiate(obj, parent);
         go.name = obj.name;

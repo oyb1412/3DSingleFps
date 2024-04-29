@@ -1,3 +1,4 @@
+using Photon.Realtime;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -38,19 +39,16 @@ public class PlayerController : UnitBase, ITakeDamage
     public Action<Player.WeaponController> ChangeEvent;
     public Action<Transform, Transform> HurtEvent;
     public Action DeadEvent;
-    public Action KillEvent;
+    public Action<int> KillEvent;
     public Action RespawnEvent;
-    public Action BodyshotEvent;
-    public Action HeadshotEvent;
-    public Action DoubleKillEvent;
-    public Action TripleKillEvent;
-    public Action<bool> ScoreboardEvent;
-    public Action MenuEvent;
-    public Action SettingEvent;
+    public Action<bool> HurtShotEvent;
+    public Action<bool> ShowScoreboardEvent;
+    public Action ShowMenuEvent;
+    public Action ShowSettingEvent;
     public Action<bool> CollideItemEvent;
-    public Action<bool> AimEvent;
+    public Action<bool> SetAimEvent;
     public Action<int> ChangeCrosshairEvent;
-    public Action<DirType, string, bool, bool> KillAndDeadEvent;
+    public Action<DirType, string, bool, bool> ShowKillAndDeadTextEvent;
     #endregion
 
     #region property
@@ -128,20 +126,20 @@ public class PlayerController : UnitBase, ITakeDamage
         if (Input.GetKeyDown(KeyCode.Escape)) {
             if(Managers.GameManager.State == GameState.StartFight ||
                 Managers.GameManager.State == GameState.Menu)
-                MenuEvent.Invoke();
+                ShowMenuEvent.Invoke();
 
             if(Managers.GameManager.State == GameState.Setting)
-                SettingEvent.Invoke();
+                ShowSettingEvent.Invoke();
         }
 
         if (!Managers.GameManager.InGame())
             return;
 
         if (Input.GetKey(KeyCode.Tab)) {
-            ScoreboardEvent.Invoke(true);
+            ShowScoreboardEvent.Invoke(true);
         }
         if (Input.GetKeyUp(KeyCode.Tab)) {
-            ScoreboardEvent.Invoke(false);
+            ShowScoreboardEvent.Invoke(false);
         }
 
         if(Input.GetKey(KeyCode.LeftShift) &&
@@ -157,20 +155,15 @@ public class PlayerController : UnitBase, ITakeDamage
             _isRun = false;
         }
 
-
-        if (_state == UnitState.Dead)
-            return;
-
         if (IsKill) {
             _doubleKillCheck += Time.deltaTime;
-            if(_doubleKillCheck > PLAYER_CONTINUE_KILL_TIME) {
+            if (_doubleKillCheck > PLAYER_CONTINUE_KILL_TIME) {
                 IsKill = false;
                 _doubleKillCheck = 0f;
             }
         }
 
-        if (IsDoubleKill)
-        {
+        if (IsDoubleKill) {
             _tripleKillCheck += Time.deltaTime;
             if (_tripleKillCheck > PLAYER_CONTINUE_KILL_TIME) {
                 IsDoubleKill = false;
@@ -178,13 +171,18 @@ public class PlayerController : UnitBase, ITakeDamage
             }
         }
 
-        if(IstripleKill) {
+        if (IstripleKill) {
             IsKill = false;
             _doubleKillCheck = 0f;
             IsDoubleKill = false;
             _tripleKillCheck = 0f;
             IstripleKill = false;
         }
+
+        if (_state == UnitState.Dead)
+            return;
+
+
 
         if(_isJumping) {
             _jumpTimer += Time.deltaTime;
@@ -224,13 +222,13 @@ public class PlayerController : UnitBase, ITakeDamage
         if(Input.GetMouseButton(1)) {
             if(!IsAiming) {
                 IsAiming = true;
-                AimEvent.Invoke(true);
+                SetAimEvent.Invoke(true);
             }
         }
 
         if(IsAiming && Input.GetMouseButtonUp(1)) {
             IsAiming = false;
-            AimEvent.Invoke(false);
+            SetAimEvent.Invoke(false);
         }
 
         if (_state == UnitState.Shot) {
@@ -344,6 +342,20 @@ public class PlayerController : UnitBase, ITakeDamage
     #endregion
 
     #region OtherEvent
+
+    public void HurtShot(bool headShot) {
+        HurtShotEvent.Invoke(headShot);
+    }
+
+    public void SetReload(int currentBullet, int maxBullet, int remainBullet) {
+        BulletEvent.Invoke(currentBullet, maxBullet, remainBullet);
+    }
+
+    public void SetShot(float verticla, float horizontal, int currentBullet, int maxBullet, int remainBullet) {
+        StartCoroutine(COBound(verticla, horizontal));
+        BulletEvent.Invoke(currentBullet, maxBullet, remainBullet);
+    }
+
     protected override void IsHitEvent(int damage, Transform attackerTrans, Transform myTrans) {
         HpEvent?.Invoke(_currentHp, _maxHp, damage);
         HurtEvent?.Invoke(attackerTrans, myTrans);
@@ -359,15 +371,15 @@ public class PlayerController : UnitBase, ITakeDamage
     protected override void IsDeadEvent(Transform attackerTrans, bool headShot) {
         _moveX = 0f;
         _moveZ = 0f;
-        base.IsDeadEvent(attackerTrans, headShot);
-        CurrentWeapon.ChangeAimAC(false);
         _cc.enabled = false;
+        CurrentWeapon.ChangeAimAC(false);
         DirType dir = Util.DirectionCalculation(attackerTrans, transform);
-        KillAndDeadEvent?.Invoke(dir, attackerTrans.name, false, headShot);
-        DeadEvent?.Invoke();
+        ShowKillAndDeadTextEvent?.Invoke(dir, attackerTrans.name, false, headShot);
         _mainCamera.gameObject.SetActive(false);
         _handCamera.gameObject.SetActive(false);
         _subCamera.gameObject.SetActive(true);
+        base.IsDeadEvent(attackerTrans, headShot);
+        DeadEvent?.Invoke();
     }
 
 
@@ -395,14 +407,13 @@ public class PlayerController : UnitBase, ITakeDamage
         return Physics.Raycast(transform.position + Vector3.up, -Vector3.up, PLAYER_GROUNDCHECK_LENTHS, _jumpLayer);
     }
 
-    public override void Init() {
+    public override void Respawn() {
        
-        base.Init();
-
+        base.Respawn();
         _isFalling = false;
         _isJumping = false;
         IsAiming = false;
-        AimEvent.Invoke(false);
+        SetAimEvent.Invoke(false);
         CurrentWeapon.ChangeAimAC(false);
         _vx = _vy = _moveX = _moveZ = 0f;
         _velocity = Vector3.zero;
@@ -420,6 +431,11 @@ public class PlayerController : UnitBase, ITakeDamage
         _headCollider.enabled = true;
     }
 
+    private void SetAnimationBool(string parameter, bool trigger) {
+        Model.Animator.SetBool(parameter, trigger);
+        CurrentWeapon.CurrentAnime.SetBool(parameter, trigger);
+    }
+
     public override void ChangeState(UnitState state) {
         switch (state) {
             case UnitState.Idle:
@@ -427,8 +443,8 @@ public class PlayerController : UnitBase, ITakeDamage
                     return;
 
                 _isRun = false;
-                Model.Animator.SetBool(UnitState.Move.ToString(), false);
-                CurrentWeapon.CurrentAnime.SetBool(UnitState.Move.ToString(), false);
+                SetAnimationBool(UnitState.Move.ToString(), false);
+
                 CurrentWeapon.CurrentAnime.SetBool(UnitState.Run.ToString(), false);
                 break;
             case UnitState.Move:
@@ -436,9 +452,10 @@ public class PlayerController : UnitBase, ITakeDamage
                     return;
 
                 _isRun = false;
-                Model.Animator.SetBool(UnitState.Move.ToString(), true);
-                CurrentWeapon.CurrentAnime.SetBool(UnitState.Run.ToString(), false);
+                SetAnimationBool(UnitState.Move.ToString(), true);
                 CurrentWeapon.CurrentAnime.SetBool(UnitState.Move.ToString(), true);
+
+                CurrentWeapon.CurrentAnime.SetBool(UnitState.Run.ToString(), false);
                 break;
 
             case UnitState.Run:
@@ -500,6 +517,34 @@ public class PlayerController : UnitBase, ITakeDamage
         }
         _state = state;
 
+    }
+
+    public void ContinueKill() {
+        if (IstripleKill) {
+            return;
+        }
+        if (!IsKill && !IsDoubleKill) {
+            IsKill = true;
+            KillEvent?.Invoke(1);
+            return;
+        }
+        if (IsKill && !IsDoubleKill) {
+            IsDoubleKill = true;
+            IsKill = false;
+            PersonalSfxController.instance.SetShareSfx(ShareSfx.Dominate);
+            KillEvent?.Invoke(2);
+            return;
+        }
+        if (!IsKill && IsDoubleKill && !IstripleKill) {
+            IsDoubleKill = false;
+            IstripleKill = true;
+            PersonalSfxController.instance.SetShareSfx(ShareSfx.Rampage);
+            KillEvent?.Invoke(3);
+        }
+    }
+
+    public void ShowKillAndDeadText(DirType dir, string name, bool kill, bool headShot) {
+        ShowKillAndDeadTextEvent.Invoke(dir, name, true, headShot);
     }
     #endregion
 }

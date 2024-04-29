@@ -13,7 +13,7 @@ public class MainCameraController : MonoBehaviour
         _camera = GetComponent<Camera>();
         _defaultView = _camera.fieldOfView;
         _player = GetComponentInParent<PlayerController>();
-        _player.AimEvent += AimEvent;
+        _player.SetAimEvent += AimEvent;
         _defaultPos = transform.localPosition;
     }
 
@@ -27,5 +27,4 @@ public class MainCameraController : MonoBehaviour
             DOTween.To(() => _camera.fieldOfView, x => _camera.fieldOfView = x, _defaultView, MAINCAMERA_FADETIME);
         }
     }
-
 }

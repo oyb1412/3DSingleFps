@@ -1,7 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using static Define;
 
 public class UI_Scoreboard : UI_Base
 {
@@ -12,13 +11,13 @@ public class UI_Scoreboard : UI_Base
     protected override void Init() {
         base.Init();
 
-        _player.ScoreboardEvent -= ((trigger) => transform.GetChild(0).gameObject.SetActive(trigger));
-        _player.ScoreboardEvent += ((trigger) => transform.GetChild(0).gameObject.SetActive(trigger));
+        _player.ShowScoreboardEvent -= ((trigger) => transform.GetChild(0).gameObject.SetActive(trigger));
+        _player.ShowScoreboardEvent += ((trigger) => transform.GetChild(0).gameObject.SetActive(trigger));
         Managers.GameManager.EnemyNumberAction += SetEnemyNumber;
         transform.GetChild(0).gameObject.SetActive(false);
     }
 
     private void SetEnemyNumber(int number) {
-        _playerNumber.text = $"PLAYERS ({number + 1})";
+        _playerNumber.text = string.Format(MENT_PLAYERS, (number + 1));
     }
 }

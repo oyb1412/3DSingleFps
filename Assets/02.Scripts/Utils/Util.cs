@@ -7,7 +7,7 @@ using static Define;
 public class Util : MonoBehaviour
 {
     public static void SetLayer(GameObject go, LayerType type) {
-        if( go == null)
+        if(go == null)
             return;
 
         go.layer = (int)type;

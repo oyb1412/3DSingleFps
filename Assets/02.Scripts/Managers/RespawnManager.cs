@@ -4,8 +4,6 @@ using static Define;
 
 public class RespawnManager 
 {
-    private const float WARDHOUSE_ALLOW_RESPAWN_RANGE = 15f;
-    private const float PORT_ALLOW_RESPAWN_RANGE = 20f;
     private Transform _respawnPoint;
     private List<Transform> _respawnList;
     public void Init() {
@@ -44,6 +42,7 @@ public class RespawnManager
             }
         }
 
+        Debug.Log("Vector3.zero ½ºÆù");
         return Vector3.zero;
     }
 

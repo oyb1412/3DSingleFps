@@ -15,7 +15,7 @@ namespace Player {
         protected override void Start() {
             base.Start();
 
-            Player.AimEvent += SetBulletAngle;
+            Player.SetAimEvent += SetBulletAngle;
             VerticalBoundValue = SHOTGUN_VECTICALBOUND_VALUE;
             HorizontalBoundValue = SHOTGUN_HORIZONTALBOUND_VALUE;
             CrossValue = SHOTGUN_CROSSHAIR_VALUE;

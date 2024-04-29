@@ -22,7 +22,7 @@ public class UI_Menu : UI_Base
     protected override void Init() {
         base.Init();
 
-        _player.MenuEvent += ActiveMenuView;
+        _player.ShowMenuEvent += ActiveMenuView;
         _defaultColor = _resumeBtn.targetGraphic.color;
         _defaultScale = _resumeBtn.transform.localScale;
     }

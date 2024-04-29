@@ -31,8 +31,8 @@ public class UI_PlayerInfo : UI_Base
         _player.RespawnEvent -= RespawnEvent;
         _player.RespawnEvent += RespawnEvent;
 
-        _player.KillAndDeadEvent -= KillInfomationEvent;
-        _player.KillAndDeadEvent += KillInfomationEvent;
+        _player.ShowKillAndDeadTextEvent -= KillInfomationEvent;
+        _player.ShowKillAndDeadTextEvent += KillInfomationEvent;
 
         _currentHpText.text = _player.GetCurrentHp.ToString();
         _currentHpBarImage.fillAmount = (float)_player.GetCurrentHp / _player.GetMaxHp;
@@ -52,14 +52,14 @@ public class UI_PlayerInfo : UI_Base
                 text = string.Format(MENT_KILL, name, dir.ToString(), LOGO_HEADSHOT);
             }
             else {
-                text = string.Format(MENT_KILL, name, dir.ToString(), string.Empty);
+                text = string.Format(MENT_KILL, name, dir.ToString(), LOGO_BODYSHOT);
             }
         }
         else {
             if (headShot) {
                 text = string.Format(MENT_DEAD, name, dir.ToString(), LOGO_HEADSHOT);
             } else {
-                text = string.Format(MENT_DEAD, name, dir.ToString(), string.Empty);
+                text = string.Format(MENT_DEAD, name, dir.ToString(), LOGO_BODYSHOT);
             }
         }
         

@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -54,9 +55,9 @@ public class UI_Gameover : UI_Base
         _settingView.SetActive(false);
         _crosshairView.SetActive(false);
         _gameoverView.SetActive(true);
-
+        _playerNumberText.text = string.Format(MENT_PLAYERS, Managers.GameManager.UnitsList.Count);
         Managers.GameManager.UnitSortToRank();
-        _winnerText.text = $"Winner is {Managers.GameManager.UnitsList[0].name.ToString()}";
+        _winnerText.text = string.Format(WINNERLOGO, Managers.GameManager.UnitsList[0].name.ToString());
 
         foreach (var t in Managers.GameManager.BoardChild) {
             t.transform.parent = _scoreBoard;

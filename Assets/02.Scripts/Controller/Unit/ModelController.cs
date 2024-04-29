@@ -8,19 +8,15 @@ public class ModelController : MonoBehaviour
     private GameObject[] _weaponList = new GameObject[(int)WeaponType.Count];
     public Animator Animator => _animator;
     private void Awake() {
+        _animator = GetComponent<Animator>();
     }
     private void Start() {
-        _animator = GetComponent<Animator>();
         _weapons = Util.FindChild(gameObject, NAME_WEAPONS, true);
         _weaponList[(int)WeaponType.Pistol] = Util.FindChild(_weapons, WeaponType.Pistol.ToString(), false);
         _weaponList[(int)WeaponType.Rifle] = Util.FindChild(_weapons, WeaponType.Rifle.ToString(), false);
         _weaponList[(int)WeaponType.Shotgun] = Util.FindChild(_weapons, WeaponType.Shotgun.ToString(), false);
 
-        foreach(var t in _weaponList) {
-            t.SetActive(false);
-        }
-
-        _weaponList[(int)WeaponType.Pistol].SetActive(true);
+        ChangeWeapon(WeaponType.Pistol);
     }
 
     public void ChangeWeapon(WeaponType type) {

@@ -24,6 +24,6 @@ public class EnemyItemChecker : MonoBehaviour
         if (!_enemy.IsDefaultWeapon())
             return;
 
-       _enemy.CollideItem = c.GetComponent<IItem>();
+        _enemy.SetCollideItem(c.GetComponent<IItem>());
     }
 }

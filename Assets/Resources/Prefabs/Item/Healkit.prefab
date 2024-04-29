@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3672614064608431371}
   - component: {fileID: 849879714940300799}
   - component: {fileID: 131550872102877046}
-  m_Layer: 12
+  m_Layer: 0
   m_Name: Medkit_01_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -93,9 +93,10 @@ GameObject:
   m_Component:
   - component: {fileID: 992954484208313568}
   - component: {fileID: 6929058052447827425}
-  - component: {fileID: 5860120409766626560}
   - component: {fileID: 2637938121958417939}
-  m_Layer: 12
+  - component: {fileID: 4625739349260920391}
+  - component: {fileID: -5366863124592413536}
+  m_Layer: 0
   m_Name: Healkit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -111,7 +112,7 @@ Transform:
   m_GameObject: {fileID: 6504023744951387732}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 16.871456, y: 1.0652945, z: -8.229625}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -142,18 +143,6 @@ LODGroup:
     renderers:
     - renderer: {fileID: 5099196577941028644}
   m_Enabled: 1
---- !u!114 &5860120409766626560
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6504023744951387732}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 380a875148dc6a84c868d3a27d06e6ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!135 &2637938121958417939
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -169,12 +158,36 @@ SphereCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
   m_Radius: 0.4
   m_Center: {x: 0, y: 0, z: 0.1}
+--- !u!114 &4625739349260920391
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6504023744951387732}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81540c7f8bed118429d55e34bdb0055a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-5366863124592413536
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6504023744951387732}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c25a679888cafe4991738648a7d7488, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7567976969546579582
 GameObject:
   m_ObjectHideFlags: 0
@@ -186,7 +199,7 @@ GameObject:
   - component: {fileID: 7027823401074818404}
   - component: {fileID: 3076882466407598507}
   - component: {fileID: 5099196577941028644}
-  m_Layer: 12
+  m_Layer: 0
   m_Name: Medkit_01_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -6,7 +6,6 @@ using static Define;
 public class UI_Start : UI_Base
 {
     [SerializeField] private Button _singleBtn;
-    [SerializeField] private Button _multiBtn;
     [SerializeField] private Button _quitBtn;
 
     [SerializeField] private GameObject _startView;
@@ -20,7 +19,6 @@ public class UI_Start : UI_Base
 
     private enum BtnType {
         SingleBG,
-        MultiBG,
         QuitBG
     }
 
@@ -34,7 +32,6 @@ public class UI_Start : UI_Base
         Color color = UI_START_COLOR;
         Vector3 scale = UI_ENTER_SIZE;
         SetColorAndScale(_singleBtn, _name, BtnType.SingleBG.ToString(), color, scale);
-        SetColorAndScale(_multiBtn, _name, BtnType.MultiBG.ToString(), color, scale);
         SetColorAndScale(_quitBtn, _name, BtnType.QuitBG.ToString(), color, scale);
     }
 
@@ -42,7 +39,6 @@ public class UI_Start : UI_Base
         base.OnExitButton(eventData);
 
         SetColorAndScale(_singleBtn, _name, BtnType.SingleBG.ToString(), _defaultColor, _defaultScale);
-        SetColorAndScale(_multiBtn, _name, BtnType.MultiBG.ToString(), _defaultColor, _defaultScale);
         SetColorAndScale(_quitBtn, _name, BtnType.QuitBG.ToString(), _defaultColor, _defaultScale);
 
         _name = string.Empty;
@@ -52,7 +48,6 @@ public class UI_Start : UI_Base
         base.OnPressUpButton();
 
         SetColorAndScale(_singleBtn, _name, BtnType.SingleBG.ToString(), _defaultColor, _defaultScale, GoSettingUI);
-        SetColorAndScale(_multiBtn, _name, BtnType.MultiBG.ToString(), _defaultColor, _defaultScale);
         SetColorAndScale(_quitBtn, _name, BtnType.QuitBG.ToString(), _defaultColor, _defaultScale, ExitGame);
 
         _name = string.Empty;

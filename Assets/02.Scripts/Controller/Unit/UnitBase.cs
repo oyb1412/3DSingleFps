@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using static Define;
+using static UnityEngine.GraphicsBuffer;
 
 public abstract class UnitBase : MonoBehaviour
 {
@@ -28,8 +29,8 @@ public abstract class UnitBase : MonoBehaviour
 
     public UnitState State => _state;
 
-    public Action<int> KillNumberEvent;
-    public Action<int> DeathNumberEvent;
+    public Action<int> ScoreBoardKillNumberPlusEvent;
+    public Action<int> ScoreBoardDeathNumberPlusEvent;
 
     public Transform FirePoint => _firePoint;
 
@@ -83,8 +84,8 @@ public abstract class UnitBase : MonoBehaviour
 
     private void DropWeapon() {
         if (_currentWeapon != _weaponList[(int)WeaponType.Pistol]) {
-            ItemController go = Managers.Resources.Instantiate(BaseWeapon.CreateObject, null).GetComponent<ItemController>();
-            go.transform.position = transform.position + Vector3.up;
+            GameObject weapon = Managers.Resources.Instantiate(BaseWeapon.CreateObject, null);
+            weapon.transform.position = transform.position + Vector3.up;
         }
     }
 
@@ -138,25 +139,30 @@ public abstract class UnitBase : MonoBehaviour
         }
     }
 
+    private void SetScoreBoardKillPluse() {
+        MyKill++;
+        ScoreBoardKillNumberPlusEvent?.Invoke(MyKill);
+    }
+
     protected virtual void IsDeadEvent(Transform attackerTrans, bool headShot) {
-        Invoke("Init", Managers.GameManager.RespawnTime);
+        Invoke("Respawn", Managers.GameManager.RespawnTime);
 
         SetOutline(false);
         _ufx.PlaySfx(UnitSfx.Dead);
         _bodyCollider.enabled = false;
         _headCollider.enabled = false;
         MyDead++;
-        DeathNumberEvent?.Invoke(MyDead);
+
+        ScoreBoardDeathNumberPlusEvent?.Invoke(MyDead);
         ChangeWeapon(WeaponType.Pistol);
         UnitBase target = attackerTrans.GetComponent<UnitBase>();
-        target.MyKill++;
-        target.KillNumberEvent?.Invoke(target.MyKill);
+        target.SetScoreBoardKillPluse();
         Managers.GameManager.BoardSortToRank();
         Model.ResetAnimator();
         ChangeState(UnitState.Dead);
 
-        GameObject kit = Managers.Resources.Instantiate(_healKit, null);
-        kit.transform.position = transform.position + Vector3.up;
+        GameObject healKit = Managers.Resources.Instantiate(_healKit, null);
+        healKit.transform.position = transform.position + Vector3.up;
 
         UI_KillFeed feed = Managers.Resources.Instantiate(_killFeed, Managers.GameManager.KillFeedParent).GetComponent<UI_KillFeed>();
         feed.Init(BaseWeapon.Type, attackerTrans.name, name, Managers.GameManager.KillFeedParent);
@@ -170,32 +176,9 @@ public abstract class UnitBase : MonoBehaviour
         }
 
         if (attackerTrans.TryGetComponent<PlayerController>(out var player)) {
-            player.KillEvent?.Invoke();
-            if(player.IstripleKill) {
-                return;
-            }
-            if(!player.IsKill && !player.IsDoubleKill) {
-                player.IsKill = true;
-                return;
-            }
-            if(player.IsKill && !player.IsDoubleKill) {
-                player.IsKill = false;
-                player.IsDoubleKill = true;
-
-                player.DoubleKillEvent?.Invoke();
-                PersonalSfxController.instance.SetShareSfx(ShareSfx.Dominate);
-                return;
-            }
-            if(!player.IsKill &&  player.IsDoubleKill && !player.IstripleKill) {
-
-                player.IsDoubleKill = false;
-                player.IstripleKill = true;
-                PersonalSfxController.instance.SetShareSfx(ShareSfx.Rampage);
-                player.TripleKillEvent?.Invoke();
-            }
+            player.ContinueKill();
         }
     }
-
 
     public virtual int SetHp(int damage) {
         _currentHp += damage;
@@ -203,7 +186,7 @@ public abstract class UnitBase : MonoBehaviour
         return _currentHp;
     }
 
-    public virtual void Init() {
+    public virtual void Respawn() {
         CollideItem = null;
         SetOutline(true);
         WeaponInit();

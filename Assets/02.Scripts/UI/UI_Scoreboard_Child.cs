@@ -22,8 +22,8 @@ public class UI_Scoreboard_Child : MonoBehaviour
         _deathText.text = $"{0:D2}";
 
         UnitBase = unit;
-        unit.KillNumberEvent += ((kill) => _killText.text = $"{kill:D2}");
-        unit.DeathNumberEvent += ((death) => _deathText.text = $"{death:D2}");
+        unit.ScoreBoardKillNumberPlusEvent += ((kill) => _killText.text = $"{kill:D2}");
+        unit.ScoreBoardDeathNumberPlusEvent += ((death) => _deathText.text = $"{death:D2}");
         _bgImage.color = color;
     }
 

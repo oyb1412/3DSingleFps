@@ -22,22 +22,28 @@ public class UI_GameSystem : UI_Base
 
     protected override void Init() {
         base.Init();
-
-
         _player.DeadEvent -= (() => _deadNumberText.text = _player.MyDead.ToString());
-        _player.KillEvent -= (() => _killNumberText.text = _player.MyKill.ToString());
-        _player.DoubleKillEvent -= (() => StartCoroutine("CoDoubleKill"));
-        _player.TripleKillEvent -= TripleKillEvent;
+        _player.KillEvent -= KillEvent;
 
         _player.DeadEvent += (() => _deadNumberText.text = _player.MyDead.ToString());
-        _player.KillEvent += (() => _killNumberText.text = _player.MyKill.ToString());
-        _player.DoubleKillEvent += (() => StartCoroutine("CoDoubleKill"));
-        _player.TripleKillEvent += TripleKillEvent;
+        _player.KillEvent += KillEvent;
 
         _deadNumberText.text = "0";
         _killNumberText.text = "0";
     }
 
+    private void KillEvent(int continueKillNumber) {
+        _killNumberText.text = _player.MyKill.ToString();
+        switch (continueKillNumber) {
+            case 2:
+                StartCoroutine("CoDoubleKill");
+                break;
+            case 3:
+                StopCoroutine("CoDoubleKill");
+                StartCoroutine("CoTripleKill");
+                break;
+        }
+    }
     
 
     private void Update() {
@@ -45,11 +51,6 @@ public class UI_GameSystem : UI_Base
         int sec = (int)Managers.GameManager.GameTime % 60;
 
         _timeText.text = $"{min:D2}:{sec:D2}";
-    }
-
-    private void TripleKillEvent() {
-        StopCoroutine("CoDoubleKill");
-        StartCoroutine("CoTripleKill");
     }
 
     private void SetWaitUI() {

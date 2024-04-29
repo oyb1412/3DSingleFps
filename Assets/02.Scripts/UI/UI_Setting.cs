@@ -41,7 +41,7 @@ public class UI_Setting : UI_Base
         _outlineDP.onValueChanged.AddListener(SetOutlineColor);
         _crosshairDP.onValueChanged.AddListener(SetCrosshair);
 
-        _player.SettingEvent += ActiveMenuView;
+        _player.ShowSettingEvent += ActiveMenuView;
 
         _defaultColor = _confirmBtn.targetGraphic.color;
         _defaultScale = _confirmBtn.transform.localScale;

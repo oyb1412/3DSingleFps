@@ -6,5 +6,4 @@ public interface IItem {
     abstract void Pickup(UnitBase unit);
 
     public Transform MyTransform { get;  }
-
 }

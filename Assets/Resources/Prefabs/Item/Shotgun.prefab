@@ -92,9 +92,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6221529669062649655}
-  - component: {fileID: 8291172440301590021}
   - component: {fileID: -2073827406858130579}
   - component: {fileID: 2471271576782058123}
+  - component: {fileID: -5448390642602130513}
   m_Layer: 12
   m_Name: Shotgun
   m_TagString: Item
@@ -111,7 +111,7 @@ Transform:
   m_GameObject: {fileID: 1794378940133013190}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -12.610648, y: 1.0652945, z: 16.929089}
   m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -123,18 +123,6 @@ Transform:
   - {fileID: 1871819491163063771}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8291172440301590021
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1794378940133013190}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa100647ddd26264085ef1ea92dcfc63, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &-2073827406858130579
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -168,6 +156,18 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &-5448390642602130513
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1794378940133013190}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa100647ddd26264085ef1ea92dcfc63, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3189414819196151848
 GameObject:
   m_ObjectHideFlags: 0

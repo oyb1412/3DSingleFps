@@ -1,6 +1,5 @@
 using UnityEngine;
 using static Define;
-
 public class BgmController : MonoBehaviour
 {
     public static BgmController instance;
@@ -38,5 +37,4 @@ public class BgmController : MonoBehaviour
             _sources.Play();
         }
     }
-    
 }

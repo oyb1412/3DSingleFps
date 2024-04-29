@@ -20,6 +20,7 @@ public class UI_Base : MonoBehaviour {
         _player = playerController;
     }
 
+
     protected virtual void Init() { }
 
     protected void ExitGame() {

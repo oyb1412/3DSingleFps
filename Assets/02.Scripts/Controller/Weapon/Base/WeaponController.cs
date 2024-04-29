@@ -3,15 +3,6 @@ using static Define;
 
 namespace Base {
     public abstract class WeaponController : MonoBehaviour, IWeapon {
-        public WeaponType Type => _weaponType;
-        public int Damage => _damage;
-        public GameObject CreateObject => _createObject;
-        public int CurrentBullet => _currentBullet;
-        public int RemainBullet => _remainBullet;
-        public int MaxBullet => _maxBullet;
-        public string Name => _name;
-        public Sprite WeaponIcon => _weaponIcon;
-        public float Delay { get; set; }
 
         protected int _currentBullet;
         protected int _remainBullet;
@@ -22,29 +13,32 @@ namespace Base {
         protected string _name;
         protected Sprite _weaponIcon;
         protected GameObject _createObject;
-
         protected bool _isShot = true;
-
         protected Transform _firePos;
         protected int _layerMask;
         protected Transform _firePoint;
         protected UnitBase _unit;
         protected ParticleSystem _ejectEffect;
-
         protected GameObject[] _muzzleEffect;
         protected GameObject _bloodEffect;
         protected GameObject _impactEffect;
-
         private UnitSfxController _sfx;
         protected GameObject _bullet;
-        public Animator Animator { get; private set; }
-        protected abstract void Enable();
 
+        public WeaponType Type => _weaponType;
+        public int Damage => _damage;
+        public GameObject CreateObject => _createObject;
+        public int CurrentBullet => _currentBullet;
+        public int RemainBullet => _remainBullet;
+        public int MaxBullet => _maxBullet;
+        public string Name => _name;
+        public Sprite WeaponIcon => _weaponIcon;
+        public float Delay { get; set; }
+        public Animator Animator { get; private set; }
         public GameObject myObject { get { return gameObject; } }
 
         protected virtual void Awake() {
             Animator = GetComponent<Animator>();
-
             _bullet = (GameObject)Managers.Resources.Load<GameObject>(BULLET_OBJECT_PATH);
             _impactEffect = (GameObject)Managers.Resources.Load<GameObject>(IMPACT_EFFECT_PATH);
             _bloodEffect = (GameObject)Managers.Resources.Load<GameObject>(BLOOD_EFFECT_PATH);
@@ -79,6 +73,8 @@ namespace Base {
             }
         }
 
+        protected abstract void Enable();
+
         public void Activation(Transform firePoint = null, UnitBase unit = null) {
             if (firePoint != null && _firePoint == null) {
                 _firePoint = firePoint;
@@ -110,23 +106,17 @@ namespace Base {
 
         private void HitAttack(RaycastHit hit, UnitBase unit, bool headShot) {
              int damage = headShot ? Damage * HEADSHOT_VALUE : Damage;
-             hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(damage, unit.transform, hit.collider.GetComponentInParent<UnitBase>().transform, true);
-             GameObject blood = CreateEffect(_bloodEffect, hit.point);
+             hit.collider.GetComponentInParent<ITakeDamage>().TakeDamage(damage, unit.transform, hit.collider.GetComponentInParent<UnitBase>().transform, headShot);
+             GameObject blood = CreateEffect(_bloodEffect, hit.point, Vector3.zero);
              blood.transform.LookAt(_firePoint.position);
              if (unit.TryGetComponent<PlayerController>(out var player)) {
-
-                if (headShot)
-                    player.HeadshotEvent.Invoke();
-                else
-                    player.BodyshotEvent.Invoke();
-
+                player.HurtShot(headShot);
             }
             Managers.Instance.DestoryCoroutine(blood, EFFECT_DESTORY_TIME);
         }
 
         private void HitObstacle(RaycastHit hit, Vector3 rot) {
-            GameObject impact = CreateEffect(_impactEffect, hit.point);
-            impact.transform.eulerAngles = rot;
+            GameObject impact = CreateEffect(_impactEffect, hit.point, rot);
             impact.transform.LookAt(_firePoint.position);
             Managers.Instance.DestoryCoroutine(impact, EFFECT_DESTORY_TIME);
         }
@@ -163,10 +153,10 @@ namespace Base {
             _ejectEffect.Play();
         }
 
-        protected GameObject CreateEffect(GameObject go, Vector3 pos, Quaternion rot = default ) {
+        protected GameObject CreateEffect(GameObject go, Vector3 pos, Vector3 rot) {
             GameObject effect = Managers.Resources.Instantiate(go, null);
             effect.transform.position = pos;
-            effect.transform.rotation = rot;
+            effect.transform.eulerAngles = rot;
             return effect;
         }
 
