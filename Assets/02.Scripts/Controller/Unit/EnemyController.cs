@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using static Define;
 public class EnemyController : UnitBase, ITakeDamage {
-
+    private EnemyStateMachine _stateMachine;
     private NavMeshAgent _agent;
     private Collider _collider;
     private bool _isTraceItem;
@@ -27,61 +27,64 @@ public class EnemyController : UnitBase, ITakeDamage {
     }
 
     private void Start() {
+        _stateMachine = new EnemyStateMachine(this);
+    }
+
+    public void EnemyStart() {
         Invoke("StartMove", Managers.GameManager.WaitTime);
     }
 
     private void StartMove() {
         _agent.enabled = true;
+        _stateMachine.ChangeState(EnemyState.Patrol);
+    }
+
+    public void SearchUnit(bool trigger) {
+        _isShotState = trigger;
+    }
+
+    public void StartPatrol() {
+        TargetUnit = null;
+        _isShotState = false;
         StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
     }
 
-    private void Patrol() {
-        if (!Managers.GameManager.InGame())
-            return;
-
-        if (State == UnitState.Dead)
-            return;
-
+    public void Patrol() {
         if (!TargetUnit && SearchUnit()) {
             TargetUnit = SearchUnit();
-            _isShotState = true;
+            _stateMachine.ChangeState(EnemyState.Search);
         }
 
         if (TargetUnit && !TargetUnit.IsDead() && SearchUnit()) {
-            _isShotState = true;
+            _stateMachine.ChangeState(EnemyState.Search);
         }
+    }
 
-        if (TargetUnit && TargetUnit.IsDead()) {
-            TargetUnit = null;
-            _isShotState = false;
-            StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
-            return;
-        }
-
-        if (TargetUnit && !SearchUnit()) {
-            TargetUnit = null;
-            _isShotState = false;
-            StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
-            return;
-        }
-
+    public void Attack() {
         if (_isShotState) {
-            if (!TargetUnit || TargetUnit.IsDead()) {
-                _isShotState = false;
-                StartCoroutine(CoMove(Managers.RespawnManager.GetRandomPosition()));
-                return;
-            }
             if (_state != UnitState.Reload) {
                 if (_currentWeapon.TryShot(this)) {
                     _agent.SetDestination(transform.position);
                     ChangeState(UnitState.Shot);
                 }
             }
+            if (!TargetUnit || TargetUnit.IsDead()) {
+                _stateMachine.ChangeState(EnemyState.Patrol);
+                return;
+            }
+            if (TargetUnit && TargetUnit.IsDead()) {
+                _stateMachine.ChangeState(EnemyState.Patrol);
+                return;
+            }
+            if (TargetUnit && !SearchUnit()) {
+                _stateMachine.ChangeState(EnemyState.Patrol);
+                return;
+            }
         }
     }
 
     private void Update() {
-        Patrol();
+        _stateMachine.Update();
     }
 
     private UnitBase SearchUnit() {

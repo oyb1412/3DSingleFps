@@ -217,6 +217,13 @@ public class Define
         Setting,
         Gameover,
     }
+
+    public enum EnemyState {
+        None,
+        Idle,
+        Patrol,
+        Search,
+    }
     public enum LayerType {
         Ground = 6,
         Player = 9,
