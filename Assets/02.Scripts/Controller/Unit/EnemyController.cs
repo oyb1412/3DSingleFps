@@ -170,7 +170,7 @@ public class EnemyController : UnitBase, ITakeDamage {
 
     protected override void IsDeadEvent(Transform attackerTrans, bool headShot) {
         if (attackerTrans.TryGetComponent<PlayerController>(out var player)) {
-            PersonalSfxController.instance.SetShareSfx(ShareSfx.KillSound);
+            PersonalSfxController.instance.SetPersonalSfx(PersonalSfx.KillSound);
             DirType dir = Util.DirectionCalculation(attackerTrans, transform);
             player.ShowKillAndDeadText(dir, name, true, headShot);
         }

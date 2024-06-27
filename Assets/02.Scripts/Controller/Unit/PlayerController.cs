@@ -359,7 +359,7 @@ public class PlayerController : UnitBase, ITakeDamage
     protected override void IsHitEvent(int damage, Transform attackerTrans, Transform myTrans) {
         HpEvent?.Invoke(_currentHp, _maxHp, damage);
         HurtEvent?.Invoke(attackerTrans, myTrans);
-        PersonalSfxController.instance.SetShareSfx(ShareSfx.Hurt);
+        PersonalSfxController.instance.SetPersonalSfx(PersonalSfx.Hurt);
     }
 
     public override int SetHp(int damage) {
@@ -531,14 +531,14 @@ public class PlayerController : UnitBase, ITakeDamage
         if (IsKill && !IsDoubleKill) {
             IsDoubleKill = true;
             IsKill = false;
-            PersonalSfxController.instance.SetShareSfx(ShareSfx.Dominate);
+            PersonalSfxController.instance.SetPersonalSfx(PersonalSfx.Dominate);
             KillEvent?.Invoke(2);
             return;
         }
         if (!IsKill && IsDoubleKill && !IstripleKill) {
             IsDoubleKill = false;
             IstripleKill = true;
-            PersonalSfxController.instance.SetShareSfx(ShareSfx.Rampage);
+            PersonalSfxController.instance.SetPersonalSfx(PersonalSfx.Rampage);
             KillEvent?.Invoke(3);
         }
     }

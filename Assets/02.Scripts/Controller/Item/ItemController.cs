@@ -16,6 +16,4 @@ public abstract class ItemController : MonoBehaviour, IItem {
 
         transform.Rotate(0f, ITEM_ROTATE_SPEED, 0f);
     }
-
- 
 }

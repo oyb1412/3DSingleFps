@@ -6,14 +6,16 @@ using static Define;
 
 public class GameManager
 {
+    public Action<int> EnemyNumberAction;
+
+    public Action<float> VolumeEvent;
     private float _doNextStateTime;
     private Transform _scoreBoardTransform;
     private List<UnitBase> _units = new List<UnitBase>();
     public Action WaitStateEvent;
     public Action FightStateEvent;
     public Action GameoverAction;
-    public Action<int> EnemyNumberAction;
-    public Action<float> VolumeEvent;
+
 
     public float GameTime { get; private set; }
     public float RespawnTime { get; private set; }
@@ -162,7 +164,7 @@ public class GameManager
                 Time.timeScale = 0f;
                 Cursor.lockState = CursorLockMode.Confined;
                 BgmController.instance.SetBgm(Bgm.Ingame, false);
-                PersonalSfxController.instance.SetShareSfx(ShareSfx.Gameover);
+                PersonalSfxController.instance.SetPersonalSfx(PersonalSfx.Gameover);
                 break;
             case GameState.Menu:
             case GameState.Setting:

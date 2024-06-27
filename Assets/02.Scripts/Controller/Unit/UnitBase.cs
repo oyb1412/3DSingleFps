@@ -1,10 +1,11 @@
 using System;
 using UnityEngine;
 using static Define;
-using static UnityEngine.GraphicsBuffer;
 
 public abstract class UnitBase : MonoBehaviour
 {
+    protected IWeapon _currentWeapon;
+
     private GameObject _healKit;
     private GameObject _killFeed;
     protected GameObject _weapons;
@@ -15,7 +16,6 @@ public abstract class UnitBase : MonoBehaviour
     [SerializeField] protected Collider _bodyCollider;
     [SerializeField] protected Collider _headCollider;
 
-    protected IWeapon _currentWeapon;
     protected IWeapon[] _weaponList = new IWeapon[(int)WeaponType.Count];
     [SerializeField]protected UnitState _state = UnitState.Idle;
     protected UnitSfxController _ufx;

@@ -29,7 +29,7 @@ public class BgmController : MonoBehaviour
         _sources.spatialBlend = 0.0f;
     }
 
-    public void SetBgm(Define.Bgm type, bool trigger) {
+    public void SetBgm(Bgm type, bool trigger) {
         _sources.Stop();
 
         if (trigger) {

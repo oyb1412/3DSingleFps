@@ -28,11 +28,11 @@ public class UI_SystemSetting : UI_Base
         _defaultColor = _startBtn.targetGraphic.color;
         _defaultScale = _startBtn.transform.localScale;
 
-        _enemyNumberDP.onValueChanged.AddListener((value) => PersonalSfxController.instance.SetShareSfx(Define.ShareSfx.Button));
-        _enemyLevelDP.onValueChanged.AddListener((value) => PersonalSfxController.instance.SetShareSfx(Define.ShareSfx.Button));
-        _timeLimitDP.onValueChanged.AddListener((value) => PersonalSfxController.instance.SetShareSfx(Define.ShareSfx.Button));
-        _respawnTimeDP.onValueChanged.AddListener((value) => PersonalSfxController.instance.SetShareSfx(Define.ShareSfx.Button));
-        _killLimitDP.onValueChanged.AddListener((value) => PersonalSfxController.instance.SetShareSfx(Define.ShareSfx.Button));
+        _enemyNumberDP.onValueChanged.AddListener((value) => PersonalSfxController.instance.SetPersonalSfx(Define.PersonalSfx.Button));
+        _enemyLevelDP.onValueChanged.AddListener((value) => PersonalSfxController.instance.SetPersonalSfx(Define.PersonalSfx.Button));
+        _timeLimitDP.onValueChanged.AddListener((value) => PersonalSfxController.instance.SetPersonalSfx(Define.PersonalSfx.Button));
+        _respawnTimeDP.onValueChanged.AddListener((value) => PersonalSfxController.instance.SetPersonalSfx(Define.PersonalSfx.Button));
+        _killLimitDP.onValueChanged.AddListener((value) => PersonalSfxController.instance.SetPersonalSfx(Define.PersonalSfx.Button));
 
         _selectMapDP.onValueChanged.AddListener(SelectMap);
     }

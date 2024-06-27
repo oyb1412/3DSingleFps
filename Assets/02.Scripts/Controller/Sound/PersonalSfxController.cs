@@ -15,7 +15,7 @@ public class PersonalSfxController : MonoBehaviour
         else {
             Destroy(gameObject);
         }
-        ShareSfxInit();
+        PersonalSfxInit();
     }
 
     public void ChangeVolume(float volume) {
@@ -24,7 +24,7 @@ public class PersonalSfxController : MonoBehaviour
         }
     }
 
-    protected void ShareSfxInit() {
+    protected void PersonalSfxInit() {
         GameObject sfxObject = new GameObject(NAME_SFXPLAYER); 
         sfxObject.transform.parent = transform;
         sfxObject.transform.position = transform.position;
@@ -38,7 +38,7 @@ public class PersonalSfxController : MonoBehaviour
             _audioSource[i].loop = false;
         }
     }
-    public void SetShareSfx(ShareSfx type) {
+    public void SetPersonalSfx(PersonalSfx type) {
         for (int i = 0; i < _audioSource.Length; i++) {
             if (_audioSource[i].isPlaying)  
                 continue;

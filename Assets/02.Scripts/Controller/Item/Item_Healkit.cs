@@ -14,7 +14,7 @@ public class Item_Healkit : ItemController
         unit.SetHp(HEALKIT_VALUE);
 
         if(unit is PlayerController)
-            PersonalSfxController.instance.SetShareSfx(ShareSfx.Medikit);
+            PersonalSfxController.instance.SetPersonalSfx(PersonalSfx.Medikit);
 
         base.Pickup(unit);
     }

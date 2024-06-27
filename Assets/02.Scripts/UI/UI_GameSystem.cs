@@ -82,15 +82,15 @@ public class UI_GameSystem : UI_Base
         while (true) {
             if (_count[2] == false && Managers.GameManager.WaitTime < 3) {
                 _count[2] = true;
-                PersonalSfxController.instance.SetShareSfx(Define.ShareSfx.Three);
+                PersonalSfxController.instance.SetPersonalSfx(Define.PersonalSfx.Three);
             }
             if (_count[1] == false && Managers.GameManager.WaitTime < 2) {
                 _count[1] = true;
-                PersonalSfxController.instance.SetShareSfx(Define.ShareSfx.Two);
+                PersonalSfxController.instance.SetPersonalSfx(Define.PersonalSfx.Two);
             }
             if (_count[0] == false && Managers.GameManager.WaitTime < 1) {
                 _count[0] = true;
-                PersonalSfxController.instance.SetShareSfx(Define.ShareSfx.One);
+                PersonalSfxController.instance.SetPersonalSfx(Define.PersonalSfx.One);
             }
             _waitTimeText.text = (Mathf.CeilToInt(Managers.GameManager.WaitTime)).ToString();
             if(Managers.GameManager.InGame()) {
@@ -103,7 +103,7 @@ public class UI_GameSystem : UI_Base
     }
         
     private IEnumerator CoStartUI() {
-        PersonalSfxController.instance.SetShareSfx(Define.ShareSfx.Fight);
+        PersonalSfxController.instance.SetPersonalSfx(Define.PersonalSfx.Fight);
         _gameStateText.gameObject.SetActive(true);
         _gameStateText.text = LOGO_START;
         float alpha = 1f;

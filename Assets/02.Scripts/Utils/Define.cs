@@ -59,7 +59,7 @@ public class Define
     public static readonly string[] WAREHOUSE_OPTIONS = new string[] { "5", "6", "7", "8" };
     public static readonly string[] PORT_OPTIONS = new string[] { "8", "9", "10", "11" };
 
-    public static readonly string[] ENEMY_NAME = { "James", "Aaron", "Peyton", "London", "Daniel", "Aiden", "Jackson", "Lucas", "Samuel", "Luke" };
+    public static readonly string[] ENEMY_NAME = { "James", "Aaron", "Peyton", "London", "Daniel", "Aiden", "Jackson", "Lucas", "Samuel", "Luke", "Kim" };
 
     public static readonly string UI_PATH = "UI/@UI";
 
@@ -325,7 +325,7 @@ public class Define
         Count,
     }
 
-    public enum ShareSfx {
+    public enum PersonalSfx {
         Dominate,
         Rampage,
         Three,
