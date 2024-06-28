@@ -24,6 +24,8 @@
 
    -엔진 : Unity Engine
 
+   -데이터베이스 : 로컬
+
    -개발 환경: Windows 10, Unity 2021.3.10f1
 
 
